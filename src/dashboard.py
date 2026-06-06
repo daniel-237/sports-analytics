@@ -148,43 +148,75 @@ elif page == "🔮 Match Predictor":
 
 # ── TEAM STATS PAGE ───────────────────────────────
 elif page == "👤 Player Stats":
-    st.title("📊 Team Performance Stats")
+    st.title("👤 Player Statistics")
+    st.markdown("### Premier League 2023/24 Season")
 
-    league_filter = st.selectbox("Select League", 
-                                  ["All"] + list(df["league"].unique()))
-    
-    if league_filter != "All":
-        filtered_df = df[df["league"] == league_filter]
-    else:
-        filtered_df = df
+    # Load player data
+    try:
+        players = pd.read_csv("data/processed/player_stats.csv")
+    except:
+        st.error("Run player_stats.py first to fetch player data!")
+        st.stop()
 
-    teams = sorted(filtered_df["home_team"].unique())
-    selected_team = st.selectbox("Select Team", teams)
-
-    team_home = filtered_df[filtered_df["home_team"] == selected_team]
-    team_away = filtered_df[filtered_df["away_team"] == selected_team]
-
+    # Top metrics
     col1, col2, col3, col4 = st.columns(4)
-    total_games = len(team_home) + len(team_away)
-    home_wins = len(team_home[team_home["result"] == 1])
-    away_wins = len(team_away[team_away["result"] == -1])
-    total_goals = team_home["home_goals"].sum() + team_away["away_goals"].sum()
+    col1.metric("Players", len(players))
+    col2.metric("Total Goals", int(players["goals"].sum()))
+    col3.metric("Total Assists", int(players["assists"].fillna(0).sum()))
+    col4.metric("Avg Rating", f"{players['rating'].astype(float).mean():.2f}")
 
-    col1.metric("Total Games", total_games)
-    col2.metric("Home Wins", home_wins)
-    col3.metric("Away Wins", away_wins)
-    col4.metric("Goals Scored", int(total_goals))
+    st.divider()
 
-    # Goals per season
-    st.subheader(f"{selected_team} — Goals Per Season")
-    home_goals = team_home.groupby("season")["home_goals"].sum()
-    away_goals = team_away.groupby("season")["away_goals"].sum()
-    goals_combined = (home_goals.add(away_goals, fill_value=0)).reset_index()
-    goals_combined.columns = ["season", "goals"]
+    # Search for a player
+    search = st.text_input("🔍 Search Player", "")
+    if search:
+        filtered = players[players["name"].str.contains(
+            search, case=False, na=False)]
+    else:
+        filtered = players
 
-    fig = px.bar(goals_combined, x="season", y="goals",
-                 labels={"goals": "Goals", "season": "Season"})
+    # Top scorers bar chart
+    st.subheader("⚽ Top Scorers")
+    top = filtered.nlargest(10, "goals")
+    fig = px.bar(
+        top, x="name", y="goals",
+        color="team",
+        labels={"name": "Player", "goals": "Goals"},
+        text="goals"
+    )
+    fig.update_traces(textposition="outside")
     st.plotly_chart(fig, use_container_width=True)
+
+    # Two columns
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("🎯 Top Assisters")
+        top_assists = filtered.nlargest(10, "assists")[
+            ["name", "team", "assists"]]
+        st.dataframe(top_assists, use_container_width=True)
+
+    with col2:
+        st.subheader("🟨 Most Booked Players")
+        players["total_cards"] = (
+            players["yellow_cards"].fillna(0) + 
+            players["red_cards"].fillna(0)
+        )
+        top_cards = players.nlargest(10, "total_cards")[
+            ["name", "team", "yellow_cards", "red_cards"]]
+        st.dataframe(top_cards, use_container_width=True)
+
+    # Full player table
+    st.subheader("📊 Full Player Stats Table")
+    st.dataframe(
+        filtered[[
+            "name", "team", "goals", "assists",
+            "appearances", "minutes",
+            "yellow_cards", "red_cards",
+            "shots_on_target", "rating"
+        ]].sort_values("goals", ascending=False),
+        use_container_width=True
+    )
 
 # ── TRANSFER ANALYSIS PAGE ────────────────────────
 elif page == "💰 Transfer Analysis":
