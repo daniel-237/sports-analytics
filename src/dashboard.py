@@ -4,6 +4,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import joblib
 import numpy as np
+import json
 
 # ── PAGE CONFIG ───────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -162,6 +163,7 @@ page = st.sidebar.radio("", [
     "⚔️  Player Comparison",
     "🏟️  Team Analysis",
     "💰  Transfer Analysis",
+    "📈  Model Performance",   
 ])
 
 st.sidebar.markdown("""
@@ -724,3 +726,178 @@ elif page == "💰  Transfer Analysis":
             ts.nsmallest(10,"defence")[["team","attack","defence"]]
               .style.format({"attack":"{:.2f}","defence":"{:.2f}"}),
             use_container_width=True)
+        # ═══════════════════════════════════════════════════════════════════════════════
+# MODEL PERFORMANCE
+# ═══════════════════════════════════════════════════════════════════════════════
+elif page == "📈  Model Performance":
+    st.markdown("# Model Performance")
+    st.markdown("Comparing machine learning models trained on 30 years of football data.")
+    st.divider()
+
+    # Load metrics
+    try:
+        with open("models/metrics.json", "r") as f:
+            metrics = json.load(f)
+    except FileNotFoundError:
+        st.error("Run model.py first to generate metrics.")
+        st.stop()
+
+    results    = metrics["model_results"]
+    baseline   = metrics["baseline_accuracy"]
+    importance = metrics["feature_importance"]
+    xgb        = results["XGBoost"]
+
+    # Insight cards
+    best_model = max(results, key=lambda x: results[x]["accuracy"])
+    best_acc   = results[best_model]["accuracy"]
+    insight_card("🏆", f"<b>{best_model}</b> is the best performing model with <b>{best_acc:.1%}</b> accuracy — beating the <b>{baseline:.1%}</b> baseline.")
+    insight_card("📊", f"The model struggles most with <b>draws</b> — the hardest outcome to predict in football.")
+
+    st.divider()
+
+    # Top metrics for XGBoost
+    st.subheader("XGBoost — Best Model")
+    c1, c2, c3, c4, c5 = st.columns(5)
+    c1.metric("Accuracy",      f"{xgb['accuracy']:.1%}")
+    c2.metric("Baseline",      f"{baseline:.1%}")
+    c3.metric("Precision",     f"{xgb['precision']:.1%}")
+    c4.metric("Recall",        f"{xgb['recall']:.1%}")
+    c5.metric("F1 Score",      f"{xgb['f1']:.1%}")
+
+    st.divider()
+
+    # Model comparison chart
+    st.subheader("Model Comparison")
+    model_names = ["Baseline"] + list(results.keys())
+    accuracies  = [baseline] + [results[m]["accuracy"] for m in results]
+    f1_scores   = [0] + [results[m]["f1"] for m in results]
+
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        name="Accuracy", x=model_names, y=accuracies,
+        marker=dict(color=["#6e6e73","#ff9f0a","#34c759","#0071e3"],
+                    line=dict(width=0)),
+        text=[f"{v:.1%}" for v in accuracies],
+        textposition="outside",
+        textfont=dict(size=12)
+    ))
+    fig.add_trace(go.Bar(
+        name="F1 Score", x=model_names, y=f1_scores,
+        marker=dict(color=["rgba(0,0,0,0)","#ffcc00","#30b0c7","#bf5af2"],
+                    line=dict(width=0)),
+        text=[f"{v:.1%}" if v > 0 else "" for v in f1_scores],
+        textposition="outside",
+        textfont=dict(size=12)
+    ))
+    fig.update_layout(
+    paper_bgcolor="rgba(0,0,0,0)",
+    plot_bgcolor="rgba(0,0,0,0)",
+    font=dict(family="-apple-system", color="#1d1d1f"),
+    xaxis=dict(showgrid=False, zeroline=False,
+               tickfont=dict(size=12, color="#6e6e73")),
+    yaxis=dict(tickformat=".0%", showgrid=True,
+               gridcolor="#f0f0f5", zeroline=False,
+               tickfont=dict(size=12, color="#6e6e73")),
+    margin=dict(l=0, r=0, t=24, b=0),
+    barmode="group",
+    legend=dict(orientation="h", y=-0.15)
+)
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.divider()
+
+    # Confusion matrix
+    st.subheader("Confusion Matrix — XGBoost")
+    st.caption("Shows what the model predicted vs what actually happened.")
+    cm = np.array(xgb["confusion_matrix"])
+    labels = ["Away Win", "Draw", "Home Win"]
+    fig = px.imshow(
+        cm, x=labels, y=labels,
+        color_continuous_scale=[[0,"#f5f5f7"],[1,"#0071e3"]],
+        labels=dict(x="Predicted", y="Actual", color="Count"),
+        text_auto=True
+    )
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(family="-apple-system", color="#1d1d1f"),
+        margin=dict(l=0, r=0, t=24, b=0),
+        coloraxis_showscale=False
+    )
+    fig.update_traces(textfont=dict(size=14, color="#1d1d1f"))
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.divider()
+
+    # Feature importance
+    st.subheader("Feature Importance")
+    st.caption("Which features influence the model's predictions most.")
+    feat_names = list(importance.keys())
+    feat_vals  = list(importance.values())
+    sorted_pairs = sorted(zip(feat_vals, feat_names), reverse=True)
+    feat_vals, feat_names = zip(*sorted_pairs)
+
+    fig = go.Figure(go.Bar(
+        x=list(feat_vals), y=list(feat_names),
+        orientation="h",
+        marker=dict(color="#0071e3", line=dict(width=0)),
+        text=[f"{v:.3f}" for v in feat_vals],
+        textposition="outside",
+        textfont=dict(size=12, color="#1d1d1f"),
+        hovertemplate="%{y}: %{x:.3f}<extra></extra>"
+    ))
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(family="-apple-system", color="#1d1d1f"),
+        xaxis=dict(showgrid=True, gridcolor="#f0f0f5", zeroline=False,
+                   tickfont=dict(size=12, color="#6e6e73")),
+        yaxis=dict(showgrid=False, zeroline=False,
+                   tickfont=dict(size=13, color="#1d1d1f")),
+        margin=dict(l=0, r=60, t=24, b=0),
+        height=350
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.divider()
+
+    # Per class performance
+    st.subheader("Performance By Outcome")
+    st.caption("The model is best at predicting Home Wins and struggles most with Draws.")
+    report = xgb["classification_report"]
+    perf_data = []
+    for outcome in ["Away Win", "Draw", "Home Win"]:
+        if outcome in report:
+            perf_data.append({
+                "Outcome":   outcome,
+                "Precision": f"{report[outcome]['precision']:.1%}",
+                "Recall":    f"{report[outcome]['recall']:.1%}",
+                "F1 Score":  f"{report[outcome]['f1-score']:.1%}",
+                "Support":   int(report[outcome]['support'])
+            })
+    st.dataframe(pd.DataFrame(perf_data),
+                 use_container_width=True, hide_index=True)
+
+    st.divider()
+
+    # Why XGBoost
+    st.subheader("Why XGBoost?")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("""
+        **Advantages over other models:**
+        - Handles non-linear relationships between features
+        - Robust to outliers and missing values
+        - Built-in regularisation prevents overfitting
+        - Faster training than Random Forest
+        - Industry standard for tabular sports prediction
+        """)
+    with col2:
+        st.markdown("""
+        **Why not 100% accuracy?**
+        - Football has 3 outcomes — random baseline is 33%
+        - Even professional betting models sit at 60-65%
+        - Injuries, tactics, and luck are not in the data
+        - Draws are nearly impossible to predict reliably
+        - Our model beats the baseline by 11 percentage points
+        """)
