@@ -376,7 +376,7 @@ elif page == "🔮  Match Predictor":
 # ═══════════════════════════════════════════════════════════════════════════════
 elif page == "👤  Player Stats":
     st.markdown("# Player Statistics")
-    st.markdown("Premier League 2023/24 season.")
+    st.markdown("Premier League, Championship, League One and League Two — 2022 to 2024.")
     st.divider()
 
     if players is None:
@@ -393,7 +393,7 @@ elif page == "👤  Player Stats":
 
     # ── FILTERS ───────────────────────────────────────────────────────────────
     st.subheader("Filters")
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
         positions  = ["All"] + sorted(players["position"].dropna().unique().tolist())
         pos_filter = st.selectbox("Position", positions)
@@ -401,15 +401,19 @@ elif page == "👤  Player Stats":
         teams_list  = ["All"] + sorted(players["team"].unique().tolist())
         team_filter = st.selectbox("Team", teams_list)
     with col3:
-        min_mins = st.number_input("Min Minutes", min_value=0,
-                                    max_value=3000, value=0, step=90)
+        seasons_list  = ["All"] + sorted(players["season"].unique().tolist(), reverse=True)
+        season_filter = st.selectbox("Season", seasons_list)
     with col4:
-        stat_view = st.selectbox("Stat View", ["Raw Totals", "Per 90"])
+        min_mins = st.number_input("Min Minutes", min_value=0,
+                                max_value=3000, value=0, step=90)
+        with col5:
+            stat_view = st.selectbox("Stat View", ["Raw Totals", "Per 90"])
 
     # Apply filters
     filtered = players.copy()
-    if pos_filter  != "All": filtered = filtered[filtered["position"] == pos_filter]
-    if team_filter != "All": filtered = filtered[filtered["team"] == team_filter]
+    if pos_filter    != "All": filtered = filtered[filtered["position"] == pos_filter]
+    if team_filter   != "All": filtered = filtered[filtered["team"]     == team_filter]
+    if season_filter != "All": filtered = filtered[filtered["season"]   == season_filter]
     filtered = filtered[filtered["minutes"] >= min_mins]
 
     search = st.text_input("🔍 Search player", placeholder="e.g. Salah, Haaland…")

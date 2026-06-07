@@ -1,61 +1,721 @@
-id,name,age,nationality,position,team,appearances,minutes,goals,assists,shots_total,shots_on_target,passes_total,pass_accuracy,dribbles,tackles,interceptions,yellow_cards,red_cards,rating,duels_won
-54,Diego Costa,37,Spain,Attacker,Wolves,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-178,Lucas Moura,33,Brazil,Attacker,Tottenham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-297,A. Oxlade-Chamberlain,32,England,Midfielder,Liverpool,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-888,P. Jones,31,England,Defender,Manchester United,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-900,J. Lingard,33,England,Midfielder,Nottingham Forest,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-2473,M. Lanzini,32,Argentina,Midfielder,West Ham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-2677,João Moutinho,39,Portugal,Midfielder,Wolves,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-18753,Adama Traoré,29,Spain,Attacker,Wolves,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-18762,T. Davies,27,England,Midfielder,Everton,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-18849,J. McArthur,36,Scotland,Midfielder,Crystal Palace,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-18852,L. Milivojević,34,Serbia,Midfielder,Crystal Palace,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-18854,A. Townsend,34,England,Forward,Everton,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-18858,A. Begović,38,Bosnia and Herzegovina,Goalkeeper,Everton,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-18878,J. Stanislas,34,England,Midfielder,Bournemouth,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-18891,C. Clark,35,Republic of Ireland,Defender,Sheffield Utd,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-19174,J. Steer,33,England,Goalkeeper,Aston Villa,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-19299,J. Colback,36,England,Midfielder,Nottingham Forest,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-19842,L. Taylor,35,Montserrat,Attacker,Nottingham Forest,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-130419,M. Longstaff,25,England,Midfielder,Newcastle,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-181822,E. Wady,21,USA,Goalkeeper,Chelsea,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-84,Wesley Moraes,29,Brazil,Attacker,Aston Villa,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-285,K. Hoever,23,Netherlands,Defender,Wolves,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-378,Alex Telles,33,Brazil,Defender,Manchester United,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-882,David de Gea,35,Spain,Goalkeeper,Manchester United,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-1914,M. Sanson,31,France,Midfielder,Aston Villa,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-18747,R. Giles,25,England,Defender,Wolves,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-27778,B. Bolla,26,Hungary,Defender,Wolves,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-138934,A. Pressley,24,Scotland,Attacker,Brentford,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-140947,I. Kaboré,24,Burkina Faso,Defender,Manchester City,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-152980,Remmi Eugene Savage,24,England,Defender,Newcastle,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-153434,W. Fish,22,England,Defender,Manchester United,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-162189,M. Bidstrup,24,Denmark,Midfielder,Brentford,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-197448,Yan Couto,23,Brazil,Defender,Manchester City,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-278075,C. Cîrjan,23,Romania,Midfielder,Arsenal,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-278088,C. Rushworth,24,England,Goalkeeper,Brighton,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-284062,K. Edwards,22,England,Attacker,Arsenal,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-284248,M. Frauendorf,21,Germany,Midfielder,Liverpool,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-284446,F. Potts,22,England,Midfielder,West Ham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-284466,C. Patino,22,England,Midfielder,Arsenal,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-291022,Joshua Keeley,22,Republic of Ireland,Goalkeeper,Tottenham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-2276,J. Cumming,26,England,Goalkeeper,Chelsea,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-18751,Ivan Cavaleiro,32,Portugal,Forward,Fulham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-64167,G. Słonina,21,USA,Goalkeeper,Chelsea,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-138777,F. Anjorin,24,England,Midfielder,Chelsea,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-162590,T. Morton,23,England,Midfielder,Liverpool,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-278086,I. Odutayo,23,England,Defender,Fulham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-282130,Logan Pye,22,England,Defender,Manchester United,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-284305,Jamie Miley,21,England,Midfielder,Newcastle,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-284471,S. Parkes,21,England,Defender,Fulham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-284559,Alexander Paul Borto,22,USA,Goalkeeper,Fulham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-288055,Ângelo,21,Brazil,Attacker,Chelsea,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-298129,M. Boateng,23,England,Midfielder,Crystal Palace,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-303016,M. Oyedele,21,Poland,Midfielder,Manchester United,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-327728,Delano McCoy-Splatt\t,21,Jamaica,Midfielder,Fulham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-330636,Sonny Aljofree,21,England,Defender,Manchester United,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-359386,M. Godo,22,England,Attacker,Fulham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-363974,Z. Marsh,20,England,Attacker,Crystal Palace,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-378981,Elyh Harrison,19,England,Goalkeeper,Manchester United,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-384981,S. Amissah,18,England,Defender,Fulham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-404021,F. Marjoram,19,England,Midfielder,Crystal Palace,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+id,name,age,nationality,position,team,league,season,appearances,minutes,goals,assists,shots_total,shots_on_target,passes_total,pass_accuracy,dribbles,tackles,interceptions,yellow_cards,red_cards,rating,duels_won,mins_safe,goals_p90,assists_p90,shots_p90,sot_p90,tackles_p90,interc_p90,contrib_p90,cards_p90
+623,B. Mendy,31.0,France,Defender,Manchester City,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+630,F. Delph,33.0,England,Midfielder,Everton,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+883,Lee Grant,39.0,England,Goalkeeper,Manchester United,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+2281,Gary Cahill,37.0,England,Defender,Bournemouth,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+2288,Daniel Noel Drinkwater,32.0,England,Midfielder,Chelsea,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18826,Mark Noble,35.0,England,Midfielder,West Ham,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+158696,F. Burns,22.0,England,Defender,Manchester City,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+162517,L. Dendoncker,21.0,Belgium,Defender,Brighton,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+283289,A. Raikhy,23.0,England,Midfielder,Aston Villa,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284247,H. Blair,22.0,England,Attacker,Liverpool,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284464,M. Cadogan,21.0,England,Attacker,Crystal Palace,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+288115,James Storer,21.0,England,Goalkeeper,Wolves,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+291022,Joshua Keeley,22.0,Republic of Ireland,Goalkeeper,Tottenham,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+293162,J. Raymond,22.0,England,Midfielder,Crystal Palace,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+293167,J. Sheridan,22.0,England,Defender,Crystal Palace,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+305732,T. Wilson-Brown,21.0,England,Defender,Leicester,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+328101,T. Fredricson,20.0,England,Defender,Manchester United,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+344908,M. Vigor,21.0,England,Midfielder,Crystal Palace,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+350590,T. Gidaree,20.0,England,Defender,Bournemouth,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+350627,J. Addae,0.0,England,Defender,Crystal Palace,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+889,V. Lindelöf,31.0,Sweden,Defender,Manchester United,Premier League,2022,20,1360,0,0,3,0,927,45,2,22,21,1,0,6.82,61,1360.0,0.0,0.0,0.2,0.0,1.46,1.39,0.0,0.07
+18739,W. Boly,34.0,Côte d'Ivoire,Defender,Wolves,Premier League,2022,0,0,0,1,1,1,257,0,1,13,12,0,0,6.82,34,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18746,M. Gibbs-White,25.0,England,Midfielder,Wolves,Premier League,2022,2,180,0,8,42,22,896,0,48,26,14,1,0,7.008571,158,180.0,0.0,4.0,21.0,11.0,13.0,7.0,4.0,0.5
+18996,H. Arter,35.0,Republic of Ireland,Midfielder,Nottingham Forest,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+130423,B. Gilmour,24.0,Scotland,Midfielder,Chelsea,Premier League,2022,0,0,0,1,3,1,403,0,2,5,6,0,0,6.663636,15,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+162114,D. Rankine,23.0,England,Midfielder,Chelsea,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+180866,Marcelo,23.0,Brazil,Goalkeeper,Liverpool,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+181796,J. Brooking,23.0,England,Defender,Chelsea,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+196000,B. Genesini,24.0,England,Defender,Bournemouth,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284253,D. Corness,22.0,England,Midfielder,Liverpool,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284324,A. Garnacho,21.0,Argentina,Attacker,Manchester United,Premier League,2022,19,562,3,2,17,10,185,0,12,5,5,3,0,6.488235,28,562.0,0.48,0.32,2.72,1.6,0.8,0.8,0.8,0.48
+284362,B. Hardley,23.0,Netherlands,Defender,Manchester United,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284391,S. Murray,21.0,England,Defender,Manchester United,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284405,B. Elliott,23.0,England,Midfielder,Chelsea,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284459,M. Mothersille,22.0,England,Attacker,Chelsea,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284539,H. Graczyk,22.0,England,Goalkeeper,Arsenal,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284557,Z. Monlouis,22.0,England,Defender,Arsenal,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+286764,Kaide Gordon,21.0,England,Attacker,Liverpool,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+313245,M. Lewis-Skelly,19.0,England,Defender,Arsenal,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+342054,R. Flamingo,23.0,Netherlands,Defender,Vitesse,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+641,O. Zinchenko,29.0,Ukraine,Defender,Arsenal,Premier League,2022,27,2135,1,2,20,7,1716,55,15,40,22,3,0,6.94074,117,2135.0,0.04,0.08,0.84,0.3,1.69,0.93,0.13,0.13
+1427,A. Sambi Lokonga,26.0,Belgium,Midfielder,Crystal Palace,Premier League,2022,9,536,0,0,0,0,140,0,1,1,5,2,0,6.7,10,536.0,0.0,0.0,0.0,0.0,0.17,0.84,0.0,0.34
+2273,Kepa,31.0,Spain,Goalkeeper,Chelsea,Premier League,2022,29,2566,0,0,0,0,895,0,1,2,1,1,0,7.103448,22,2566.0,0.0,0.0,0.0,0.0,0.07,0.04,0.0,0.04
+2937,D. Rice,26.0,England,Midfielder,West Ham,Premier League,2022,37,3272,4,2,26,9,2082,49,35,79,63,5,0,7.186486,162,3272.0,0.11,0.06,0.72,0.25,2.17,1.73,0.17,0.14
+19088,D. Henderson,28.0,England,Goalkeeper,Nottingham Forest,Premier League,2022,18,1620,0,0,0,0,562,0,0,0,0,2,0,6.844444,2,1620.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.11
+19465,David Raya,30.0,Spain,Goalkeeper,Brentford,Premier League,2022,38,3420,0,0,1,0,1475,0,1,0,1,1,0,7.189473,19,3420.0,0.0,0.0,0.03,0.0,0.0,0.03,0.0,0.03
+19586,E. Eze,27.0,England,Midfielder,Crystal Palace,Premier League,2022,38,2643,10,4,52,26,1083,0,71,42,13,3,0,7.086842,189,2643.0,0.34,0.14,1.77,0.89,1.43,0.44,0.48,0.1
+19959,B. White,28.0,England,Defender,Arsenal,Premier League,2022,38,3067,2,5,8,3,1950,44,8,60,22,5,0,6.907894,131,3067.0,0.06,0.15,0.23,0.09,1.76,0.65,0.21,0.15
+22090,W. Saliba,24.0,France,Defender,Arsenal,Premier League,2022,27,2416,2,1,6,3,1864,62,9,34,19,4,0,6.97037,109,2416.0,0.07,0.04,0.22,0.11,1.27,0.71,0.11,0.15
+22094,W. Fofana,25.0,France,Defender,Leicester,Premier League,2022,2,180,0,0,6,2,862,51,8,30,20,1,0,6.826666,90,180.0,0.0,0.0,3.0,1.0,15.0,10.0,0.0,0.5
+22224,Gabriel Magalhães,28.0,Brazil,Defender,Arsenal,Premier League,2022,38,3411,3,0,26,10,2395,56,2,48,32,5,0,7.015789,190,3411.0,0.08,0.0,0.69,0.26,1.27,0.84,0.08,0.13
+30407,C. Nørgaard,31.0,Denmark,Midfielder,Brentford,Premier League,2022,22,1770,1,3,15,10,793,0,8,52,34,6,0,6.981818,98,1770.0,0.05,0.15,0.76,0.51,2.64,1.73,0.2,0.31
+37127,M. Ødegaard,27.0,Norway,Midfielder,Arsenal,Premier League,2022,37,3149,15,7,60,33,1689,0,49,36,6,4,0,7.354054,124,3149.0,0.43,0.2,1.71,0.94,1.03,0.17,0.63,0.11
+41725,Fábio Vieira,25.0,Portugal,Midfielder,Arsenal,Premier League,2022,22,499,1,2,9,2,267,0,6,6,4,0,0,6.652631,20,499.0,0.18,0.36,1.62,0.36,1.08,0.72,0.54,0.0
+61431,J. Kiwior,25.0,Poland,Defender,Arsenal,Premier League,2022,18,431,1,0,1,1,196,0,1,7,6,0,0,6.771428,17,431.0,0.21,0.0,0.21,0.21,1.46,1.25,0.21,0.0
+153430,A. Elanga,23.0,Sweden,Attacker,Manchester United,Premier League,2022,16,420,0,1,9,4,121,0,5,3,2,0,0,6.584615,23,420.0,0.0,0.21,1.93,0.86,0.64,0.43,0.21,0.0
+158694,T. Livramento,23.0,England,Defender,Southampton,Premier League,2022,2,26,0,0,0,0,19,0,2,2,2,0,0,7.0,6,26.0,0.0,0.0,0.0,0.0,6.92,6.92,0.0,0.0
+169295,K. Hein,23.0,Estonia,Goalkeeper,Arsenal,Premier League,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284797,D. Ouattara,23.0,Burkina Faso,Attacker,Bournemouth,Premier League,2022,19,1245,1,3,18,5,295,0,31,28,13,1,0,6.816666,104,1245.0,0.07,0.22,1.3,0.36,2.02,0.94,0.29,0.07
+313236,E. Nwaneri,18.0,England,Midfielder,Arsenal,Premier League,2022,1,1,0,0,0,0,0,0,0,0,0,0,0,0.0,0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+54,Diego Costa,37.0,Spain,Attacker,Wolves,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+178,Lucas Moura,33.0,Brazil,Attacker,Tottenham,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+297,A. Oxlade-Chamberlain,32.0,England,Midfielder,Liverpool,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+888,P. Jones,31.0,England,Defender,Manchester United,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+900,J. Lingard,33.0,England,Midfielder,Nottingham Forest,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+2473,M. Lanzini,32.0,Argentina,Midfielder,West Ham,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+2677,João Moutinho,39.0,Portugal,Midfielder,Wolves,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18753,Adama Traoré,29.0,Spain,Attacker,Wolves,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18762,T. Davies,27.0,England,Midfielder,Everton,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18849,J. McArthur,36.0,Scotland,Midfielder,Crystal Palace,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18852,L. Milivojević,34.0,Serbia,Midfielder,Crystal Palace,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18854,A. Townsend,34.0,England,Forward,Everton,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18858,A. Begović,38.0,Bosnia and Herzegovina,Goalkeeper,Everton,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18878,J. Stanislas,34.0,England,Midfielder,Bournemouth,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18891,C. Clark,35.0,Republic of Ireland,Defender,Sheffield Utd,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19174,J. Steer,33.0,England,Goalkeeper,Aston Villa,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19299,J. Colback,36.0,England,Midfielder,Nottingham Forest,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19842,L. Taylor,35.0,Montserrat,Attacker,Nottingham Forest,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+130419,M. Longstaff,25.0,England,Midfielder,Newcastle,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+181822,E. Wady,21.0,USA,Goalkeeper,Chelsea,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+84,Wesley Moraes,29.0,Brazil,Attacker,Aston Villa,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+285,K. Hoever,23.0,Netherlands,Defender,Wolves,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+378,Alex Telles,33.0,Brazil,Defender,Manchester United,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+882,David de Gea,35.0,Spain,Goalkeeper,Manchester United,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+1914,M. Sanson,31.0,France,Midfielder,Aston Villa,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18747,R. Giles,25.0,England,Defender,Wolves,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+27778,B. Bolla,26.0,Hungary,Defender,Wolves,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+138934,A. Pressley,24.0,Scotland,Attacker,Brentford,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+140947,I. Kaboré,24.0,Burkina Faso,Defender,Manchester City,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+152980,Remmi Eugene Savage,24.0,England,Defender,Newcastle,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+153434,W. Fish,22.0,England,Defender,Manchester United,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+162189,M. Bidstrup,24.0,Denmark,Midfielder,Brentford,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+197448,Yan Couto,23.0,Brazil,Defender,Manchester City,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+278075,C. Cîrjan,23.0,Romania,Midfielder,Arsenal,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+278088,C. Rushworth,24.0,England,Goalkeeper,Brighton,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284062,K. Edwards,22.0,England,Attacker,Arsenal,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284248,M. Frauendorf,21.0,Germany,Midfielder,Liverpool,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284446,F. Potts,22.0,England,Midfielder,West Ham,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284466,C. Patino,22.0,England,Midfielder,Arsenal,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+291022,Joshua Keeley,22.0,Republic of Ireland,Goalkeeper,Tottenham,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+2276,J. Cumming,26.0,England,Goalkeeper,Chelsea,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18751,Ivan Cavaleiro,32.0,Portugal,Forward,Fulham,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+64167,G. Słonina,21.0,USA,Goalkeeper,Chelsea,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+138777,F. Anjorin,24.0,England,Midfielder,Chelsea,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+162590,T. Morton,23.0,England,Midfielder,Liverpool,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+278086,I. Odutayo,23.0,England,Defender,Fulham,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+282130,Logan Pye,22.0,England,Defender,Manchester United,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284305,Jamie Miley,21.0,England,Midfielder,Newcastle,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284471,S. Parkes,21.0,England,Defender,Fulham,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284559,Alexander Paul Borto,22.0,USA,Goalkeeper,Fulham,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+288055,Ângelo,21.0,Brazil,Attacker,Chelsea,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+298129,M. Boateng,23.0,England,Midfielder,Crystal Palace,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+303016,M. Oyedele,21.0,Poland,Midfielder,Manchester United,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+327728,Delano McCoy-Splatt\t,21.0,Jamaica,Midfielder,Fulham,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+330636,Sonny Aljofree,21.0,England,Defender,Manchester United,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+359386,M. Godo,22.0,England,Attacker,Fulham,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+363974,Z. Marsh,20.0,England,Attacker,Crystal Palace,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+378981,Elyh Harrison,19.0,England,Goalkeeper,Manchester United,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+384981,S. Amissah,18.0,England,Defender,Fulham,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+404021,F. Marjoram,19.0,England,Midfielder,Crystal Palace,Premier League,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+83,A. Danjuma,28.0,Netherlands,Attacker,Everton,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+105,F. Ballo-Touré,28.0,Senegal,Defender,Fulham,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+172,D. Alli,29.0,England,Midfielder,Everton,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+2699,S. Ghoddos,32.0,Iran,Attacker,Brentford,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18765,André Gomes,32.0,Portugal,Midfielder,Everton,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18853,J. Riedewald,29.0,Netherlands,Midfielder,Crystal Palace,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19073,B. Godfrey,27.0,England,Defender,Everton,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19145,T. Adarabioyo,28.0,England,Defender,Fulham,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19364,N. Maupay,29.0,France,Attacker,Brentford,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19657,M. Rodák,29.0,Slovakia,Goalkeeper,Fulham,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19744,K. Jackson,31.0,England,Attacker,Ipswich,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20224,A. Lonergan,42.0,England,Goalkeeper,Everton,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+44803,D. Ball,30.0,England,Midfielder,Ipswich,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+127605,N. Ferguson,24.0,England,Defender,Crystal Palace,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+135775,Ansu Fati,23.0,Spain,Attacker,Brighton,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+138822,A. Broja,24.0,Albania,Attacker,Fulham,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+153422,E. Brierley,22.0,England,Midfielder,Brentford,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+153425,L. Dobbin,22.0,England,Attacker,Everton,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284500,T. Iroegbunam,22.0,England,Midfielder,Aston Villa,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+348263,C. Stewart,22.0,England,Defender,Ipswich,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+133,C. Lenglet,30.0,France,Defender,Aston Villa,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+190,Cédric Soares,34.0,Portugal,Defender,Arsenal,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+786,N. Zaniolo,26.0,Italy,Midfielder,Aston Villa,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+1452,Mohamed Elneny,33.0,Egypt,Midfielder,Arsenal,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19263,L. Kelly,27.0,England,Defender,Bournemouth,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19356,E. Marcondes,30.0,Denmark,Midfielder,Bournemouth,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19804,K. Moore,33.0,Wales,Attacker,Bournemouth,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20110,S. Baptiste,27.0,Grenada,Midfielder,Brentford,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+30765,I. Radu,28.0,Romania,Goalkeeper,Bournemouth,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+138937,F. Marschall,22.0,England,Goalkeeper,Aston Villa,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+278123,S. Revan,22.0,England,Midfielder,Aston Villa,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+281975,Val Adedokun,22.0,Republic of Ireland,Defender,Brentford,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284502,James Lannin-Sweet,22.0,England,Defender,Arsenal,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284540,Mauro Bandeira,22.0,Portugal,Midfielder,Arsenal,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+294638,Finley Munroe,20.0,England,Defender,Aston Villa,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+309501,A. Cozier-Duberry,20.0,England,Midfielder,Arsenal,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+309505,R. Walters,21.0,England,Defender,Arsenal,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+329347,O. Kellyman,20.0,England,Midfielder,Aston Villa,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+349288,Vincent Angelini,22.0,Scotland,Goalkeeper,Brentford,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+455010,L. Emery,22.0,Spain,Goalkeeper,Aston Villa,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+305,D. Origi,30.0,Belgium,Attacker,Nottingham Forest,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+371,Felipe,35.0,Brazil,Defender,Nottingham Forest,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+454,Y. Akgün,25.0,Türkiye,Forward,Leicester,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+908,A. Martial,30.0,France,Attacker,Manchester United,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+1972,L. Karius,32.0,Germany,Goalkeeper,Newcastle,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+2468,G. Montiel,28.0,Argentina,Defender,Nottingham Forest,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+2925,D. Praet,31.0,Belgium,Midfielder,Leicester,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18817,A. Ogbonna,37.0,Italy,Defender,West Ham,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18892,P. Dummett,34.0,Wales,Defender,Newcastle,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18903,M. Ritchie,36.0,Scotland,Midfielder,Newcastle,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19032,R. Sessegnon,25.0,England,Midfielder,Tottenham,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19130,K. Phillips,30.0,England,Midfielder,West Ham,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19482,J. Rothwell,30.0,England,Midfielder,Southampton,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+41577,Nuno Tavares,25.0,Portugal,Defender,Nottingham Forest,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+144709,J. Anang,25.0,England,Goalkeeper,West Ham,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+161921,G. Reyna,23.0,USA,Midfielder,Nottingham Forest,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284242,O. Forson,21.0,England,Attacker,Manchester United,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284536,J. Knightbridge,21.0,England,Goalkeeper,West Ham,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+338856,N. Lemina,20.0,France,Midfielder,Wolves,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+341641,Rodrigo Ribeiro,20.0,Portugal,Attacker,Nottingham Forest,Premier League,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19215,T. Huddlestone,38.0,England,Midfielder,Hull City,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19456,E. Walker,23.0,England,Attacker,Blackburn,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+265541,Callum Jones,22.0,England,Midfielder,Hull City,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+273733,C. Antwi,24.0,England,Midfielder,Blackpool,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+278073,T. Dyce,24.0,England,Defender,Sunderland,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+283004,J. Rodwell-Grant,23.0,England,Attacker,Preston,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284301,D. Pinnington,21.0,England,Midfielder,Wigan,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284321,T. Nixon,23.0,England,Defender,Hull City,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+294755,L. Mariette,22.0,Wales,Midfielder,Blackpool,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+322883,J. Greaves,22.0,England,Attacker,Rotherham,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+325777,M. Roxburgh,21.0,England,Goalkeeper,Huddersfield,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+326773,E. McJannett,21.0,Republic of Ireland,Midfielder,Luton,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+339743,H. McGee,20.0,England,Midfielder,Wigan,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+339748,N. Exton,0.0,England,Defender,Rotherham,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+343128,S. Greenhouse,19.0,England,Midfielder,Rotherham,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+350322,N. Boateng,23.0,England,Attacker,Millwall,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+356543,T. Briscoe,23.0,England,Midfielder,Millwall,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+364490,M. Wonnacott,21.0,England,Goalkeeper,Wigan,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+366625,J. Daniels,19.0,England,Attacker,Blackpool,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+366626,J. Strawn,19.0,England,Midfielder,Blackpool,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+1132,T. Rogić,31.0,Australia,Midfielder,West Brom,Championship,2022,20,578,1,3,8,5,173,0,4,18,0,2,0,6.7,32,578.0,0.16,0.47,1.25,0.78,2.8,0.0,0.62,0.31
+18994,L. Peltier,38.0,England,Defender,Rotherham,Championship,2022,34,2479,1,0,6,1,915,0,5,56,33,7,0,6.797058,153,2479.0,0.04,0.0,0.22,0.04,2.03,1.2,0.04,0.25
+19368,K. Westwood,40.0,Republic of Ireland,Goalkeeper,QPR,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19438,D. Fisher,29.0,England,Defender,Middlesbrough,Championship,2022,1,0,0,0,0,0,2,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19536,I. Vassell,31.0,England,Attacker,Cardiff,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+25589,M. Hilßner,29.0,Germany,Midfielder,Coventry,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+127205,W. Bapaga,22.0,England,Midfielder,Coventry,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+135338,T. Billson,23.0,England,Goalkeeper,Coventry,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+137226,T. Kouakou,25.0,Côte d'Ivoire,Midfielder,Cardiff,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+153607,E. Bange,24.0,England,Attacker,Blackpool,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+156905,R. Masampu,26.0,England,Defender,Birmingham,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+327551,S. Sinclair,23.0,England,Defender,Blackpool,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+339742,O. Mooney,19.0,England,Goalkeeper,Wigan,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+342438,B. Kershaw,21.0,England,Midfielder,Stoke City,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+343129,M. Warne,20.0,England,Midfielder,Rotherham,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+350577,C. Monks,19.0,England,Goalkeeper,Blackpool,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+364732,J. Horlick,22.0,England,Goalkeeper,Luton,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+377001,A. Allen,23.0,England,Midfielder,Millwall,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+400343,H. Leeson,21.0,Wales,Defender,Bristol City,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+403069,H. Nee,21.0,England,Attacker,Coventry,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+2037,T. Vaclík,36.0,Czechia,Goalkeeper,Huddersfield,Championship,2022,13,1141,0,0,0,0,321,0,0,0,0,0,0,6.966666,4,1141.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18033,N. Baxter,27.0,England,Goalkeeper,Hull City,Championship,2022,12,1080,0,0,0,0,370,0,1,0,0,1,0,6.75,3,1080.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.08
+18807,Domingos Quina,26.0,Portugal,Midfielder,Rotherham,Championship,2022,8,323,0,0,4,2,106,0,2,7,1,2,1,6.45,20,323.0,0.0,0.0,1.11,0.56,1.95,0.28,0.0,0.84
+19086,J. Rhodes,35.0,Scotland,Attacker,Huddersfield,Championship,2022,34,1449,5,0,31,20,328,0,1,5,7,2,0,6.724242,110,1449.0,0.31,0.0,1.93,1.24,0.31,0.43,0.31,0.12
+19675,B. Wiles,26.0,England,Midfielder,Rotherham,Championship,2022,27,2103,2,1,20,5,575,0,15,18,22,4,0,6.577777,82,2103.0,0.09,0.04,0.86,0.21,0.77,0.94,0.13,0.17
+20258,R. Allsop,33.0,England,Goalkeeper,Cardiff,Championship,2022,43,3847,0,0,0,0,1559,0,4,1,1,5,1,6.735714,14,3847.0,0.0,0.0,0.0,0.0,0.02,0.02,0.0,0.14
+138369,R. Hemfrey,23.0,Scotland,Goalkeeper,Rotherham,Championship,2022,1,44,0,0,0,0,15,0,0,1,0,0,0,7.2,1,44.0,0.0,0.0,0.0,0.0,2.05,0.0,0.0,0.0
+170430,S. High,24.0,Scotland,Midfielder,Huddersfield,Championship,2022,0,0,0,0,4,1,169,0,3,7,2,0,0,6.575,19,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+278079,A. Ramsey,22.0,England,Midfielder,Norwich,Championship,2022,18,1039,3,1,12,9,264,0,15,11,5,0,0,7.08,36,1039.0,0.26,0.09,1.04,0.78,0.95,0.43,0.35,0.0
+284289,P. Willis,22.0,England,Midfielder,Middlesbrough,Championship,2022,2,12,0,0,0,0,4,0,1,0,0,0,0,6.7,1,12.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284325,J. Stott,22.0,England,Midfielder,Middlesbrough,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284394,K. Reddin,21.0,England,Attacker,Stoke City,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284445,L. Badley-Morgan,22.0,Jamaica,Defender,Stoke City,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284570,B. Norton-Cuffy,21.0,England,Defender,Rotherham,Championship,2022,20,1295,0,0,2,1,400,0,43,37,8,4,0,6.530434,105,1295.0,0.0,0.0,0.14,0.07,2.57,0.56,0.0,0.28
+296953,C. Lawless,24.0,England,Midfielder,Luton,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+298125,G. Adebambo,23.0,Republic of Ireland,Midfielder,Stoke City,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+328130,C. Wood,22.0,Wales,Defender,Bristol City,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+385486,Charles Ondo,22.0,Equatorial Guinea,Defender,Huddersfield,Championship,2022,4,21,0,0,0,0,1,0,0,0,0,1,0,6.2,0,21.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,4.29
+388517,A. Taylor,20.0,England,Defender,Hull City,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+408765,S. Drozd,22.0,England,Midfielder,Millwall,Championship,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+173,L. Amos,28.0,England,Midfielder,QPR,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+1558,Joel Robles,35.0,Spain,Goalkeeper,Leeds,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+1691,Mario Gaspar,35.0,Spain,Defender,Watford,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17448,J. Smith,31.0,England,Goalkeeper,Huddersfield,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18759,P. Jagielka,41.0,England,Defender,Stoke City,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18857,C. Wickham,31.0,England,Attacker,Cardiff,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19159,S. Johansen,34.0,Norway,Midfielder,QPR,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19182,A. Tuanzebe,28.0,England,Defender,Stoke City,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19227,M. Waghorn,35.0,England,Attacker,Huddersfield,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19393,J. Onomah,28.0,England,Midfielder,Preston,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19431,C. Martin,37.0,Scotland,Attacker,QPR,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19519,H. Dean,34.0,England,Defender,Birmingham,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19831,T. Fosu,30.0,Ghana,Attacker,Rotherham,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20274,C. Owens,27.0,Northern Ireland,Midfielder,QPR,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+162933,K. Simmonds,24.0,England,Attacker,Birmingham,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+273759,A. George,23.0,England,Attacker,Birmingham,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+278079,A. Ramsey,22.0,England,Midfielder,Middlesbrough,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284570,B. Norton-Cuffy,21.0,England,Defender,Coventry,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+326755,R. Walker,23.0,England,Midfielder,Birmingham,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+343129,M. Warne,20.0,England,Midfielder,Rotherham,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17897,Panutche Camará,28.0,Guinea-Bissau,Midfielder,Ipswich,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18772,J. Evans,37.0,Northern Ireland,Defender,Leicester,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18778,H. Barnes,28.0,England,Midfielder,Leicester,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18946,M. Elyounoussi,31.0,Norway,Midfielder,Southampton,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19287,S. Byram,32.0,England,Defender,Norwich,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19894,B. Mumba,24.0,England,Defender,Norwich,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20419,L. Roberts,31.0,England,Goalkeeper,Middlesbrough,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20557,I. Diallo,26.0,France,Midfielder,Southampton,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+129709,M. Whittaker,24.0,England,Attacker,Swansea,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+138929,L. Brunt,25.0,England,Defender,Leicester,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+191976,J. Hungbo,25.0,England,Attacker,Watford,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+215958,J. Low,23.0,Wales,Defender,Bristol City,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+236367,N. Bilokapić,23.0,Australia,Goalkeeper,Huddersfield,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+282901,J. Jenkins,24.0,England,Midfielder,Leeds,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+283276,Z. Ashworth,23.0,Wales,Defender,West Brom,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284396,J. Wormleighton,22.0,England,Defender,Leicester,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284441,A. Kamara,22.0,England,Attacker,Norwich,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+289624,S. Braybrooke,21.0,England,Midfielder,Leicester,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+294751,J. Leake,22.0,England,Defender,Hull City,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+301658,J. Andrews,24.0,England,Attacker,Birmingham,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+2048,M. Wöber,27.0,Austria,Defender,Leeds,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+2218,I. Sarr,27.0,Senegal,Attacker,Watford,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+3421,D. Amartey,31.0,Ghana,Defender,Leicester,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17567,K. Vincent-Young,29.0,England,Defender,Ipswich,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17590,J. Brown,25.0,England,Defender,Sheffield Wednesday,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18797,C. Kabasele,34.0,Belgium,Defender,Watford,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19206,R. Keogh,38.0,Republic of Ireland,Defender,Ipswich,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19251,A. Fletcher,30.0,England,Attacker,Watford,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19496,T. Edwards,26.0,England,Defender,Stoke City,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19979,D. Stockdale,39.0,England,Goalkeeper,Sheffield Wednesday,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20289,J. Bolton,31.0,England,Defender,Plymouth,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20382,J. Pigott,32.0,England,Attacker,Ipswich,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+138876,D. Cashman,24.0,England,Attacker,Coventry,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+171019,C. Tyler,23.0,Wales,Goalkeeper,Coventry,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+215847,I. Davies,24.0,Wales,Attacker,Cardiff,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+215850,Joshua Thomas,23.0,Wales,Attacker,Swansea,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+310612,T. Scott,22.0,England,Midfielder,Sunderland,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+326764,W. Jarvis,23.0,England,Attacker,Hull City,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+402504,L. Benjamin,19.0,Wales,Goalkeeper,Cardiff,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+403069,H. Nee,20.0,England,Attacker,Coventry,Championship,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+301,B. Woodburn,26.0,Wales,Midfielder,Preston,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18957,M. Obafemi,25.0,Republic of Ireland,Attacker,Millwall,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18990,G. Cunningham,34.0,Republic of Ireland,Defender,Preston,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19055,K. Ahearne-Grant,28.0,England,Attacker,Cardiff,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19089,S. Moore,35.0,England,Goalkeeper,Coventry,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19278,F. Diédhiou,33.0,Senegal,Forward,Cardiff,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19772,A. Connolly,25.0,Republic of Ireland,Attacker,Hull City,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20299,G. Docherty,29.0,Scotland,Midfielder,Hull City,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+44798,L. Millar,26.0,Canada,Attacker,Preston,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+44922,A. Campbell,27.0,Scotland,Midfielder,Millwall,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+127472,N. Phillips,28.0,England,Defender,Cardiff,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+130846,V. Covil,22.0,USA,Attacker,Hull City,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+138790,R. Longman,25.0,England,Midfielder,Millwall,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+161948,L. Delap,22.0,England,Attacker,Hull City,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+162418,Adedire Emmanuel  Awokoya-Mebude,21.0,Scotland,Forward,Bristol City,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+162590,T. Morton,23.0,England,Midfielder,Hull City,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+278088,C. Rushworth,24.0,England,Goalkeeper,Swansea,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+280317,N. Ohio,22.0,Netherlands,Attacker,Hull City,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284570,B. Norton-Cuffy,21.0,England,Defender,Millwall,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+431883,Bradley Stretton,21.0,England,Attacker,Coventry,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+84,Wesley Moraes,29.0,Brazil,Attacker,Stoke City,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18858,A. Begović,38.0,Bosnia and Herzegovina,Goalkeeper,QPR,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18924,J. Hendrick,33.0,Republic of Ireland,Midfielder,Sheffield Wednesday,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19017,C. Christie,33.0,Republic of Ireland,Defender,Hull City,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19251,A. Fletcher,30.0,England,Attacker,Sheffield Wednesday,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19367,C. Dawson,30.0,England,Goalkeeper,Sheffield Wednesday,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19674,W. Vaulks,32.0,Wales,Midfielder,Sheffield Wednesday,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+38713,S. van Hooijdonk,25.0,Netherlands,Attacker,Norwich,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+41525,M. Diaby,29.0,France,Midfielder,Sheffield Wednesday,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+47213,Pipa,27.0,Spain,Defender,West Brom,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+49942,O. Tufan,30.0,Türkiye,Midfielder,Hull City,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+82002,C. Burton,29.0,England,Goalkeeper,Plymouth,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+134428,B. Chrisene,21.0,England,Defender,Blackburn,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+137220,A. Moran,22.0,Republic of Ireland,Midfielder,Blackburn,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+181797,B. Humphreys,22.0,England,Defender,Swansea,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+196855,J. Anthony,26.0,England,Attacker,Leeds,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+265820,Y. Ayari,22.0,Sweden,Midfielder,Blackburn,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+278113,D. Robson,23.0,Wales,Goalkeeper,Hull City,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+279802,Pedro Lima,22.0,Brazil,Midfielder,Norwich,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284408,S. Perkins,21.0,England,Attacker,Leeds,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+80,E. Dennis,28.0,Nigeria,Forward,Watford,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+285,K. Hoever,23.0,Netherlands,Defender,Stoke City,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17736,D. Iversen,28.0,Denmark,Goalkeeper,Stoke City,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19038,B. Hamer,38.0,England,Goalkeeper,Watford,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19076,J. Lewis,27.0,Northern Ireland,Defender,Watford,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19131,J. Shackleton,26.0,England,Defender,Leeds,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19477,B. Dack,32.0,England,Midfielder,Sunderland,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19479,C. Evans,35.0,Northern Ireland,Midfielder,Sunderland,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20310,T. Campbell,26.0,England,Attacker,Stoke City,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+44989,M. Miller,30.0,England,Defender,Plymouth,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+105141,L. Wahlstedt,26.0,Sweden,Goalkeeper,Blackburn,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+149564,L. Cundle,23.0,England,Midfielder,Stoke City,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+153400,S. Greenwood,23.0,England,Attacker,Leeds,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+265712,Blondy Rudolph Nna Noukeu,24.0,Cameroon,Goalkeeper,Stoke City,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+282124,D. Gyabi,21.0,England,Midfielder,Leeds,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284293,E. Taylor,22.0,England,Midfielder,Sunderland,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284466,C. Patino,22.0,England,Midfielder,Swansea,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+305821,Matheus Martins,22.0,Brazil,Attacker,Watford,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+328046,I. Koné,23.0,Canada,Midfielder,Watford,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+328089,A. Gray,19.0,England,Midfielder,Leeds,Championship,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19184,Thomas James Carroll,33.0,England,Midfielder,Ipswich,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19852,Joe  Hancott,23.0,England,Defender,Portsmouth,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+153077,Luke Harris,22.0,England,Midfielder,Peterborough,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+266117,Liam Waldock,25.0,England,Midfielder,Sheffield Wednesday,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+290985,Eden Bailey,19.0,England,Attacker,Port Vale,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+290989,Harvey Hughes,19.0,England,Defender,Portsmouth,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+291009,Joshua Anifowose,21.0,England,Midfielder,Oxford United,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+291591,Mitchell Henry,20.0,England,Midfielder,Bolton,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+293164,Amadou Diallo,22.0,England,Attacker,Derby,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+330142,Michael Lilley,19.0,England,Midfielder,Exeter City,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+331562,Clinton Nosakhare,19.0,England,Defender,Oxford United,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+331571,Carlo Garside,21.0,England,Midfielder,Plymouth,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+331576,Brennan Denness-Barrett,19.0,England,Midfielder,Cheltenham,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+339745,Callum Wilson,21.0,England,Defender,Shrewsbury,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+339746,Arran Pettifer,22.0,England,Midfielder,Bolton,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+340813,Marcel McIntosh,21.0,England,Midfielder,Forest Green,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+340855,Niall Lovelock,0.0,England,Defender,Bristol Rovers,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+345273,Nathan Harvey,23.0,England,Goalkeeper,Charlton,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+350585,Jonah Gill,19.0,England,Goalkeeper,Cambridge United,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+365913,Kieren Flavell,22.0,England,Goalkeeper,Barnsley,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17706,Luke Martin McCormick,42.0,England,Goalkeeper,Plymouth,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19927,Paul Michael Downing,34.0,England,Defender,Portsmouth,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+192348,Jamie Soule,25.0,England,Attacker,Cheltenham,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+282902,M. McMillan,21.0,South Africa,Midfielder,Fleetwood Town,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+283022,M. Tweedley,19.0,England,Midfielder,Bolton,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+291006,Danny Edwards,23.0,England,Midfielder,Fleetwood Town,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+297231,Billy Batch,0.0,England,Defender,Fleetwood Town,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+337857,D. Murray,0.0,England,Defender,Portsmouth,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+339751,B. Thompson,21.0,England,Midfielder,Fleetwood Town,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+350360,Jamie Nicholson,18.0,England,Midfielder,Morecambe,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+352378,M. Sesay,20.0,Cambodia,Midfielder,Bristol Rovers,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+379617,L. Toure,20.0,England,Midfielder,Bolton,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+379623,L. Burden,18.0,England,Midfielder,Bristol Rovers,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+383082,E. Collins,0.0,England,Midfielder,Exeter City,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+384404,M. Osei-Owusu,0.0,England,Goalkeeper,Portsmouth,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+384580,K. Etienne,19.0,England,Midfielder,Shrewsbury,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+384583,D. Antal,19.0,England,Midfielder,Shrewsbury,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+384592,J. Warner,18.0,England,Defender,Shrewsbury,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+384593,V. Peternoster,0.0,England,Midfielder,Shrewsbury,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+394587,J. Simpson,18.0,England,Midfielder,Cheltenham,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+290993,Harrison Brook,19.0,England,Midfielder,Portsmouth,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+308965,J. Bevan,21.0,England,Goalkeeper,Shrewsbury,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+319597,Mark Smith,31.0,England,Attacker,Portsmouth,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+333212,Elliott Simpson,17.0,England,Midfielder,Portsmouth,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+339758,Nazir Bakrin,20.0,England,Defender,Charlton,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+340856,Owen Brain,21.0,England,Midfielder,Bristol Rovers,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+340858,Lucas Vaughan,18.0,England,Midfielder,Bristol Rovers,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+340859,Airidas Vilinauskas,0.0,England,Midfielder,Bristol Rovers,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+340860,Tyron Mbuenimo,19.0,England,Attacker,Bristol Rovers,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+343131,George Clark,19.0,England,Defender,Cheltenham,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+345264,Kamani McFarlane,19.0,England,Midfielder,Port Vale,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+345275,Jamie Howell,18.0,England,Midfielder,Portsmouth,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+347264,B. Kaninda,20.0,England,Defender,Wycombe,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+348462,Luc Rees,21.0,England,Goalkeeper,Fleetwood Town,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+350587,Max Edwards-Stryjewski,20.0,Wales,Midfielder,Bristol Rovers,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+361639,L. Hood,20.0,England,Goalkeeper,Accrington ST,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+384587,L. Davidson,20.0,Jamaica,Defender,Sheffield Wednesday,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+385363,James Webster,0.0,England,Midfielder,Shrewsbury,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+392433,Patrick Casey,0.0,England,Attacker,Charlton,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+394582,P. Aguas,20.0,England,Midfielder,Sheffield Wednesday,League One,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+2123,O. Oularé,29.0,Belgium,Attacker,Barnsley,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17806,C. Raglan,32.0,England,Defender,Cheltenham,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17939,D. Mitov,28.0,Bulgaria,Goalkeeper,Cambridge United,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17949,G. Taylor,35.0,England,Defender,Cambridge United,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18320,J. Dixon,32.0,England,Goalkeeper,Bolton,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19573,J. Lumley,30.0,England,Goalkeeper,Reading,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19682,J. Yates,29.0,England,Attacker,Blackpool,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19735,G. Edwards,32.0,Wales,Midfielder,Wigan,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19745,W. Keane,32.0,Republic of Ireland,Attacker,Wigan,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20016,B. Collins,28.0,England,Goalkeeper,Barnsley,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+68128,J. Knight,24.0,Republic of Ireland,Midfielder,Derby,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+138842,M. Azeez,23.0,England,Midfielder,Wigan,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+275569,N. Melvin-Lambert,22.0,St. Lucia,Attacker,Reading,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+278084,C. Stanley,22.0,England,Midfielder,Bolton,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+283023,M. Conway,22.0,England,Midfielder,Bolton,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+283282,T. Latty-Fairweather,23.0,England,Defender,Burton Albion,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284466,C. Patino,22.0,England,Midfielder,Blackpool,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+310984,G. Sithole,23.0,England,Midfielder,Bolton,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+339742,O. Mooney,19.0,England,Goalkeeper,Wigan,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+342735,R. Scott,23.0,England,Attacker,Reading,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17538,R. Poole,27.0,Wales,Defender,Lincoln,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17587,C. Pym,30.0,England,Goalkeeper,Peterborough,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19847,L. McGee,30.0,England,Goalkeeper,Derby,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19938,A. May,32.0,England,Attacker,Cheltenham,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20236,M. Williams,30.0,Wales,Midfielder,Bolton,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20389,L. Jones,30.0,England,Defender,Cambridge United,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+82054,D. Butler,31.0,England,Defender,Peterborough,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+283022,M. Tweedley,19.0,England,Midfielder,Bolton,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+337857,D. Murray,0.0,England,Defender,Portsmouth,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+348143,E. Williams,22.0,Northern Ireland,Midfielder,Charlton,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+366623,W. Lakin,21.0,England,Goalkeeper,Peterborough,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+379617,L. Toure,20.0,England,Midfielder,Bolton,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+383811,K. Hickinson,22.0,England,Midfielder,Peterborough,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+384404,M. Osei-Owusu,0.0,England,Goalkeeper,Portsmouth,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+384405,H. Laidlaw,20.0,England,Defender,Portsmouth,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+384487,T. Ladapo,21.0,England,Attacker,Charlton,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+393214,N. Bakrin,23.0,England,Defender,Charlton,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+394587,J. Simpson,18.0,England,Midfielder,Cheltenham,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+398865,B. McCann,20.0,Northern Ireland,Midfielder,Peterborough,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+400892,S. Toure,21.0,Senegal,Defender,Charlton,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17505,J. Caprice,33.0,England,Defender,Exeter City,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17565,F. Kent,30.0,England,Defender,Peterborough,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17907,S. Brown,38.0,England,Goalkeeper,Exeter City,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18071,S. Ogie,24.0,Republic of Ireland,Defender,Leyton Orient,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19538,James Jones,36.0,England,Goalkeeper,Wigan,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20428,L. Leahy,33.0,England,Midfielder,Shrewsbury,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+82315,D. Sembie-Ferris,29.0,England,Attacker,Peterborough,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+129097,H. Knibbs,26.0,England,Midfielder,Cambridge United,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+148096,J. Eppiah,25.0,Belgium,Attacker,Northampton,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+273301,N. Iseguan,21.0,England,Midfielder,Exeter City,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+295704,M. Cowling,23.0,England,Defender,Cambridge United,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+344645,D. Hill,21.0,England,Midfielder,Northampton,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+347081,A. Clark,24.0,England,Defender,Exeter City,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+383082,E. Collins,0.0,England,Midfielder,Exeter City,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+384401,A. Sowden,0.0,England,Goalkeeper,Exeter City,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+384486,A. Kone,21.0,Côte d'Ivoire,Goalkeeper,Charlton,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+389548,A. Lekuti,19.0,England,Midfielder,Northampton,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+389549,B. Smith-Hoves,19.0,England,Defender,Northampton,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+389550,K. O’Keeffe,19.0,England,Attacker,Northampton,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+394581,R. Duggan,18.0,England,Attacker,Northampton,League One,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17398,W. Aimson,31.0,England,Defender,Exeter City,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17407,F. Seriki,23.0,England,Defender,Rotherham,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17740,T. Hamer,26.0,England,Defender,Burton Albion,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17877,A. Campbell,30.0,England,Attacker,Crawley Town,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19051,A. Pritchard,32.0,England,Midfielder,Birmingham,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19184,Thomas James Carroll,33.0,England,Midfielder,Exeter City,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19306,A. Appiah,24.0,England,Attacker,Rotherham,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19496,T. Edwards,26.0,England,Defender,Huddersfield,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19616,L. Kelly,30.0,Republic of Ireland,Midfielder,Crawley Town,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19618,A. Rinomhota,28.0,England,Midfielder,Rotherham,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19938,A. May,32.0,England,Attacker,Charlton,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20159,T. Eaves,33.0,England,Attacker,Rotherham,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+37242,D. Burgzorg,27.0,Netherlands,Attacker,Huddersfield,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+82060,K. Gordon,28.0,England,Midfielder,Crawley Town,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+127122,J. Lewis,26.0,Wales,Defender,Stockport County,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+133992,L. Hoole,23.0,Wales,Defender,Bristol Rovers,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+137225,C. Grant,24.0,Republic of Ireland,Midfielder,Barnsley,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+276980,S. Long,23.0,Scotland,Goalkeeper,Lincoln,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+289618,Alex Matos,21.0,England,Midfielder,Huddersfield,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+383823,A. Fox,21.0,England,Defender,Peterborough,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17474,A. MacDonald,35.0,Scotland,Midfielder,Stevenage,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17561,E. Ross,28.0,England,Goalkeeper,Stockport County,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17639,T. Vancooten,28.0,Guyana,Defender,Stevenage,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19853,B. Haunstrup,29.0,England,Defender,Cambridge United,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+44868,S. Clare,29.0,England,Defender,Wigan,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+157024,Zak Ben Emmerson,21.0,England,Attacker,Blackpool,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+329350,J. Opawole,0.0,England,Midfielder,Blackpool,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+334003,R. Idowu,23.0,Republic of Ireland,Midfielder,Shrewsbury,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+344272,E. Farrar,21.0,England,Defender,Stockport County,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+394599,J. Kenny,0.0,England,Defender,Stockport County,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+400330,G. Scales,18.0,England,Midfielder,Cambridge United,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+401033,L. Partington,25.0,England,Midfielder,Stockport County,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+444296,J. Hillary,0.0,England,Defender,Stockport County,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+444297,K. Fligg,19.0,England,Midfielder,Stockport County,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+449044,Ronan Ismaili,19.0,England,Attacker,Cambridge United,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+449524,J. Jones,0.0,England,Attacker,Blackpool,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+450691,T. Unwin,0.0,England,Defender,Peterborough,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+450692,L. Gilbert,0.0,England,Defender,Peterborough,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+450693,J. Davies,0.0,England,Attacker,Peterborough,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+453917,J. Okeke,0.0,England,Midfielder,Stockport County,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19730,E. Bishop,29.0,England,Midfielder,Charlton,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+277434,Charlie James Winfield,23.0,England,Defender,Barnsley,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+286343,L. Brennan,24.0,England,Attacker,Wigan,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+350122,A. Atkinson,20.0,England,Midfielder,Barnsley,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+384488,M. Dench,22.0,Australia,Midfielder,Charlton,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+384581,J. Collins,19.0,England,Midfielder,Shrewsbury,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+384582,H. Kirby-Moore,19.0,England,Midfielder,Shrewsbury,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+400893,H. Kedwell,21.0,England,Midfielder,Charlton,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+403255,W. Squires,21.0,England,Defender,Blackpool,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+411970,T. Cartwright,18.0,England,Midfielder,Northampton,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+428596,L. Jenkins,18.0,England,Defender,Northampton,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+428597,J. Hart,18.0,England,Midfielder,Northampton,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+430458,E. Mitchell,23.0,England,Midfielder,Wigan,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+431123,D. Matthews,0.0,England,Midfielder,Burton Albion,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+438097,Kwaku Poku Agyeman Donkor,21.0,England,Defender,Blackpool,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+449523,D. Lescott,20.0,England,Midfielder,Blackpool,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+449525,S. Nyamwanza,17.0,England,Midfielder,Shrewsbury,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+449528,J. Nyame,20.0,England,Defender,Blackpool,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+449533,C. Morris,0.0,England,Attacker,Shrewsbury,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+451213,L. Whitney,0.0,England,Attacker,Shrewsbury,League One,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17859,Zachary Louvaine Mills,33.0,England,Defender,Walsall,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19556,Callum Henry McManaman,34.0,England,Midfielder,Tranmere,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20059,Jay Francis Spearing,37.0,England,Midfielder,Tranmere,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+113644,Sacha Charles Julian Guy Bastien,27.0,France,Goalkeeper,Stevenage,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+273311,Nathan Woodthorpe,24.0,England,Defender,Crewe,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+273731,Benjamin Blythe,22.0,England,Defender,Doncaster,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+278067,Sonny Jay Lewis,18.0,Wales,Midfielder,Newport County,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+310735,Charlie Woods,19.0,England,Goalkeeper,Northampton,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+313565,Finlay Johnson,20.0,England,Midfielder,Stevenage,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+326108,Donell Gordon,0.0,England,Midfielder,Swindon Town,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+331559,Iestyn Evans,19.0,Wales,Defender,Newport County,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+335029,Tommy Jackson,18.0,England,Goalkeeper,Walsall,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+343297,Josh Hallard,22.0,England,Defender,AFC Wimbledon,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+343301,Reuben Mason,19.0,England,Defender,AFC Wimbledon,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+344646,Kenny Ndefo,18.0,England,Midfielder,Northampton,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+344647,Courtney Lashley,18.0,England,Midfielder,Northampton,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+344940,William Hollings,19.0,England,Midfielder,Doncaster,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+345265,Corie Cole,19.0,England,Midfielder,Doncaster,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+348724,Thomas Henson,18.0,England,Defender,Doncaster,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+348914,Scott Holding,22.0,England,Defender,Stockport County,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17968,Emmanuel Okokon Idem,26.0,England,Goalkeeper,Swindon Town,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+82087,Luke O'Reilly,26.0,England,Goalkeeper,Stevenage,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+144717,Ryan David Lewis-Hillier,22.0,Wales,Attacker,Newport County,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+147837,Alex Gorst,23.0,England,Goalkeeper,Stockport County,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+156831,Sam Cornish,24.0,England,Attacker,Colchester,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+278132,Camron Gbadebo,23.0,England,Defender,Colchester,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+280692,Samuel Tinubu,21.0,England,Attacker,Stevenage,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+290986,Nathan Ross Caine,23.0,England,Attacker,Mansfield Town,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+331558,Jonah Williams,17.0,Wales,Midfielder,Newport County,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+333207,Levi Francis,0.0,England,Defender,Swindon Town,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+339744,Ben Daniel Rydel,0.0,England,Midfielder,Salford City,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+339754,Mason Wilson,17.0,England,Defender,Harrogate Town,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+343295,Marcel Campbell,21.0,England,Midfielder,AFC Wimbledon,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+345262,Dylan Dwyer,22.0,England,Midfielder,Tranmere,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+345271,Jedidiah Afenyo,20.0,England,Attacker,Swindon Town,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+349014,Bobby Attree,17.0,England,Defender,Harrogate Town,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+349653,Owen Cochrane,21.0,England,Defender,Stevenage,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+356416,R. Sawyers,18.0,England,Defender,Walsall,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+377803,Kate Holtam,0.0,England,Goalkeeper,Gillingham,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+379529,M. Fisher,20.0,England,Midfielder,Tranmere,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+129108,P. Żuk,22.0,Poland,Defender,Barrow,League Two,2022,1,8,0,0,0,0,5,0,0,0,0,0,0,6.3,0,8.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+290996,C. Wood,21.0,England,Midfielder,Bradford,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+339799,K. Kevser-Junior,19.0,England,Midfielder,Crawley Town,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+345024,J. Scanlon,20.0,England,Midfielder,Rochdale,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+345270,T. Wynn-Davis,18.0,England,Midfielder,Swindon Town,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+349013,Tommy Crump,0.0,England,Goalkeeper,Gillingham,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+357259,M. Ridley,23.0,England,Defender,Sutton Utd,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+377112,N. Bollado,19.0,England,Attacker,Carlisle,League Two,2022,1,0,0,0,0,0,0,0,0,0,0,0,0,6.2,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+377115,A. Lomax,19.0,England,Attacker,Tranmere,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+377801,R. Khaleel,20.0,England,Midfielder,Crawley Town,League Two,2022,0,0,0,0,7,1,163,0,10,5,2,0,0,6.70909,17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+379619,J. Whiting,18.0,England,Midfielder,Doncaster,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+384589,R. Onabanjo,19.0,England,Defender,AFC Wimbledon,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+384594,C. Petch,19.0,England,Defender,Doncaster,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+389548,A. Lekuti,19.0,England,Midfielder,Northampton,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+389549,B. Smith-Hoves,19.0,England,Defender,Northampton,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+389552,F. Khan,19.0,England,Midfielder,Doncaster,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+394581,R. Duggan,18.0,England,Attacker,Northampton,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+398868,J. Lahan,19.0,England,Defender,AFC Wimbledon,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+399969,J. Copland,0.0,England,Goalkeeper,Swindon Town,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+412303,T. Webster,19.0,England,Midfielder,Crewe,League Two,2022,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17455,H. White,30.0,England,Defender,Walsall,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17550,R. Willmott,35.0,England,Midfielder,Walsall,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17569,R. Clampin,26.0,England,Defender,Colchester,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17840,R. Hall-Johnson,30.0,England,Defender,Wrexham,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17969,K. O&apos;Hara,29.0,Republic of Ireland,Goalkeeper,Colchester,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18342,D. Angus,31.0,England,Attacker,Harrogate Town,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18841,P. Souaré,35.0,Senegal,Defender,Morecambe,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19316,C. Harries,28.0,Wales,Defender,Swindon Town,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20046,M. Nottingham,36.0,St. Kitts and Nevis,Defender,Accrington ST,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20125,J. Obika,34.0,England,Attacker,Morecambe,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20198,T. Craig,40.0,England,Defender,Crawley Town,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+82376,A. Cosgrave,26.0,England,Attacker,AFC Wimbledon,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+118437,C. Rowe,29.0,England,Defender,Sutton Utd,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+119956,S. Nwabuokei,29.0,England,Midfielder,Barrow,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+126792,F. Vincent,26.0,England,Midfielder,Notts County,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+131502,A. Barlow,25.0,England,Midfielder,Doncaster,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+147834,A. Mair,24.0,Scotland,Goalkeeper,Notts County,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+231031,J. Jones,24.0,Wales,Defender,Forest Green,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+275566,E. Bristow,24.0,England,Defender,Tranmere,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284323,C. Savage,22.0,Wales,Midfielder,Forest Green,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17510,E. Monthe,30.0,Cameroon,Defender,Walsall,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17786,M. Roberts,25.0,England,Midfielder,Swindon Town,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17841,J. Hessenthaler,31.0,England,Midfielder,Crawley Town,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18487,S. Quigley,33.0,England,Attacker,Stockport County,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19237,A. Clayton,35.0,England,Midfielder,Bradford,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19968,A. Woodyard,32.0,England,Midfielder,AFC Wimbledon,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20034,K. Wallace,30.0,England,Midfielder,Mansfield Town,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20097,A. Nadesan,31.0,England,Attacker,Crawley Town,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20375,K. Appiah,35.0,Ghana,Attacker,Crawley Town,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20381,S. McLoughlin,28.0,Republic of Ireland,Midfielder,Salford City,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20417,R. Taylor,37.0,England,Attacker,Grimsby,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20448,A. Oteh,27.0,England,Attacker,Crawley Town,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+82031,C. O&apos;Keeffe,27.0,Republic of Ireland,Defender,Forest Green,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+106737,A. Little,28.0,England,Midfielder,Forest Green,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+155282,K. Mitchell,28.0,Grenada,Attacker,Notts County,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+275564,K. Scales,23.0,England,Midfielder,Bradford,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284291,J. Turner-Cooke,22.0,England,Midfielder,Tranmere,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+375872,M. Shubbar,20.0,Sweden,Attacker,Crawley Town,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+398869,J. Oram,19.0,England,Goalkeeper,Doncaster,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+404140,A. Fearon,19.0,England,Defender,Notts County,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+177,G. Marsh,27.0,England,Midfielder,AFC Wimbledon,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17909,M. Clark,26.0,Wales,Defender,Accrington ST,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17977,Z. Jules,28.0,Scotland,Defender,Milton Keynes Dons,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18110,M. Crocombe,32.0,New Zealand,Goalkeeper,Grimsby,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19478,J. Davenport,27.0,England,Midfielder,Stockport County,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19705,J. Lowe,34.0,England,Midfielder,Salford City,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19908,D. McGeouch,32.0,Scotland,Midfielder,Forest Green,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20227,R. Delaney,29.0,Republic of Ireland,Defender,Morecambe,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20242,E. Hamilton,27.0,Scotland,Midfielder,Accrington ST,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20414,L. Jephcott,25.0,Wales,Attacker,Swindon Town,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20502,K. Mellor,34.0,England,Midfielder,Crewe,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+38700,S. Kaikai,30.0,Sierra Leone,Attacker,Milton Keynes Dons,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+77183,L. Brook,24.0,Australia,Attacker,Crewe,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+138778,T. Uwakwe,26.0,England,Midfielder,Crewe,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+138823,H. Lawrence,24.0,England,Defender,Milton Keynes Dons,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+138934,A. Pressley,24.0,Scotland,Attacker,Accrington ST,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+167657,T. Onyango,22.0,England,Midfielder,Forest Green,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+190555,S. Perry,24.0,England,Midfielder,Walsall,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+194707,O. Gallacher,26.0,Scotland,Midfielder,Grimsby,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+298100,B. Smales-Braithwaite,23.0,England,Attacker,Barrow,League Two,2023,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17742,A. Iacovitti,28.0,Scotland,Defender,Port Vale,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+17916,T. Vassell,28.0,England,Defender,Salford City,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19175,J. Chester,36.0,Wales,Defender,Barrow,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19333,C. Baker-Richardson,30.0,England,Attacker,Crewe,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19710,J. Pritchard,29.0,England,Midfielder,Accrington ST,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+19862,R. Curtis,29.0,Republic of Ireland,Midfielder,AFC Wimbledon,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+20227,R. Delaney,29.0,Republic of Ireland,Defender,Newport County,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+44905,C. Hendry,28.0,Scotland,Attacker,Salford City,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+69275,D. Devoy,24.0,Republic of Ireland,Midfielder,Swindon Town,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+69298,P. Omochere,25.0,Republic of Ireland,Attacker,Fleetwood Town,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+82210,K. Cameron,28.0,Scotland,Defender,Notts County,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+106737,A. Little,28.0,England,Midfielder,AFC Wimbledon,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+119948,C. Hall,32.0,England,Defender,Colchester,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+138848,H. Charsley,29.0,Republic of Ireland,Midfielder,Newport County,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+144708,D. Jefferies,23.0,Wales,Midfielder,Gillingham,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+155852,R. Aguiar,24.0,England,Midfielder,Swindon Town,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+193263,J. Foulkes,22.0,England,Defender,Walsall,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+201773,K. Łopata,24.0,Poland,Defender,Port Vale,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+278233,M. Dean,21.0,England,Attacker,Milton Keynes Dons,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284427,L. Payne,21.0,England,Defender,Newport County,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+82967,T. Shade,25.0,St. Kitts and Nevis,Attacker,Swindon Town,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+129701,Armando Quitirna,25.0,England,Midfielder,Fleetwood Town,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+284309,F. Armstrong,22.0,England,Defender,Fleetwood Town,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+295661,H. Macadam,24.0,England,Midfielder,Fleetwood Town,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+394592,K. Nugent,19.0,England,Midfielder,Carlisle,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+405256,B. Jones,20.0,England,Defender,Fleetwood Town,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+416190,P. Brown,20.0,England,Midfielder,Fleetwood Town,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+430334,K. Orlowski,18.0,England,Goalkeeper,Bromley,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+430466,R. Wyborn,0.0,England,Defender,Bromley,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+430468,R. Kamara,36.0,Sierra Leone,Attacker,Bromley,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+430469,N. Joyce,0.0,England,Attacker,Bromley,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+447469,F. Needham,0.0,Wales,Goalkeeper,Newport County,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+447470,A. Young,19.0,Wales,Midfielder,Newport County,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+449043,R. Nkeng,0.0,England,Midfielder,AFC Wimbledon,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+449531,R. Park,19.0,England,Attacker,Carlisle,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+449536,C. Bennett,18.0,St. Kitts and Nevis,Defender,Walsall,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+449537,J. Leydon,17.0,England,Midfielder,Walsall,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+450688,Archie Milne,20.0,England,Midfielder,Swindon Town,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+450689,Kian Larkins,0.0,England,Midfielder,Swindon Town,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+460986,F. Roberts,19.0,England,Midfielder,Bromley,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+40774,P. Płacheta,27.0,Poland,Midfielder,Port Vale,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+44878,A. Keena,26.0,Republic of Ireland,Attacker,Cheltenham,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+51319,D. Wynne,29.0,New Zealand,Defender,Port Vale,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+118360,A. Newby,30.0,England,Midfielder,Colchester,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+328127,T. Donaghy,22.0,England,Goalkeeper,Fleetwood Town,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+330448,Ronny Nelson,22.0,England,Defender,Colchester,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+345273,Nathan Harvey,23.0,England,Goalkeeper,Gillingham,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+438091,L. Brazier,0.0,England,Midfielder,Port Vale,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+444293,H. O&apos;Gara,0.0,England,Midfielder,Salford City,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+444294,J. Hamman,0.0,England,Midfielder,Salford City,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+444298,F. Jeffreys,19.0,England,Midfielder,Bradford,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+445963,G. Pedley,19.0,England,Goalkeeper,Morecambe,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+449049,D. Mahaffy,19.0,England,Midfielder,Port Vale,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+450680,J. Bedford,17.0,England,Goalkeeper,Milton Keynes Dons,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+450682,J. Clark-Anderson,18.0,England,Defender,Milton Keynes Dons,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+450684,Edwin Daffern,19.0,England,Midfielder,Milton Keynes Dons,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+450685,K. Boyce,18.0,England,Midfielder,Milton Keynes Dons,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+450701,O. Riva,19.0,England,Goalkeeper,Accrington ST,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+451875,J. Adepoju,0.0,England,Attacker,Milton Keynes Dons,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+454113,C. Wragg,19.0,England,Attacker,Chesterfield,League Two,2024,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
