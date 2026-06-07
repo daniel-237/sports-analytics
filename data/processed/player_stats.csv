@@ -1,20 +1,61 @@
-name,age,nationality,team,goals,assists,appearances,minutes,yellow_cards,red_cards,shots_on_target,rating
-E. Haaland,25,Norway,Manchester City,27,5,32,2556,1,0,59,7.361290
-C. Palmer,23,England,Chelsea,22,11,33,2618,7,0,46,7.745454
-A. Isak,26,Sweden,Newcastle,21,2,31,2265,1,0,43,7.166666
-O. Watkins,30,England,Aston Villa,19,13,37,3221,4,0,47,7.335135
-P. Foden,25,England,Manchester City,19,8,37,2874,2,0,48,7.794285
-D. Solanke,28,England,Bournemouth,19,3,38,3332,3,0,38,7.021052
-Mohamed Salah,33,Egypt,Liverpool,18,10,32,2535,2,0,56,7.581250
-Son Heung-Min,33,Korea Republic,Tottenham,17,10,35,2948,1,0,40,7.568571
-J. Bowen,29,England,West Ham,16,6,34,3020,2,0,37,7.114705
-J. Mateta,28,France,Crystal Palace,16,5,35,2284,3,0,29,6.974285
-B. Saka,24,England,Arsenal,16,8,35,2933,4,0,37,7.700000
-N. Jackson,24,Senegal,Chelsea,14,5,35,2804,10,0,41,7.011428
-C. Wood,34,New Zealand,Nottingham Forest,14,1,31,1808,0,0,26,6.919354
-K. Havertz,26,Germany,Arsenal,13,7,37,2639,11,0,28,7.224324
-Y. Wissa,29,Congo DR,Brentford,12,3,34,2509,7,0,26,7.085294
-L. Trossard,31,Belgium,Arsenal,12,1,34,1647,2,0,22,7.044117
-Matheus Cunha,26,Brazil,Manchester United,12,7,32,2453,9,0,38,7.184375
-Hwang Hee-Chan,29,Korea Republic,Wolves,12,3,29,2125,6,0,18,6.972413
-D. Núñez,26,Uruguay,Liverpool,11,8,36,2047,9,0,46,6.983333
+id,name,age,nationality,position,team,appearances,minutes,goals,assists,shots_total,shots_on_target,passes_total,pass_accuracy,dribbles,tackles,interceptions,yellow_cards,red_cards,rating,duels_won
+54,Diego Costa,37,Spain,Attacker,Wolves,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+178,Lucas Moura,33,Brazil,Attacker,Tottenham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+297,A. Oxlade-Chamberlain,32,England,Midfielder,Liverpool,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+888,P. Jones,31,England,Defender,Manchester United,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+900,J. Lingard,33,England,Midfielder,Nottingham Forest,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+2473,M. Lanzini,32,Argentina,Midfielder,West Ham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+2677,João Moutinho,39,Portugal,Midfielder,Wolves,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+18753,Adama Traoré,29,Spain,Attacker,Wolves,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+18762,T. Davies,27,England,Midfielder,Everton,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+18849,J. McArthur,36,Scotland,Midfielder,Crystal Palace,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+18852,L. Milivojević,34,Serbia,Midfielder,Crystal Palace,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+18854,A. Townsend,34,England,Forward,Everton,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+18858,A. Begović,38,Bosnia and Herzegovina,Goalkeeper,Everton,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+18878,J. Stanislas,34,England,Midfielder,Bournemouth,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+18891,C. Clark,35,Republic of Ireland,Defender,Sheffield Utd,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+19174,J. Steer,33,England,Goalkeeper,Aston Villa,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+19299,J. Colback,36,England,Midfielder,Nottingham Forest,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+19842,L. Taylor,35,Montserrat,Attacker,Nottingham Forest,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+130419,M. Longstaff,25,England,Midfielder,Newcastle,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+181822,E. Wady,21,USA,Goalkeeper,Chelsea,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+84,Wesley Moraes,29,Brazil,Attacker,Aston Villa,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+285,K. Hoever,23,Netherlands,Defender,Wolves,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+378,Alex Telles,33,Brazil,Defender,Manchester United,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+882,David de Gea,35,Spain,Goalkeeper,Manchester United,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+1914,M. Sanson,31,France,Midfielder,Aston Villa,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+18747,R. Giles,25,England,Defender,Wolves,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+27778,B. Bolla,26,Hungary,Defender,Wolves,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+138934,A. Pressley,24,Scotland,Attacker,Brentford,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+140947,I. Kaboré,24,Burkina Faso,Defender,Manchester City,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+152980,Remmi Eugene Savage,24,England,Defender,Newcastle,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+153434,W. Fish,22,England,Defender,Manchester United,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+162189,M. Bidstrup,24,Denmark,Midfielder,Brentford,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+197448,Yan Couto,23,Brazil,Defender,Manchester City,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+278075,C. Cîrjan,23,Romania,Midfielder,Arsenal,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+278088,C. Rushworth,24,England,Goalkeeper,Brighton,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+284062,K. Edwards,22,England,Attacker,Arsenal,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+284248,M. Frauendorf,21,Germany,Midfielder,Liverpool,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+284446,F. Potts,22,England,Midfielder,West Ham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+284466,C. Patino,22,England,Midfielder,Arsenal,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+291022,Joshua Keeley,22,Republic of Ireland,Goalkeeper,Tottenham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+2276,J. Cumming,26,England,Goalkeeper,Chelsea,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+18751,Ivan Cavaleiro,32,Portugal,Forward,Fulham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+64167,G. Słonina,21,USA,Goalkeeper,Chelsea,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+138777,F. Anjorin,24,England,Midfielder,Chelsea,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+162590,T. Morton,23,England,Midfielder,Liverpool,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+278086,I. Odutayo,23,England,Defender,Fulham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+282130,Logan Pye,22,England,Defender,Manchester United,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+284305,Jamie Miley,21,England,Midfielder,Newcastle,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+284471,S. Parkes,21,England,Defender,Fulham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+284559,Alexander Paul Borto,22,USA,Goalkeeper,Fulham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+288055,Ângelo,21,Brazil,Attacker,Chelsea,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+298129,M. Boateng,23,England,Midfielder,Crystal Palace,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+303016,M. Oyedele,21,Poland,Midfielder,Manchester United,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+327728,Delano McCoy-Splatt\t,21,Jamaica,Midfielder,Fulham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+330636,Sonny Aljofree,21,England,Defender,Manchester United,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+359386,M. Godo,22,England,Attacker,Fulham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+363974,Z. Marsh,20,England,Attacker,Crystal Palace,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+378981,Elyh Harrison,19,England,Goalkeeper,Manchester United,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+384981,S. Amissah,18,England,Defender,Fulham,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+404021,F. Marjoram,19,England,Midfielder,Crystal Palace,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
