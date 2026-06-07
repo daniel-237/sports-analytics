@@ -174,6 +174,7 @@ st.sidebar.markdown("""
 </div>""", unsafe_allow_html=True)
 
 page = st.sidebar.radio("", [
+    "🏠  Home",
     "⚽  Overview",
     "🔮  Match Predictor",
     "👤  Player Stats",
@@ -197,9 +198,294 @@ def insight_card(emoji, text):
         <p>{text}</p>
     </div>""", unsafe_allow_html=True)
 
+    # ═══════════════════════════════════════════════════════════════════════════════
+# LANDING PAGE
+# Add "🏠  Home" as the FIRST item in your sidebar radio list
+# Then paste this entire block BEFORE your "if page == "⚽  Overview":"  block
 # ═══════════════════════════════════════════════════════════════════════════════
-# OVERVIEW
-# ═══════════════════════════════════════════════════════════════════════════════
+if page == "🏠  Home":
+    # ── HERO SECTION ──────────────────────────────────────────────────────────
+    st.markdown("""
+    <div style='padding: 60px 0 40px 0;'>
+        <p style='font-size: 13px; font-weight: 600; color: #0071e3;
+                  letter-spacing: 1.5px; text-transform: uppercase;
+                  margin: 0 0 16px 0;'>
+            Football Intelligence Platform
+        </p>
+        <h1 style='font-size: 64px; font-weight: 700; color: #1d1d1f;
+                   letter-spacing: -2px; line-height: 1.02;
+                   margin: 0 0 24px 0;'>
+            Analyse. Predict.<br>Scout. Decide.
+        </h1>
+        <p style='font-size: 21px; color: #6e6e73; font-weight: 400;
+                  line-height: 1.5; max-width: 640px; margin: 0 0 40px 0;'>
+            A machine learning powered football analytics dashboard
+            for match prediction, player comparison, and recruitment
+            insights across English football.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── CTA BUTTONS ───────────────────────────────────────────────────────────
+    col1, col2, col3 = st.columns([1, 1, 4])
+    with col1:
+        if st.button("🔮 Try Predictor"):
+            st.session_state["page"] = "🔮  Match Predictor"
+            st.rerun()
+    with col2:
+        if st.button("📊 View Stats"):
+            st.session_state["page"] = "👤  Player Stats"
+            st.rerun()
+
+    st.divider()
+
+    # ── STATS BAR ─────────────────────────────────────────────────────────────
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Matches Analysed",  f"{total_matches:,}")
+    c2.metric("Leagues Covered",   total_leagues)
+    c3.metric("Seasons of Data",   total_seasons)
+    c4.metric("Player Records",    f"{len(players):,}" if players is not None else "720")
+
+    st.divider()
+
+    # ── FEATURE CARDS ─────────────────────────────────────────────────────────
+    st.markdown("""
+    <p style='font-size: 13px; font-weight: 600; color: #6e6e73;
+              letter-spacing: 1.2px; text-transform: uppercase; margin: 0 0 8px 0;'>
+        Features
+    </p>
+    <h2 style='font-size: 40px; font-weight: 700; color: #1d1d1f;
+               letter-spacing: -1px; margin: 0 0 40px 0;'>
+        Everything you need to understand football.
+    </h2>
+    """, unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown("""
+        <div style='background: #f5f5f7; border-radius: 20px;
+                    padding: 32px; height: 270px;'>
+            <div style='font-size: 36px; margin-bottom: 16px;'>🔮</div>
+            <h3 style='font-size: 20px; font-weight: 600; color: #1d1d1f;
+                       margin: 0 0 8px 0;'>Match Outcome Predictor</h3>
+            <p style='font-size: 15px; color: #6e6e73; margin: 0; line-height: 1.5;'>
+                XGBoost model trained on 55,000+ matches predicts
+                Home Win, Draw, or Away Win with confidence scores
+                and plain-English explanations.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("""
+        <div style='background: #f5f5f7; border-radius: 20px;
+                    padding: 32px; height: 270px;'>
+            <div style='font-size: 36px; margin-bottom: 16px;'>⚔️</div>
+            <h3 style='font-size: 20px; font-weight: 600; color: #1d1d1f;
+                       margin: 0 0 8px 0;'>Player Comparison Tool</h3>
+            <p style='font-size: 15px; color: #6e6e73; margin: 0; line-height: 1.5;'>
+                Compare any two players with radar charts,
+                percentile rankings, per 90 stats, and a
+                cosine similarity engine to find lookalike players.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col3:
+        st.markdown("""
+        <div style='background: #f5f5f7; border-radius: 20px;
+                    padding: 32px; height: 270px;'>
+            <div style='font-size: 36px; margin-bottom: 16px;'>💰</div>
+            <h3 style='font-size: 20px; font-weight: 600; color: #1d1d1f;
+                       margin: 0 0 8px 0;'>Recruitment & Scouting</h3>
+            <p style='font-size: 15px; color: #6e6e73; margin: 0; line-height: 1.5;'>
+                Build ranked shortlists by position, age, goals per 90,
+                and rating. Find hidden gems, overperformers, and
+                identify team weaknesses automatically.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown("""
+        <div style='background: #f5f5f7; border-radius: 20px;
+                    padding: 32px; height: 270px;'>
+            <div style='font-size: 36px; margin-bottom: 16px;'>🏟️</div>
+            <h3 style='font-size: 20px; font-weight: 600; color: #1d1d1f;
+                       margin: 0 0 8px 0;'>Team Analysis</h3>
+            <p style='font-size: 15px; color: #6e6e73; margin: 0; line-height: 1.5;'>
+                Deep dive into any team's home vs away form,
+                goals trend, clean sheet rate, and
+                automatic strength and weakness detection.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("""
+        <div style='background: #f5f5f7; border-radius: 20px;
+                    padding: 32px; height: 270px;'>
+            <div style='font-size: 36px; margin-bottom: 16px;'>📈</div>
+            <h3 style='font-size: 20px; font-weight: 600; color: #1d1d1f;
+                       margin: 0 0 8px 0;'>Model Performance</h3>
+            <p style='font-size: 15px; color: #6e6e73; margin: 0; line-height: 1.5;'>
+                Full model evaluation with confusion matrix,
+                feature importance, and comparison of
+                Logistic Regression, Random Forest, and XGBoost.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col3:
+        st.markdown("""
+        <div style='background: #f5f5f7; border-radius: 20px;
+                    padding: 32px; height: 270px;'>
+            <div style='font-size: 36px; margin-bottom: 16px;'>👤</div>
+            <h3 style='font-size: 20px; font-weight: 600; color: #1d1d1f;
+                       margin: 0 0 8px 0;'>Player Statistics</h3>
+            <p style='font-size: 15px; color: #6e6e73; margin: 0; line-height: 1.5;'>
+                720 players across 4 leagues and 3 seasons.
+                Filter by position, team, age, and minutes.
+                Toggle between raw totals and per 90 stats.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.divider()
+
+    # ── HOW TO USE ────────────────────────────────────────────────────────────
+    st.markdown("""
+    <p style='font-size: 13px; font-weight: 600; color: #6e6e73;
+              letter-spacing: 1.2px; text-transform: uppercase; margin: 0 0 8px 0;'>
+        Get Started
+    </p>
+    <h2 style='font-size: 40px; font-weight: 700; color: #1d1d1f;
+               letter-spacing: -1px; margin: 0 0 40px 0;'>
+        How to use this dashboard.
+    </h2>
+    """, unsafe_allow_html=True)
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        steps = [
+            ("1", "🔮 Predict a match",
+             "Go to Match Predictor. Select a home and away team. Click Predict Match to see outcome probabilities and the reasoning behind the prediction."),
+            ("2", "⚔️ Compare two players",
+             "Go to Player Comparison. Select any two players from the dropdown. View the radar chart, percentile rankings, and similar player suggestions."),
+            ("3", "🏟️ Analyse a team",
+             "Go to Team Analysis. Select a league and team. See their full record, home vs away splits, last 5 results, and automatic insight cards."),
+        ]
+        for num, title, desc in steps:
+            st.markdown(f"""
+            <div style='display: flex; gap: 16px; margin-bottom: 24px;
+                        align-items: flex-start;'>
+                <div style='background: #0071e3; color: white; border-radius: 50%;
+                            width: 32px; height: 32px; display: flex;
+                            align-items: center; justify-content: center;
+                            font-size: 14px; font-weight: 700; flex-shrink: 0;
+                            margin-top: 2px;'>
+                    {num}
+                </div>
+                <div>
+                    <p style='font-size: 16px; font-weight: 600; color: #1d1d1f;
+                              margin: 0 0 4px 0;'>{title}</p>
+                    <p style='font-size: 14px; color: #6e6e73; margin: 0;
+                              line-height: 1.5;'>{desc}</p>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    with col2:
+        steps2 = [
+            ("4", "💰 Build a scouting shortlist",
+             "Go to Transfer Analysis → Player Scouting. Set your filters — position, age, goals per 90, minimum minutes. Click Build Shortlist to get a ranked list you can download as CSV."),
+            ("5", "💎 Find hidden gems",
+             "Go to Transfer Analysis → Hidden Gems. See the best under 23 players, high output low minutes players, overperformers, and underperformers."),
+            ("6", "📈 Review model performance",
+             "Go to Model Performance to see how the prediction model was built, evaluated, and why XGBoost was chosen over the alternatives."),
+        ]
+        for num, title, desc in steps2:
+            st.markdown(f"""
+            <div style='display: flex; gap: 16px; margin-bottom: 24px;
+                        align-items: flex-start;'>
+                <div style='background: #0071e3; color: white; border-radius: 50%;
+                            width: 32px; height: 32px; display: flex;
+                            align-items: center; justify-content: center;
+                            font-size: 14px; font-weight: 700; flex-shrink: 0;
+                            margin-top: 2px;'>
+                    {num}
+                </div>
+                <div>
+                    <p style='font-size: 16px; font-weight: 600; color: #1d1d1f;
+                              margin: 0 0 4px 0;'>{title}</p>
+                    <p style='font-size: 14px; color: #6e6e73; margin: 0;
+                              line-height: 1.5;'>{desc}</p>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.divider()
+
+    # ── TECH STACK ────────────────────────────────────────────────────────────
+    st.markdown("""
+    <p style='font-size: 13px; font-weight: 600; color: #6e6e73;
+              letter-spacing: 1.2px; text-transform: uppercase; margin: 0 0 8px 0;'>
+        Built With
+    </p>
+    <h2 style='font-size: 40px; font-weight: 700; color: #1d1d1f;
+               letter-spacing: -1px; margin: 0 0 32px 0;'>
+        The tech stack.
+    </h2>
+    """, unsafe_allow_html=True)
+
+    tech = [
+        ("Python", "Core language"),
+        ("Pandas", "Data manipulation"),
+        ("XGBoost", "ML prediction model"),
+        ("Scikit-learn", "Model evaluation"),
+        ("Streamlit", "Interactive dashboard"),
+        ("Plotly", "Charts & radar visualisations"),
+        ("API Football", "Player statistics"),
+        ("football-data.co.uk", "30 years of match data"),
+    ]
+
+    cols = st.columns(4)
+    for i, (name, desc) in enumerate(tech):
+        with cols[i % 4]:
+            st.markdown(f"""
+            <div style='background: #f5f5f7; border-radius: 14px;
+                        padding: 20px; margin-bottom: 12px; text-align: center;'>
+                <p style='font-size: 15px; font-weight: 600; color: #1d1d1f;
+                          margin: 0 0 4px 0;'>{name}</p>
+                <p style='font-size: 12px; color: #6e6e73; margin: 0;'>{desc}</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.divider()
+
+    # ── FOOTER ────────────────────────────────────────────────────────────────
+    st.markdown("""
+    <div style='text-align: center; padding: 40px 0;'>
+        <p style='font-size: 15px; color: #6e6e73; margin: 0 0 8px 0;'>
+            Built by <b style='color: #1d1d1f;'>Daniel Olutade</b>
+        </p>
+        <p style='font-size: 13px; color: #6e6e73; margin: 0;'>
+            CS Student · Sports Analytics · Machine Learning
+        </p>
+        <p style='font-size: 13px; color: #0071e3; margin: 8px 0 0 0;'>
+            <a href='https://github.com/daniel-237/sports-analytics'
+               style='color: #0071e3; text-decoration: none;'>
+                View on GitHub →
+            </a>
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
 if page == "⚽  Overview":
     st.markdown("# Football Analytics")
     st.markdown("Thirty years of English football. Five leagues. One dashboard.")
