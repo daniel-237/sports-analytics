@@ -1,25 +1,44 @@
-import streamlit as st
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
+import json
+from pathlib import Path
+
 import joblib
 import numpy as np
-import json
+import pandas as pd
+import plotly.graph_objects as go
+import streamlit as st
 
-# ── PAGE CONFIG ───────────────────────────────────────────────────────────────
+try:
+    from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+    from sklearn.metrics.pairwise import cosine_similarity
+    from sklearn.preprocessing import MinMaxScaler, StandardScaler
+except Exception:
+    accuracy_score = None
+    classification_report = None
+    confusion_matrix = None
+    cosine_similarity = None
+    MinMaxScaler = None
+    StandardScaler = None
+
+
+# =============================================================================
+# PAGE CONFIG
+# =============================================================================
 st.set_page_config(
     page_title="Football Analytics",
     page_icon="⚽",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
-# ── APPLE CSS ─────────────────────────────────────────────────────────────────
-st.markdown("""
+
+# =============================================================================
+# STYLING
+# =============================================================================
+st.markdown(
+    """
 <style>
     * {
-        font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue',
-                     'Arial', sans-serif !important;
+        font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif !important;
         -webkit-font-smoothing: antialiased;
     }
     .stApp { background-color: #ffffff; }
@@ -29,151 +48,148 @@ st.markdown("""
     }
     [data-testid="stSidebar"] * { color: #1d1d1f !important; }
     h1 {
-        font-size: 48px !important; font-weight: 700 !important;
-        color: #1d1d1f !important; letter-spacing: -1.5px !important;
+        font-size: 48px !important;
+        font-weight: 700 !important;
+        color: #1d1d1f !important;
+        letter-spacing: -1.5px !important;
         line-height: 1.05 !important;
     }
-    h2 { font-size: 26px !important; font-weight: 600 !important;
-         color: #1d1d1f !important; letter-spacing: -0.5px !important; }
-    h3 { font-size: 19px !important; font-weight: 600 !important;
-         color: #1d1d1f !important; letter-spacing: -0.3px !important; }
+    h2 {
+        font-size: 26px !important;
+        font-weight: 600 !important;
+        color: #1d1d1f !important;
+        letter-spacing: -0.5px !important;
+    }
+    h3 {
+        font-size: 19px !important;
+        font-weight: 600 !important;
+        color: #1d1d1f !important;
+        letter-spacing: -0.3px !important;
+    }
     [data-testid="metric-container"] {
-        background: #f5f5f7 !important; border-radius: 18px !important;
-        padding: 24px !important; border: none !important;
+        background: #f5f5f7 !important;
+        border-radius: 18px !important;
+        padding: 24px !important;
+        border: none !important;
         transition: transform 0.2s ease !important;
     }
     [data-testid="metric-container"]:hover { transform: scale(1.02) !important; }
     [data-testid="metric-container"] label {
-        font-size: 11px !important; font-weight: 600 !important;
-        color: #6e6e73 !important; text-transform: uppercase !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        color: #6e6e73 !important;
+        text-transform: uppercase !important;
         letter-spacing: 0.8px !important;
     }
     [data-testid="stMetricValue"] {
-        font-size: 34px !important; font-weight: 700 !important;
-        color: #1d1d1f !important; letter-spacing: -1px !important;
+        font-size: 34px !important;
+        font-weight: 700 !important;
+        color: #1d1d1f !important;
+        letter-spacing: -1px !important;
     }
     .stButton > button {
-        background-color: #0071e3 !important; color: #ffffff !important;
-        border: none !important; border-radius: 980px !important;
-        padding: 12px 28px !important; font-size: 15px !important;
-        font-weight: 500 !important; transition: all 0.2s ease !important;
+        background-color: #0071e3 !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 980px !important;
+        padding: 12px 28px !important;
+        font-size: 15px !important;
+        font-weight: 500 !important;
+        transition: all 0.2s ease !important;
     }
     .stButton > button:hover {
-        background-color: #0077ed !important; transform: scale(1.02) !important;
+        background-color: #0077ed !important;
+        transform: scale(1.02) !important;
         box-shadow: 0 4px 20px rgba(0,113,227,0.3) !important;
     }
     [data-testid="stSelectbox"] > div > div {
-        background-color: #f5f5f7 !important; border: 1px solid #d2d2d7 !important;
-        border-radius: 12px !important; font-size: 15px !important;
-    }
-    [data-testid="stTextInput"] > div > div > input {
-        background-color: #f5f5f7 !important; border: 1px solid #d2d2d7 !important;
-        border-radius: 12px !important; padding: 12px 16px !important;
+        background-color: #f5f5f7 !important;
+        border: 1px solid #d2d2d7 !important;
+        border-radius: 12px !important;
         font-size: 15px !important;
     }
-    hr { border: none !important; border-top: 1px solid #e0e0e5 !important;
-         margin: 36px 0 !important; }
+    [data-testid="stTextInput"] > div > div > input {
+        background-color: #f5f5f7 !important;
+        border: 1px solid #d2d2d7 !important;
+        border-radius: 12px !important;
+        padding: 12px 16px !important;
+        font-size: 15px !important;
+    }
+    hr {
+        border: none !important;
+        border-top: 1px solid #e0e0e5 !important;
+        margin: 36px 0 !important;
+    }
     [data-testid="stDataFrame"] {
-        border-radius: 18px !important; overflow: hidden !important;
+        border-radius: 18px !important;
+        overflow: hidden !important;
         border: 1px solid #e0e0e5 !important;
     }
-    .main .block-container { padding: 48px 60px !important; max-width: 1280px !important; }
+    .main .block-container {
+        padding: 48px 60px !important;
+        max-width: 1280px !important;
+    }
     #MainMenu { visibility: hidden; }
     footer { visibility: hidden; }
     header { visibility: hidden; }
     .insight-card {
         background: linear-gradient(135deg, #0071e3 0%, #0051a0 100%);
-        border-radius: 18px; padding: 20px 24px; margin-bottom: 8px; color: white;
+        border-radius: 18px;
+        padding: 20px 24px;
+        margin-bottom: 8px;
+        color: white;
     }
-    .insight-card p { color: white !important; font-size: 15px !important;
-                      font-weight: 500 !important; margin: 0 !important; }
+    .insight-card p {
+        color: white !important;
+        font-size: 15px !important;
+        font-weight: 500 !important;
+        margin: 0 !important;
+    }
     .insight-card span { font-size: 22px; }
+    .small-muted {
+        color: #6e6e73;
+        font-size: 14px;
+        line-height: 1.5;
+    }
     @media (max-width: 768px) {
         .main .block-container { padding: 24px 16px !important; }
         h1 { font-size: 32px !important; }
     }
 </style>
-""", unsafe_allow_html=True)
-
-# ── PLOTLY BASE ───────────────────────────────────────────────────────────────
-BASE = dict(
-    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-    font=dict(family="-apple-system, BlinkMacSystemFont, 'Helvetica Neue'",
-              color="#1d1d1f"),
-    xaxis=dict(showgrid=False, zeroline=False,
-               tickfont=dict(size=12, color="#6e6e73")),
-    yaxis=dict(showgrid=True, gridcolor="#f0f0f5", zeroline=False,
-               tickfont=dict(size=12, color="#6e6e73")),
-    margin=dict(l=0, r=0, t=24, b=0),
-    hoverlabel=dict(bgcolor="white", bordercolor="#e0e0e5",
-                    font=dict(size=13, color="#1d1d1f"))
+""",
+    unsafe_allow_html=True,
 )
-COLORS = ["#0071e3","#34c759","#ff9f0a","#ff3b30","#bf5af2",
-          "#5ac8fa","#ffcc00","#ff6b35","#32ade6","#30b0c7"]
 
-# ── DATA LOADING ──────────────────────────────────────────────────────────────
-@st.cache_data
-def load_match_data():
-    return pd.read_csv("data/processed/matches_clean.csv")
 
-@st.cache_data
-def load_player_data():
-    try:
-        df = pd.read_csv("data/processed/player_stats.csv")
-        for col in ["goals","assists","minutes","appearances",
-                    "shots_total","shots_on_target","pass_accuracy",
-                    "dribbles","tackles","interceptions","rating",
-                    "yellow_cards","red_cards","duels_won"]:
-            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
-        # ── PER 90 STATS ──────────────────────────────────────────────────────
-        df["mins_safe"] = df["minutes"].replace(0, np.nan)
-        df["goals_p90"]    = (df["goals"]           / df["mins_safe"] * 90).round(2)
-        df["assists_p90"]  = (df["assists"]          / df["mins_safe"] * 90).round(2)
-        df["shots_p90"]    = (df["shots_total"]      / df["mins_safe"] * 90).round(2)
-        df["sot_p90"]      = (df["shots_on_target"]  / df["mins_safe"] * 90).round(2)
-        df["tackles_p90"]  = (df["tackles"]          / df["mins_safe"] * 90).round(2)
-        df["interc_p90"]   = (df["interceptions"]    / df["mins_safe"] * 90).round(2)
-        df["contrib_p90"]  = ((df["goals"] + df["assists"]) / df["mins_safe"] * 90).round(2)
-        df["cards_p90"]    = ((df["yellow_cards"] + df["red_cards"]) / df["mins_safe"] * 90).round(2)
-        df = df.fillna(0)
-        return df
-    except FileNotFoundError:
-        st.error("Player data file not found. Please run player_stats.py.")
-        return None
-    except pd.errors.EmptyDataError:
-        st.error("Player data file is empty.")
-        return None
-    except Exception as e:
-        st.error(f"Unexpected error loading player data: {e}")
-        return None
+BASE_LAYOUT = dict(
+    paper_bgcolor="rgba(0,0,0,0)",
+    plot_bgcolor="rgba(0,0,0,0)",
+    font=dict(family="-apple-system, BlinkMacSystemFont, 'Helvetica Neue'", color="#1d1d1f"),
+    xaxis=dict(showgrid=False, zeroline=False, tickfont=dict(size=12, color="#6e6e73")),
+    yaxis=dict(showgrid=True, gridcolor="#f0f0f5", zeroline=False, tickfont=dict(size=12, color="#6e6e73")),
+    margin=dict(l=0, r=0, t=24, b=0),
+    hoverlabel=dict(bgcolor="white", bordercolor="#e0e0e5", font=dict(size=13, color="#1d1d1f")),
+)
 
-@st.cache_resource
-def load_model():
-    return joblib.load("models/match_predictor.pkl")
+COLORS = [
+    "#0071e3",
+    "#34c759",
+    "#ff9f0a",
+    "#ff3b30",
+    "#bf5af2",
+    "#5ac8fa",
+    "#ffcc00",
+    "#ff6b35",
+    "#32ade6",
+    "#30b0c7",
+]
 
-df      = load_match_data()
-players = load_player_data()
-model   = load_model()
-LEAGUES = ["All"] + sorted(df["league"].unique().tolist())
+MATCH_PATH = Path("data/processed/matches_clean.csv")
+PLAYER_PATH = Path("data/processed/player_stats.csv")
+MODEL_PATH = Path("models/match_predictor.pkl")
+METRICS_PATH = Path("models/metrics.json")
 
-# Dynamic sidebar stats
-total_matches = len(df)
-total_leagues = df["league"].nunique()
-total_seasons = df["season"].nunique()
-
-def filter_df(league):
-    return df if league == "All" else df[df["league"] == league]
-
-# ── SIDEBAR ───────────────────────────────────────────────────────────────────
-st.sidebar.markdown("""
-<div style='padding:28px 8px 20px 8px;'>
-    <p style='font-size:11px;font-weight:600;color:#6e6e73;
-              letter-spacing:1.2px;text-transform:uppercase;margin:0;'>Sports</p>
-    <p style='font-size:26px;font-weight:700;color:#1d1d1f;
-              letter-spacing:-0.8px;margin:4px 0 0 0;'>Analytics</p>
-</div>""", unsafe_allow_html=True)
-
-page = st.sidebar.radio("", [
+PAGES = [
     "🏠  Home",
     "⚽  Overview",
     "🔮  Match Predictor",
@@ -182,873 +198,1133 @@ page = st.sidebar.radio("", [
     "🏟️  Team Analysis",
     "💰  Transfer Analysis",
     "📈  Model Performance",
-])
+]
 
-st.sidebar.markdown(f"""
+MODEL_FEATURES = [
+    "home_form",
+    "away_form",
+    "home_conceded_form",
+    "away_conceded_form",
+    "home_shots_form",
+    "away_shots_form",
+]
+
+
+# =============================================================================
+# HELPER FUNCTIONS
+# =============================================================================
+def normalise_columns(frame: pd.DataFrame) -> pd.DataFrame:
+    frame = frame.copy()
+    frame.columns = (
+        frame.columns.astype(str)
+        .str.strip()
+        .str.lower()
+        .str.replace(" ", "_", regex=False)
+        .str.replace("-", "_", regex=False)
+        .str.replace("/", "_", regex=False)
+    )
+    return frame
+
+
+def apply_column_aliases(frame: pd.DataFrame, aliases: dict[str, list[str]]) -> pd.DataFrame:
+    frame = frame.copy()
+    for target, possible_names in aliases.items():
+        if target in frame.columns:
+            continue
+        for name in possible_names:
+            if name in frame.columns:
+                frame = frame.rename(columns={name: target})
+                break
+    return frame
+
+
+def ensure_columns(frame: pd.DataFrame, defaults: dict) -> pd.DataFrame:
+    frame = frame.copy()
+    for col, default in defaults.items():
+        if col not in frame.columns:
+            frame[col] = default
+    return frame
+
+
+def numeric_columns(frame: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    frame = frame.copy()
+    for col in columns:
+        if col in frame.columns:
+            frame[col] = pd.to_numeric(frame[col], errors="coerce").fillna(0)
+    return frame
+
+
+def safe_mean(series: pd.Series, fallback: float = 0.0) -> float:
+    value = pd.to_numeric(series, errors="coerce").mean()
+    if pd.isna(value):
+        return float(fallback)
+    return float(value)
+
+
+def insight_card(emoji: str, text: str) -> None:
+    st.markdown(
+        f"""
+        <div class="insight-card">
+            <span>{emoji}</span>
+            <p>{text}</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def format_percent(value: float) -> str:
+    if pd.isna(value):
+        return "0%"
+    return f"{value:.0%}"
+
+
+def result_label_from_scores(gf: float, ga: float) -> str:
+    if gf > ga:
+        return "✅ Win"
+    if gf == ga:
+        return "🟡 Draw"
+    return "❌ Loss"
+
+
+def result_code_from_scores(home_goals: float, away_goals: float) -> int:
+    if home_goals > away_goals:
+        return 1
+    if home_goals == away_goals:
+        return 0
+    return -1
+
+
+def feature_value(team_frame: pd.DataFrame, column: str, fallback: float) -> float:
+    if column in team_frame.columns:
+        return safe_mean(team_frame[column].tail(5), fallback)
+    return fallback
+
+
+def class_name(value) -> str:
+    mapping = {
+        -1: "Away Win",
+        0: "Draw",
+        1: "Home Win",
+        "-1": "Away Win",
+        "0": "Draw",
+        "1": "Home Win",
+        "A": "Away Win",
+        "D": "Draw",
+        "H": "Home Win",
+        "away": "Away Win",
+        "draw": "Draw",
+        "home": "Home Win",
+    }
+    return mapping.get(value, str(value))
+
+
+def stop_if_empty(frame: pd.DataFrame, message: str) -> None:
+    if frame is None or len(frame) == 0:
+        st.warning(message)
+        st.stop()
+
+
+# =============================================================================
+# DATA LOADING
+# =============================================================================
+@st.cache_data
+def load_match_data() -> pd.DataFrame:
+    if not MATCH_PATH.exists():
+        st.error(f"Match data not found at {MATCH_PATH}")
+        st.stop()
+
+    frame = pd.read_csv(MATCH_PATH)
+    frame = normalise_columns(frame)
+    frame = apply_column_aliases(
+        frame,
+        {
+            "home_team": ["hometeam", "home", "home_side"],
+            "away_team": ["awayteam", "away", "away_side"],
+            "home_goals": ["fthg", "home_score", "hg"],
+            "away_goals": ["ftag", "away_score", "ag"],
+            "league": ["division", "div", "competition"],
+            "season": ["year", "season_name"],
+            "date": ["match_date"],
+        },
+    )
+
+    required = {
+        "home_team": "Unknown Home",
+        "away_team": "Unknown Away",
+        "home_goals": 0,
+        "away_goals": 0,
+        "league": "Unknown League",
+        "season": "Unknown Season",
+    }
+    frame = ensure_columns(frame, required)
+    frame = numeric_columns(frame, ["home_goals", "away_goals"])
+
+    if "date" in frame.columns:
+        frame["date"] = pd.to_datetime(frame["date"], errors="coerce")
+        frame = frame.sort_values("date", na_position="last")
+    else:
+        frame["date"] = pd.NaT
+
+    if "result" not in frame.columns:
+        frame["result"] = frame.apply(lambda row: result_code_from_scores(row["home_goals"], row["away_goals"]), axis=1)
+    else:
+        frame["result"] = pd.to_numeric(frame["result"], errors="coerce").fillna(0).astype(int)
+
+    frame["total_goals"] = frame["home_goals"] + frame["away_goals"]
+
+    fallback_features = {
+        "home_form": frame["home_goals"].mean(),
+        "away_form": frame["away_goals"].mean(),
+        "home_conceded_form": frame["away_goals"].mean(),
+        "away_conceded_form": frame["home_goals"].mean(),
+        "home_shots_form": 0.0,
+        "away_shots_form": 0.0,
+    }
+    frame = ensure_columns(frame, fallback_features)
+    frame = numeric_columns(frame, MODEL_FEATURES)
+
+    return frame
+
+
+@st.cache_data
+def load_player_data() -> pd.DataFrame | None:
+    if not PLAYER_PATH.exists():
+        st.warning(f"Player data not found at {PLAYER_PATH}. Player pages will be limited.")
+        return None
+
+    try:
+        frame = pd.read_csv(PLAYER_PATH)
+    except pd.errors.EmptyDataError:
+        st.error("Player data file is empty.")
+        return None
+    except Exception as exc:
+        st.error(f"Unexpected error loading player data: {exc}")
+        return None
+
+    frame = normalise_columns(frame)
+    frame = apply_column_aliases(
+        frame,
+        {
+            "name": ["player", "player_name", "fullname", "full_name"],
+            "team": ["club", "squad", "current_team"],
+            "position": ["pos", "player_position"],
+            "season": ["year", "season_name"],
+            "nationality": ["nation", "country"],
+            "appearances": ["apps", "matches", "games"],
+            "minutes": ["mins", "minutes_played"],
+            "shots_total": ["shots", "total_shots"],
+            "shots_on_target": ["sot", "shots_target"],
+            "pass_accuracy": ["passing_accuracy", "passes_accuracy"],
+            "yellow_cards": ["yellow", "cards_yellow"],
+            "red_cards": ["red", "cards_red"],
+            "duels_won": ["duels", "duels_won_total"],
+        },
+    )
+
+    frame = ensure_columns(
+        frame,
+        {
+            "name": "Unknown Player",
+            "team": "Unknown Team",
+            "position": "Unknown Position",
+            "season": "Unknown Season",
+            "nationality": "Unknown",
+            "age": 0,
+            "goals": 0,
+            "assists": 0,
+            "minutes": 0,
+            "appearances": 0,
+            "shots_total": 0,
+            "shots_on_target": 0,
+            "pass_accuracy": 0,
+            "dribbles": 0,
+            "tackles": 0,
+            "interceptions": 0,
+            "rating": 0,
+            "yellow_cards": 0,
+            "red_cards": 0,
+            "duels_won": 0,
+        },
+    )
+
+    numeric = [
+        "age",
+        "goals",
+        "assists",
+        "minutes",
+        "appearances",
+        "shots_total",
+        "shots_on_target",
+        "pass_accuracy",
+        "dribbles",
+        "tackles",
+        "interceptions",
+        "rating",
+        "yellow_cards",
+        "red_cards",
+        "duels_won",
+    ]
+    frame = numeric_columns(frame, numeric)
+
+    minutes_safe = frame["minutes"].replace(0, np.nan)
+    frame["goals_p90"] = (frame["goals"] / minutes_safe * 90).round(2)
+    frame["assists_p90"] = (frame["assists"] / minutes_safe * 90).round(2)
+    frame["shots_p90"] = (frame["shots_total"] / minutes_safe * 90).round(2)
+    frame["sot_p90"] = (frame["shots_on_target"] / minutes_safe * 90).round(2)
+    frame["tackles_p90"] = (frame["tackles"] / minutes_safe * 90).round(2)
+    frame["interc_p90"] = (frame["interceptions"] / minutes_safe * 90).round(2)
+    frame["contrib_p90"] = ((frame["goals"] + frame["assists"]) / minutes_safe * 90).round(2)
+    frame["cards_p90"] = ((frame["yellow_cards"] + frame["red_cards"]) / minutes_safe * 90).round(2)
+    frame = frame.fillna(0)
+
+    return frame
+
+
+@st.cache_resource
+def load_model():
+    if not MODEL_PATH.exists():
+        return None
+    try:
+        return joblib.load(MODEL_PATH)
+    except Exception as exc:
+        st.warning(f"Model could not be loaded: {exc}")
+        return None
+
+
+@st.cache_data
+def load_metrics() -> dict:
+    if not METRICS_PATH.exists():
+        return {}
+    try:
+        with open(METRICS_PATH, "r", encoding="utf-8") as file:
+            return json.load(file)
+    except Exception:
+        return {}
+
+
+matches = load_match_data()
+players = load_player_data()
+model = load_model()
+metrics = load_metrics()
+
+LEAGUES = ["All"] + sorted(matches["league"].dropna().astype(str).unique().tolist())
+
+
+def filter_matches_by_league(league: str) -> pd.DataFrame:
+    if league == "All":
+        return matches.copy()
+    return matches[matches["league"].astype(str) == str(league)].copy()
+
+
+# =============================================================================
+# SIDEBAR
+# =============================================================================
+st.sidebar.markdown(
+    """
+<div style='padding:28px 8px 20px 8px;'>
+    <p style='font-size:11px;font-weight:600;color:#6e6e73;letter-spacing:1.2px;text-transform:uppercase;margin:0;'>Sports</p>
+    <p style='font-size:26px;font-weight:700;color:#1d1d1f;letter-spacing:-0.8px;margin:4px 0 0 0;'>Analytics</p>
+</div>
+""",
+    unsafe_allow_html=True,
+)
+
+default_page = st.session_state.pop("target_page", PAGES[0])
+if default_page not in PAGES:
+    default_page = PAGES[0]
+
+page = st.sidebar.radio(
+    "",
+    PAGES,
+    index=PAGES.index(default_page),
+)
+
+st.sidebar.markdown(
+    f"""
 <div style='padding:20px 8px 0 8px;border-top:1px solid #e0e0e5;margin-top:20px;'>
     <p style='font-size:12px;color:#6e6e73;margin:0;line-height:1.6;'>
-        {total_matches:,} matches · {total_leagues} leagues<br>{total_seasons} seasons of data
+        {len(matches):,} matches · {matches['league'].nunique()} leagues<br>{matches['season'].nunique()} seasons of data
     </p>
-</div>""", unsafe_allow_html=True)
+</div>
+""",
+    unsafe_allow_html=True,
+)
 
-def insight_card(emoji, text):
-    st.markdown(f"""
-    <div class="insight-card">
-        <span>{emoji}</span>
-        <p>{text}</p>
-    </div>""", unsafe_allow_html=True)
 
-    # ═══════════════════════════════════════════════════════════════════════════════
-# LANDING PAGE
-# Add "🏠  Home" as the FIRST item in your sidebar radio list
-# Then paste this entire block BEFORE your "if page == "⚽  Overview":"  block
-# ═══════════════════════════════════════════════════════════════════════════════
+# =============================================================================
+# HOME
+# =============================================================================
 if page == "🏠  Home":
-    # ── HERO SECTION ──────────────────────────────────────────────────────────
-    st.markdown("""
-    <div style='padding: 60px 0 40px 0;'>
-        <p style='font-size: 13px; font-weight: 600; color: #0071e3;
-                  letter-spacing: 1.5px; text-transform: uppercase;
-                  margin: 0 0 16px 0;'>
-            Football Intelligence Platform
-        </p>
-        <h1 style='font-size: 64px; font-weight: 700; color: #1d1d1f;
-                   letter-spacing: -2px; line-height: 1.02;
-                   margin: 0 0 24px 0;'>
-            Analyse. Predict.<br>Scout. Decide.
-        </h1>
-        <p style='font-size: 21px; color: #6e6e73; font-weight: 400;
-                  line-height: 1.5; max-width: 640px; margin: 0 0 40px 0;'>
-            A machine learning powered football analytics dashboard
-            for match prediction, player comparison, and recruitment
-            insights across English football.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div style='padding: 60px 0 40px 0;'>
+            <p style='font-size: 13px; font-weight: 600; color: #0071e3; letter-spacing: 1.5px; text-transform: uppercase; margin: 0 0 16px 0;'>
+                Football Intelligence Platform
+            </p>
+            <h1 style='font-size: 64px; font-weight: 700; color: #1d1d1f; letter-spacing: -2px; line-height: 1.02; margin: 0 0 24px 0;'>
+                Analyse. Predict.<br>Scout. Decide.
+            </h1>
+            <p style='font-size: 21px; color: #6e6e73; font-weight: 400; line-height: 1.5; max-width: 680px; margin: 0 0 40px 0;'>
+                A machine learning powered football analytics dashboard for match prediction, player comparison, team analysis and recruitment insights across English football.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    # ── CTA BUTTONS ───────────────────────────────────────────────────────────
     col1, col2, col3 = st.columns([1, 1, 4])
     with col1:
         if st.button("🔮 Try Predictor"):
-            st.session_state["page"] = "🔮  Match Predictor"
+            st.session_state["target_page"] = "🔮  Match Predictor"
             st.rerun()
     with col2:
-        if st.button("📊 View Stats"):
-            st.session_state["page"] = "👤  Player Stats"
+        if st.button("👤 View Players"):
+            st.session_state["target_page"] = "👤  Player Stats"
             st.rerun()
 
     st.divider()
 
-    # ── STATS BAR ─────────────────────────────────────────────────────────────
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Matches Analysed",  f"{total_matches:,}")
-    c2.metric("Leagues Covered",   total_leagues)
-    c3.metric("Seasons of Data",   total_seasons)
-    c4.metric("Player Records",    f"{len(players):,}" if players is not None else "720")
+    c1.metric("Matches Analysed", f"{len(matches):,}")
+    c2.metric("Leagues Covered", matches["league"].nunique())
+    c3.metric("Seasons of Data", matches["season"].nunique())
+    c4.metric("Player Records", f"{len(players):,}" if players is not None else "Not loaded")
 
     st.divider()
 
-    # ── FEATURE CARDS ─────────────────────────────────────────────────────────
-    st.markdown("""
-    <p style='font-size: 13px; font-weight: 600; color: #6e6e73;
-              letter-spacing: 1.2px; text-transform: uppercase; margin: 0 0 8px 0;'>
-        Features
-    </p>
-    <h2 style='font-size: 40px; font-weight: 700; color: #1d1d1f;
-               letter-spacing: -1px; margin: 0 0 40px 0;'>
-        Everything you need to understand football.
-    </h2>
-    """, unsafe_allow_html=True)
-
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
+    st.markdown("## Core Features")
+    f1, f2, f3 = st.columns(3)
+    with f1:
         st.markdown("""
-        <div style='background: #f5f5f7; border-radius: 20px;
-                    padding: 32px; height: 270px;'>
-            <div style='font-size: 36px; margin-bottom: 16px;'>🔮</div>
-            <h3 style='font-size: 20px; font-weight: 600; color: #1d1d1f;
-                       margin: 0 0 8px 0;'>Match Outcome Predictor</h3>
-            <p style='font-size: 15px; color: #6e6e73; margin: 0; line-height: 1.5;'>
-                XGBoost model trained on 55,000+ matches predicts
-                Home Win, Draw, or Away Win with confidence scores
-                and plain-English explanations.
-            </p>
+        <div style='background:#f5f5f7;border-radius:20px;padding:28px;height:250px;'>
+            <div style='font-size:36px;margin-bottom:14px;'>🔮</div>
+            <h3>Match Predictor</h3>
+            <p class='small-muted'>Predict Home Win, Draw or Away Win using model probabilities and recent form based explanations.</p>
         </div>
         """, unsafe_allow_html=True)
-
-    with col2:
+    with f2:
         st.markdown("""
-        <div style='background: #f5f5f7; border-radius: 20px;
-                    padding: 32px; height: 270px;'>
-            <div style='font-size: 36px; margin-bottom: 16px;'>⚔️</div>
-            <h3 style='font-size: 20px; font-weight: 600; color: #1d1d1f;
-                       margin: 0 0 8px 0;'>Player Comparison Tool</h3>
-            <p style='font-size: 15px; color: #6e6e73; margin: 0; line-height: 1.5;'>
-                Compare any two players with radar charts,
-                percentile rankings, per 90 stats, and a
-                cosine similarity engine to find lookalike players.
-            </p>
+        <div style='background:#f5f5f7;border-radius:20px;padding:28px;height:250px;'>
+            <div style='font-size:36px;margin-bottom:14px;'>⚔️</div>
+            <h3>Player Comparison</h3>
+            <p class='small-muted'>Compare players with percentile radar charts, per 90 statistics and similarity matching.</p>
         </div>
         """, unsafe_allow_html=True)
-
-    with col3:
+    with f3:
         st.markdown("""
-        <div style='background: #f5f5f7; border-radius: 20px;
-                    padding: 32px; height: 270px;'>
-            <div style='font-size: 36px; margin-bottom: 16px;'>💰</div>
-            <h3 style='font-size: 20px; font-weight: 600; color: #1d1d1f;
-                       margin: 0 0 8px 0;'>Recruitment & Scouting</h3>
-            <p style='font-size: 15px; color: #6e6e73; margin: 0; line-height: 1.5;'>
-                Build ranked shortlists by position, age, goals per 90,
-                and rating. Find hidden gems, overperformers, and
-                identify team weaknesses automatically.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        st.markdown("""
-        <div style='background: #f5f5f7; border-radius: 20px;
-                    padding: 32px; height: 270px;'>
-            <div style='font-size: 36px; margin-bottom: 16px;'>🏟️</div>
-            <h3 style='font-size: 20px; font-weight: 600; color: #1d1d1f;
-                       margin: 0 0 8px 0;'>Team Analysis</h3>
-            <p style='font-size: 15px; color: #6e6e73; margin: 0; line-height: 1.5;'>
-                Deep dive into any team's home vs away form,
-                goals trend, clean sheet rate, and
-                automatic strength and weakness detection.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col2:
-        st.markdown("""
-        <div style='background: #f5f5f7; border-radius: 20px;
-                    padding: 32px; height: 270px;'>
-            <div style='font-size: 36px; margin-bottom: 16px;'>📈</div>
-            <h3 style='font-size: 20px; font-weight: 600; color: #1d1d1f;
-                       margin: 0 0 8px 0;'>Model Performance</h3>
-            <p style='font-size: 15px; color: #6e6e73; margin: 0; line-height: 1.5;'>
-                Full model evaluation with confusion matrix,
-                feature importance, and comparison of
-                Logistic Regression, Random Forest, and XGBoost.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col3:
-        st.markdown("""
-        <div style='background: #f5f5f7; border-radius: 20px;
-                    padding: 32px; height: 270px;'>
-            <div style='font-size: 36px; margin-bottom: 16px;'>👤</div>
-            <h3 style='font-size: 20px; font-weight: 600; color: #1d1d1f;
-                       margin: 0 0 8px 0;'>Player Statistics</h3>
-            <p style='font-size: 15px; color: #6e6e73; margin: 0; line-height: 1.5;'>
-                720 players across 4 leagues and 3 seasons.
-                Filter by position, team, age, and minutes.
-                Toggle between raw totals and per 90 stats.
-            </p>
+        <div style='background:#f5f5f7;border-radius:20px;padding:28px;height:250px;'>
+            <div style='font-size:36px;margin-bottom:14px;'>💰</div>
+            <h3>Recruitment Scouting</h3>
+            <p class='small-muted'>Build shortlists, find hidden gems and connect team weaknesses to player recommendations.</p>
         </div>
         """, unsafe_allow_html=True)
 
     st.divider()
 
-    # ── HOW TO USE ────────────────────────────────────────────────────────────
-    st.markdown("""
-    <p style='font-size: 13px; font-weight: 600; color: #6e6e73;
-              letter-spacing: 1.2px; text-transform: uppercase; margin: 0 0 8px 0;'>
-        Get Started
-    </p>
-    <h2 style='font-size: 40px; font-weight: 700; color: #1d1d1f;
-               letter-spacing: -1px; margin: 0 0 40px 0;'>
-        How to use this dashboard.
-    </h2>
-    """, unsafe_allow_html=True)
-
+    st.markdown("## How to use it")
     col1, col2 = st.columns(2)
-
     with col1:
-        steps = [
-            ("1", "🔮 Predict a match",
-             "Go to Match Predictor. Select a home and away team. Click Predict Match to see outcome probabilities and the reasoning behind the prediction."),
-            ("2", "⚔️ Compare two players",
-             "Go to Player Comparison. Select any two players from the dropdown. View the radar chart, percentile rankings, and similar player suggestions."),
-            ("3", "🏟️ Analyse a team",
-             "Go to Team Analysis. Select a league and team. See their full record, home vs away splits, last 5 results, and automatic insight cards."),
-        ]
-        for num, title, desc in steps:
-            st.markdown(f"""
-            <div style='display: flex; gap: 16px; margin-bottom: 24px;
-                        align-items: flex-start;'>
-                <div style='background: #0071e3; color: white; border-radius: 50%;
-                            width: 32px; height: 32px; display: flex;
-                            align-items: center; justify-content: center;
-                            font-size: 14px; font-weight: 700; flex-shrink: 0;
-                            margin-top: 2px;'>
-                    {num}
-                </div>
-                <div>
-                    <p style='font-size: 16px; font-weight: 600; color: #1d1d1f;
-                              margin: 0 0 4px 0;'>{title}</p>
-                    <p style='font-size: 14px; color: #6e6e73; margin: 0;
-                              line-height: 1.5;'>{desc}</p>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-
+        st.markdown("1. Open **Match Predictor** and select two teams.")
+        st.markdown("2. Open **Player Stats** to filter players by position, team, season and minutes.")
+        st.markdown("3. Open **Player Comparison** to compare two players using raw or per 90 metrics.")
     with col2:
-        steps2 = [
-            ("4", "💰 Build a scouting shortlist",
-             "Go to Transfer Analysis → Player Scouting. Set your filters — position, age, goals per 90, minimum minutes. Click Build Shortlist to get a ranked list you can download as CSV."),
-            ("5", "💎 Find hidden gems",
-             "Go to Transfer Analysis → Hidden Gems. See the best under 23 players, high output low minutes players, overperformers, and underperformers."),
-            ("6", "📈 Review model performance",
-             "Go to Model Performance to see how the prediction model was built, evaluated, and why XGBoost was chosen over the alternatives."),
-        ]
-        for num, title, desc in steps2:
-            st.markdown(f"""
-            <div style='display: flex; gap: 16px; margin-bottom: 24px;
-                        align-items: flex-start;'>
-                <div style='background: #0071e3; color: white; border-radius: 50%;
-                            width: 32px; height: 32px; display: flex;
-                            align-items: center; justify-content: center;
-                            font-size: 14px; font-weight: 700; flex-shrink: 0;
-                            margin-top: 2px;'>
-                    {num}
-                </div>
-                <div>
-                    <p style='font-size: 16px; font-weight: 600; color: #1d1d1f;
-                              margin: 0 0 4px 0;'>{title}</p>
-                    <p style='font-size: 14px; color: #6e6e73; margin: 0;
-                              line-height: 1.5;'>{desc}</p>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+        st.markdown("4. Open **Team Analysis** to check team form, goals, clean sheets and last five results.")
+        st.markdown("5. Open **Transfer Analysis** to build scouting shortlists.")
+        st.markdown("6. Open **Model Performance** to review accuracy, confusion matrix and feature importance.")
 
     st.divider()
+    st.caption("Built by Daniel Olutade · Python · Streamlit · Pandas · Plotly · Scikit Learn · XGBoost")
 
-    # ── TECH STACK ────────────────────────────────────────────────────────────
-    st.markdown("""
-    <p style='font-size: 13px; font-weight: 600; color: #6e6e73;
-              letter-spacing: 1.2px; text-transform: uppercase; margin: 0 0 8px 0;'>
-        Built With
-    </p>
-    <h2 style='font-size: 40px; font-weight: 700; color: #1d1d1f;
-               letter-spacing: -1px; margin: 0 0 32px 0;'>
-        The tech stack.
-    </h2>
-    """, unsafe_allow_html=True)
 
-    tech = [
-        ("Python", "Core language"),
-        ("Pandas", "Data manipulation"),
-        ("XGBoost", "ML prediction model"),
-        ("Scikit-learn", "Model evaluation"),
-        ("Streamlit", "Interactive dashboard"),
-        ("Plotly", "Charts & radar visualisations"),
-        ("API Football", "Player statistics"),
-        ("football-data.co.uk", "30 years of match data"),
-    ]
-
-    cols = st.columns(4)
-    for i, (name, desc) in enumerate(tech):
-        with cols[i % 4]:
-            st.markdown(f"""
-            <div style='background: #f5f5f7; border-radius: 14px;
-                        padding: 20px; margin-bottom: 12px; text-align: center;'>
-                <p style='font-size: 15px; font-weight: 600; color: #1d1d1f;
-                          margin: 0 0 4px 0;'>{name}</p>
-                <p style='font-size: 12px; color: #6e6e73; margin: 0;'>{desc}</p>
-            </div>
-            """, unsafe_allow_html=True)
-
-    st.divider()
-
-    # ── FOOTER ────────────────────────────────────────────────────────────────
-    st.markdown("""
-    <div style='text-align: center; padding: 40px 0;'>
-        <p style='font-size: 15px; color: #6e6e73; margin: 0 0 8px 0;'>
-            Built by <b style='color: #1d1d1f;'>Daniel Olutade</b>
-        </p>
-        <p style='font-size: 13px; color: #6e6e73; margin: 0;'>
-            CS Student · Sports Analytics · Machine Learning
-        </p>
-        <p style='font-size: 13px; color: #0071e3; margin: 8px 0 0 0;'>
-            <a href='https://github.com/daniel-237/sports-analytics'
-               style='color: #0071e3; text-decoration: none;'>
-                View on GitHub →
-            </a>
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-
-if page == "⚽  Overview":
+# =============================================================================
+# OVERVIEW
+# =============================================================================
+elif page == "⚽  Overview":
     st.markdown("# Football Analytics")
     st.markdown("Thirty years of English football. Five leagues. One dashboard.")
-    league = st.selectbox("League", LEAGUES, key="ov_league")
-    fdf = filter_df(league)
+    league = st.selectbox("League", LEAGUES, key="overview_league")
+    frame = filter_matches_by_league(league)
+    stop_if_empty(frame, "No matches found for this league.")
     st.divider()
 
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Total Matches",  f"{len(fdf):,}")
-    c2.metric("Leagues",        fdf["league"].nunique())
-    c3.metric("Teams",          fdf["home_team"].nunique())
-    c4.metric("Seasons",        fdf["season"].nunique())
+    c1.metric("Total Matches", f"{len(frame):,}")
+    c2.metric("Leagues", frame["league"].nunique())
+    c3.metric("Teams", len(set(frame["home_team"]) | set(frame["away_team"])))
+    c4.metric("Seasons", frame["season"].nunique())
     st.divider()
 
-    home_pct  = (fdf["result"] == 1).mean()
-    top_team  = fdf.groupby("home_team")["home_goals"].mean().idxmax()
-    avg_goals = (fdf["home_goals"] + fdf["away_goals"]).mean()
-    insight_card("🏠", f"Home teams win <b>{home_pct:.0%}</b> of all matches.")
+    home_pct = (frame["result"] == 1).mean()
+    avg_goals = frame["total_goals"].mean()
+    top_home_team = frame.groupby("home_team")["home_goals"].mean().idxmax()
+
+    insight_card("🏠", f"Home teams win <b>{home_pct:.0%}</b> of all matches in this selection.")
     col1, col2 = st.columns(2)
     with col1:
-        insight_card("⚽", f"<b>{top_team}</b> average the most goals per home game.")
+        insight_card("⚽", f"<b>{top_home_team}</b> average the most home goals per match.")
     with col2:
-        insight_card("📊", f"Average of <b>{avg_goals:.2f}</b> goals per match across all leagues.")
+        insight_card("📊", f"Average of <b>{avg_goals:.2f}</b> goals per match.")
+
     st.divider()
 
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("Match Outcomes")
-        rc = fdf["result"].map({1:"Home Win",0:"Draw",-1:"Away Win"}).value_counts()
-        fig = go.Figure(go.Pie(
-            values=rc.values, labels=rc.index, hole=0.6,
-            marker=dict(colors=["#0071e3","#34c759","#ff3b30"],
-                        line=dict(color="#ffffff", width=2)),
-        ))
-        fig.update_layout(**BASE, showlegend=True,
-                          legend=dict(orientation="h", y=-0.1))
+        result_counts = frame["result"].map({1: "Home Win", 0: "Draw", -1: "Away Win"}).value_counts()
+        fig = go.Figure(
+            go.Pie(
+                values=result_counts.values,
+                labels=result_counts.index,
+                hole=0.6,
+                marker=dict(colors=["#0071e3", "#ff9f0a", "#ff3b30"], line=dict(color="#ffffff", width=2)),
+            )
+        )
+        fig.update_layout(**BASE_LAYOUT, showlegend=True, legend=dict(orientation="h", y=-0.1))
         st.plotly_chart(fig, use_container_width=True)
 
     with col2:
         st.subheader("Matches Per League")
-        lc = fdf["league"].value_counts()
-        fig = go.Figure(go.Bar(
-            x=lc.index, y=lc.values,
-            marker=dict(color=COLORS[:len(lc)], line=dict(width=0)),
-            text=lc.values, textposition="outside",
-            textfont=dict(size=11, color="#6e6e73")
-        ))
-        fig.update_layout(**BASE)
+        league_counts = frame["league"].value_counts()
+        fig = go.Figure(
+            go.Bar(
+                x=league_counts.index,
+                y=league_counts.values,
+                marker=dict(color=COLORS[: len(league_counts)], line=dict(width=0)),
+                text=league_counts.values,
+                textposition="outside",
+            )
+        )
+        fig.update_layout(**BASE_LAYOUT)
         st.plotly_chart(fig, use_container_width=True)
 
-    st.subheader("Average Goals Per Season")
-    fdf = fdf.copy()
-    fdf["total_goals"] = fdf["home_goals"] + fdf["away_goals"]
-    gs = fdf.groupby("season")["total_goals"].mean().reset_index()
-    fig = go.Figure(go.Scatter(
-        x=gs["season"], y=gs["total_goals"], mode="lines+markers",
-        line=dict(color="#0071e3", width=2.5),
-        marker=dict(color="#0071e3", size=6),
-        fill="tozeroy", fillcolor="rgba(0,113,227,0.08)",
-        hovertemplate="Season %{x}<br>Avg Goals: %{y:.2f}<extra></extra>"
-    ))
-    fig.update_layout(**BASE)
-    st.plotly_chart(fig, use_container_width=True)
+    st.subheader("League Entertainment Profile")
 
-# ═══════════════════════════════════════════════════════════════════════════════
+    frame = frame.copy()
+
+    if "total_goals" not in frame.columns:
+        frame["total_goals"] = frame["home_goals"] + frame["away_goals"]
+
+    frame["over_2_5_goals"] = frame["total_goals"] > 2.5
+    frame["both_teams_scored"] = (frame["home_goals"] > 0) & (frame["away_goals"] > 0)
+    frame["home_win"] = frame["result"] == 1
+    frame["draw"] = frame["result"] == 0
+    frame["away_win"] = frame["result"] == -1
+
+    league_profile = (
+        frame.groupby("league")
+        .agg(
+            matches=("league", "count"),
+            avg_goals=("total_goals", "mean"),
+            home_win_rate=("home_win", "mean"),
+            draw_rate=("draw", "mean"),
+            away_win_rate=("away_win", "mean"),
+            over_2_5_rate=("over_2_5_goals", "mean"),
+            btts_rate=("both_teams_scored", "mean"),
+        )
+        .reset_index()
+    )
+
+    league_profile["entertainment_score"] = (
+        league_profile["avg_goals"] * 30
+        + league_profile["over_2_5_rate"] * 40
+        + league_profile["btts_rate"] * 30
+    ).round(1)
+
+    league_profile = league_profile.sort_values("entertainment_score", ascending=False)
+
+    top_league = league_profile.iloc[0]
+
+    insight_card(
+        "🔥",
+        f"<b>{top_league['league']}</b> is the most entertaining league in the dataset, "
+        f"averaging <b>{top_league['avg_goals']:.2f}</b> goals per match with "
+        f"<b>{top_league['over_2_5_rate']:.0%}</b> of games going over 2.5 goals."
+    )
+
+    col1, col2 = st.columns([2, 1])
+
+    with col1:
+        fig = go.Figure()
+
+        fig.add_trace(
+            go.Bar(
+                x=league_profile["league"],
+                y=league_profile["avg_goals"],
+                name="Average Goals",
+                marker=dict(color="#0071e3", line=dict(width=0)),
+                text=league_profile["avg_goals"].round(2),
+                textposition="outside",
+                hovertemplate="%{x}<br>Average goals: %{y:.2f}<extra></extra>",
+            )
+        )
+
+        fig.update_layout(
+            **BASE_LAYOUT,
+            height=420,
+            yaxis_title="Goals per Match",
+            xaxis_title="League",
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col2:
+        st.markdown("### Key Stats")
+
+        best_goals = league_profile.loc[league_profile["avg_goals"].idxmax()]
+        most_draws = league_profile.loc[league_profile["draw_rate"].idxmax()]
+        most_btts = league_profile.loc[league_profile["btts_rate"].idxmax()]
+
+        st.metric("Highest Scoring", best_goals["league"], f"{best_goals['avg_goals']:.2f} goals")
+        st.metric("Most Draw Heavy", most_draws["league"], f"{most_draws['draw_rate']:.0%} draws")
+        st.metric("Most BTTS", most_btts["league"], f"{most_btts['btts_rate']:.0%} BTTS")
+
+    st.markdown("### League Breakdown")
+
+    display_profile = league_profile.copy()
+
+    display_profile["avg_goals"] = display_profile["avg_goals"].round(2)
+    display_profile["home_win_rate"] = (display_profile["home_win_rate"] * 100).round(1)
+    display_profile["draw_rate"] = (display_profile["draw_rate"] * 100).round(1)
+    display_profile["away_win_rate"] = (display_profile["away_win_rate"] * 100).round(1)
+    display_profile["over_2_5_rate"] = (display_profile["over_2_5_rate"] * 100).round(1)
+    display_profile["btts_rate"] = (display_profile["btts_rate"] * 100).round(1)
+
+    display_profile = display_profile.rename(
+        columns={
+            "league": "League",
+            "matches": "Matches",
+            "avg_goals": "Avg Goals",
+            "home_win_rate": "Home Win %",
+            "draw_rate": "Draw %",
+            "away_win_rate": "Away Win %",
+            "over_2_5_rate": "Over 2.5 %",
+            "btts_rate": "BTTS %",
+            "entertainment_score": "Entertainment Score",
+        }
+    )
+
+    st.dataframe(
+        display_profile[
+            [
+                "League",
+                "Matches",
+                "Avg Goals",
+                "Home Win %",
+                "Draw %",
+                "Away Win %",
+                "Over 2.5 %",
+                "BTTS %",
+                "Entertainment Score",
+            ]
+        ],
+        use_container_width=True,
+        hide_index=True,
+    )
+
+
+# =============================================================================
 # MATCH PREDICTOR
-# ═══════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 elif page == "🔮  Match Predictor":
     st.markdown("# Match Predictor")
     st.markdown("Select two teams to forecast the outcome.")
     st.divider()
 
-    teams = sorted(df["home_team"].unique())
+    if model is None:
+        st.warning("Model file not found. Add models/match_predictor.pkl to enable predictions.")
+        st.stop()
+
+    teams = sorted(set(matches["home_team"].astype(str)) | set(matches["away_team"].astype(str)))
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("**🏠 Home Team**")
         home_team = st.selectbox("Home", teams, index=0, label_visibility="collapsed")
     with col2:
         st.markdown("**✈️ Away Team**")
-        away_team = st.selectbox("Away", teams, index=1, label_visibility="collapsed")
+        away_team = st.selectbox("Away", teams, index=min(1, len(teams) - 1), label_visibility="collapsed")
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    if home_team == away_team:
+        st.warning("Choose two different teams.")
+        st.stop()
+
     if st.button("Predict Match →"):
-        h = df[df["home_team"] == home_team].tail(5)
-        a = df[df["away_team"] == away_team].tail(5)
+        home_matches = matches[(matches["home_team"] == home_team) | (matches["away_team"] == home_team)].tail(5)
+        away_matches = matches[(matches["home_team"] == away_team) | (matches["away_team"] == away_team)].tail(5)
+        home_home = matches[matches["home_team"] == home_team].tail(5)
+        away_away = matches[matches["away_team"] == away_team].tail(5)
 
-        feats = pd.DataFrame([[
-            h["home_goals"].mean() or df["home_form"].mean(),
-            a["away_goals"].mean() or df["away_form"].mean(),
-            h["away_goals"].mean() or df["home_conceded_form"].mean(),
-            a["home_goals"].mean() or df["away_conceded_form"].mean(),
-            h["home_shots_form"].mean() or df["home_shots_form"].mean(),
-            a["away_shots_form"].mean() or df["away_shots_form"].mean(),
-        ]], columns=["home_form","away_form","home_conceded_form",
-                     "away_conceded_form","home_shots_form","away_shots_form"])
+        fallback = {feature: safe_mean(matches[feature], 0.0) for feature in MODEL_FEATURES}
+        features = pd.DataFrame(
+            [
+                {
+                    "home_form": safe_mean(home_home["home_goals"], fallback["home_form"]),
+                    "away_form": safe_mean(away_away["away_goals"], fallback["away_form"]),
+                    "home_conceded_form": safe_mean(home_home["away_goals"], fallback["home_conceded_form"]),
+                    "away_conceded_form": safe_mean(away_away["home_goals"], fallback["away_conceded_form"]),
+                    "home_shots_form": feature_value(home_home, "home_shots_form", fallback["home_shots_form"]),
+                    "away_shots_form": feature_value(away_away, "away_shots_form", fallback["away_shots_form"]),
+                }
+            ],
+            columns=MODEL_FEATURES,
+        )
 
-        probs  = model.predict_proba(feats)[0]
-        winner = ["Away Win","Draw","Home Win"][np.argmax(probs)]
-        conf   = max(probs)
-        conf_label = "High" if conf >= 0.55 else "Medium" if conf >= 0.45 else "Low"
-        conf_color = "#34c759" if conf >= 0.55 else "#ff9f0a" if conf >= 0.45 else "#ff3b30"
+        try:
+            probabilities = model.predict_proba(features)[0]
+            classes = list(getattr(model, "classes_", [-1, 0, 1]))
+        except Exception as exc:
+            st.error(f"Prediction failed: {exc}")
+            st.stop()
+
+        prob_table = pd.DataFrame(
+            {
+                "Outcome": [class_name(value) for value in classes],
+                "Probability": probabilities,
+            }
+        )
+        winner_row = prob_table.loc[prob_table["Probability"].idxmax()]
+        winner = winner_row["Outcome"]
+        confidence = float(winner_row["Probability"])
+        confidence_label = "High" if confidence >= 0.60 else "Medium" if confidence >= 0.45 else "Low"
 
         st.divider()
-        insight_card("🔮", f"Prediction: <b>{winner}</b> — <b>{conf_label} confidence</b> ({conf:.0%})")
-        st.markdown("<br>", unsafe_allow_html=True)
+        insight_card("🔮", f"Prediction: <b>{winner}</b> with <b>{confidence_label}</b> confidence ({confidence:.0%}).")
 
-        # Prediction explanation
-        h_form     = h["home_goals"].mean()
-        a_form     = a["away_goals"].mean()
-        h_conceded = h["away_goals"].mean()
-        a_conceded = a["home_goals"].mean()
+        st.subheader("Outcome Probabilities")
+        ordered = pd.DataFrame(
+            {
+                "Outcome": ["Home Win", "Draw", "Away Win"],
+                "Probability": [
+                    prob_table.loc[prob_table["Outcome"] == "Home Win", "Probability"].sum(),
+                    prob_table.loc[prob_table["Outcome"] == "Draw", "Probability"].sum(),
+                    prob_table.loc[prob_table["Outcome"] == "Away Win", "Probability"].sum(),
+                ],
+            }
+        )
+        c1, c2, c3 = st.columns(3)
+        c1.metric("🏠 Home Win", f"{ordered.loc[0, 'Probability']:.0%}")
+        c2.metric("🤝 Draw", f"{ordered.loc[1, 'Probability']:.0%}")
+        c3.metric("✈️ Away Win", f"{ordered.loc[2, 'Probability']:.0%}")
+
+        fig = go.Figure(
+            go.Bar(
+                x=ordered["Outcome"],
+                y=ordered["Probability"],
+                marker=dict(color=["#0071e3", "#ff9f0a", "#ff3b30"], line=dict(width=0)),
+                text=[f"{p:.0%}" for p in ordered["Probability"]],
+                textposition="outside",
+                hovertemplate="%{x}: %{y:.1%}<extra></extra>",
+            )
+        )
+        fig.update_layout(**BASE_LAYOUT)
+        fig.update_yaxes(tickformat=".0%", showgrid=True, gridcolor="#f0f0f5")
+        st.plotly_chart(fig, use_container_width=True)
 
         st.subheader("Why this prediction?")
+        home_scoring = safe_mean(home_home["home_goals"], 0.0)
+        away_scoring = safe_mean(away_away["away_goals"], 0.0)
+        home_conceded = safe_mean(home_home["away_goals"], 0.0)
+        away_conceded = safe_mean(away_away["home_goals"], 0.0)
+
         reasons = []
-        if h_form > a_form:
-            reasons.append(f"⚽ {home_team} have stronger recent scoring form ({h_form:.1f} vs {a_form:.1f} goals/game)")
+        if home_scoring >= away_scoring:
+            reasons.append(f"⚽ {home_team} have stronger recent scoring form at home ({home_scoring:.1f} vs {away_scoring:.1f} goals per game).")
         else:
-            reasons.append(f"⚽ {away_team} have stronger recent scoring form ({a_form:.1f} vs {h_form:.1f} goals/game)")
-        if h_conceded < a_conceded:
-            reasons.append(f"🛡️ {home_team} have conceded fewer goals recently ({h_conceded:.1f} vs {a_conceded:.1f}/game)")
+            reasons.append(f"⚽ {away_team} have stronger recent away scoring form ({away_scoring:.1f} vs {home_scoring:.1f} goals per game).")
+
+        if home_conceded <= away_conceded:
+            reasons.append(f"🛡️ {home_team} have conceded fewer goals recently ({home_conceded:.1f} vs {away_conceded:.1f} per game).")
         else:
-            reasons.append(f"🛡️ {away_team} have a stronger defensive record recently ({a_conceded:.1f} vs {h_conceded:.1f}/game)")
-        reasons.append(f"🏠 Home advantage is factored into all predictions")
-        if abs(conf - 0.5) < 0.1:
-            reasons.append(f"⚠️ Low confidence — both teams have similar recent form")
+            reasons.append(f"🛡️ {away_team} have the stronger recent defensive record ({away_conceded:.1f} vs {home_conceded:.1f} per game).")
 
-        for r in reasons:
-            st.markdown(f"- {r}")
+        if confidence < 0.45:
+            reasons.append("⚠️ The model confidence is low, so this match should be treated as close.")
+        else:
+            reasons.append("🏠 Home advantage and recent form are included in the feature set.")
 
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown(f"### {home_team}  vs  {away_team}")
-        c1, c2, c3 = st.columns(3)
-        c1.metric("🏠 Home Win", f"{probs[2]:.0%}")
-        c2.metric("🤝 Draw",     f"{probs[1]:.0%}")
-        c3.metric("✈️ Away Win",  f"{probs[0]:.0%}")
-
-        fig = go.Figure(go.Bar(
-            x=["Home Win","Draw","Away Win"],
-            y=[probs[2], probs[1], probs[0]],
-            marker=dict(color=["#0071e3","#ff9f0a","#ff3b30"], line=dict(width=0)),
-            text=[f"{p:.0%}" for p in [probs[2], probs[1], probs[0]]],
-            textposition="outside", textfont=dict(size=14, color="#1d1d1f"),
-            hovertemplate="%{x}: %{y:.1%}<extra></extra>"
-        ))
-        fig.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(family="-apple-system", color="#1d1d1f"),
-            xaxis=dict(showgrid=False, zeroline=False,
-                       tickfont=dict(size=13, color="#6e6e73")),
-            yaxis=dict(tickformat=".0%", showgrid=True,
-                       gridcolor="#f0f0f5", zeroline=False,
-                       tickfont=dict(size=12, color="#6e6e73")),
-            margin=dict(l=0, r=0, t=24, b=0),
-        )
-        st.plotly_chart(fig, use_container_width=True)
+        for reason in reasons:
+            st.markdown(reason)
 
         st.divider()
         col1, col2 = st.columns(2)
         with col1:
-            st.subheader(f"Recent Form — {home_team}")
-            recent_h = df[
-                (df["home_team"]==home_team)|(df["away_team"]==home_team)
-            ].tail(5)[["date","home_team","away_team","home_goals","away_goals"]]
-            st.dataframe(recent_h, use_container_width=True, hide_index=True)
+            st.subheader(f"Recent Form: {home_team}")
+            recent_home = home_matches[["date", "home_team", "away_team", "home_goals", "away_goals"]].copy()
+            st.dataframe(recent_home, use_container_width=True, hide_index=True)
         with col2:
-            st.subheader(f"Recent Form — {away_team}")
-            recent_a = df[
-                (df["home_team"]==away_team)|(df["away_team"]==away_team)
-            ].tail(5)[["date","home_team","away_team","home_goals","away_goals"]]
-            st.dataframe(recent_a, use_container_width=True, hide_index=True)
+            st.subheader(f"Recent Form: {away_team}")
+            recent_away = away_matches[["date", "home_team", "away_team", "home_goals", "away_goals"]].copy()
+            st.dataframe(recent_away, use_container_width=True, hide_index=True)
 
-# ═══════════════════════════════════════════════════════════════════════════════
+
+# =============================================================================
 # PLAYER STATS
-# ═══════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 elif page == "👤  Player Stats":
     st.markdown("# Player Statistics")
-    st.markdown("Premier League, Championship, League One and League Two — 2022 to 2024.")
+    st.markdown("Filter players by position, team, season and minutes.")
     st.divider()
 
     if players is None:
+        st.error("Player data is not available. Add data/processed/player_stats.csv first.")
         st.stop()
 
-    # Insight cards
-    top_scorer   = players.loc[players["goals"].idxmax()]
+    min_450 = players[players["minutes"] >= 450]
+    top_scorer = players.loc[players["goals"].idxmax()]
     top_assister = players.loc[players["assists"].idxmax()]
-    top_p90      = players[players["minutes"] >= 0].loc[
-                   players[players["minutes"] >= 0]["goals_p90"].idxmax()]
+    top_p90 = min_450.loc[min_450["goals_p90"].idxmax()] if len(min_450) else players.loc[players["goals_p90"].idxmax()]
+
     insight_card("⚽", f"<b>{top_scorer['name']}</b> leads with <b>{int(top_scorer['goals'])}</b> goals.")
-    insight_card("🎯", f"<b>{top_p90['name']}</b> has the best goals per 90 among players with 450+ minutes: <b>{top_p90['goals_p90']:.2f}</b>")
+    insight_card("🎯", f"<b>{top_assister['name']}</b> leads with <b>{int(top_assister['assists'])}</b> assists.")
+    insight_card("⏱️", f"<b>{top_p90['name']}</b> has the best goals per 90 among players with 450+ minutes: <b>{top_p90['goals_p90']:.2f}</b>.")
     st.divider()
 
-    # ── FILTERS ───────────────────────────────────────────────────────────────
     st.subheader("Filters")
     col1, col2, col3, col4, col5 = st.columns(5)
+
     with col1:
-        positions  = ["All"] + sorted(players["position"].dropna().unique().tolist())
-        pos_filter = st.selectbox("Position", positions)
+        positions = ["All"] + sorted(players["position"].dropna().astype(str).unique().tolist())
+        pos_filter = st.selectbox("Position", positions, key="players_position")
+
     with col2:
-        teams_list  = ["All"] + sorted(players["team"].unique().tolist())
-        team_filter = st.selectbox("Team", teams_list)
+        teams_list = ["All"] + sorted(players["team"].dropna().astype(str).unique().tolist())
+        team_filter = st.selectbox("Team", teams_list, key="players_team")
+
     with col3:
-        seasons_list  = ["All"] + sorted(players["season"].unique().tolist(), reverse=True)
-        season_filter = st.selectbox("Season", seasons_list)
+        seasons_list = ["All"] + sorted(players["season"].dropna().astype(str).unique().tolist(), reverse=True)
+        season_filter = st.selectbox("Season", seasons_list, key="players_season")
+
     with col4:
-        min_mins = st.number_input("Min Minutes", min_value=0,
-                                max_value=3000, value=0, step=90)
-        with col5:
-            stat_view = st.selectbox("Stat View", ["Raw Totals", "Per 90"])
+        max_minutes = int(max(players["minutes"].max(), 90))
+        min_minutes = st.number_input("Min Minutes", min_value=0, max_value=max_minutes, value=0, step=90)
 
-    # Apply filters
+    with col5:
+        stat_view = st.selectbox("Stat View", ["Raw Totals", "Per 90"], key="players_stat_view")
+
     filtered = players.copy()
-    if pos_filter    != "All": filtered = filtered[filtered["position"] == pos_filter]
-    if team_filter   != "All": filtered = filtered[filtered["team"]     == team_filter]
-    if season_filter != "All": filtered = filtered[filtered["season"]   == season_filter]
-    filtered = filtered[filtered["minutes"] >= min_mins]
+    if pos_filter != "All":
+        filtered = filtered[filtered["position"].astype(str) == pos_filter]
+    if team_filter != "All":
+        filtered = filtered[filtered["team"].astype(str) == team_filter]
+    if season_filter != "All":
+        filtered = filtered[filtered["season"].astype(str) == season_filter]
+    filtered = filtered[filtered["minutes"] >= min_minutes]
 
-    search = st.text_input("🔍 Search player", placeholder="e.g. Salah, Haaland…")
+    search = st.text_input("🔍 Search player", placeholder="Example: Salah, Haaland, Palmer")
     if search:
-        filtered = filtered[filtered["name"].str.contains(search, case=False, na=False)]
+        filtered = filtered[filtered["name"].astype(str).str.contains(search, case=False, na=False)]
 
-    st.markdown(f"**{len(filtered)} players**")
-    st.divider()
+    st.markdown(f"**{len(filtered):,} players found**")
+    if filtered.empty:
+        st.warning("No players match these filters.")
+        st.stop()
 
-    # Single player profile
     if search and len(filtered) == 1:
-        p = filtered.iloc[0]
-        st.subheader(f"📋 {p['name']} — {p['team']}")
-        c1,c2,c3,c4,c5,c6 = st.columns(6)
-        c1.metric("Goals",        int(p["goals"]))
-        c2.metric("Assists",      int(p["assists"]))
-        c3.metric("Goals/90",     f"{p['goals_p90']:.2f}")
-        c4.metric("Assists/90",   f"{p['assists_p90']:.2f}")
-        c5.metric("Minutes",      int(p["minutes"]))
-        c6.metric("Rating",       p["rating"])
+        player = filtered.iloc[0]
+        st.subheader(f"📋 {player['name']} · {player['team']}")
+        p1, p2, p3, p4, p5, p6 = st.columns(6)
+        p1.metric("Goals", int(player["goals"]))
+        p2.metric("Assists", int(player["assists"]))
+        p3.metric("Goals/90", f"{player['goals_p90']:.2f}")
+        p4.metric("Assists/90", f"{player['assists_p90']:.2f}")
+        p5.metric("Minutes", int(player["minutes"]))
+        p6.metric("Rating", f"{player['rating']:.1f}")
         st.divider()
 
-    # Chart
-    if stat_view == "Per 90":
-        goal_col   = "goals_p90"
-        assist_col = "assists_p90"
-        chart_label = "Goals per 90"
-    else:
-        goal_col   = "goals"
-        assist_col = "assists"
-        chart_label = "Goals"
+    goal_col = "goals_p90" if stat_view == "Per 90" else "goals"
+    assist_col = "assists_p90" if stat_view == "Per 90" else "assists"
 
-    st.subheader(f"Top Scorers — {stat_view}")
+    st.subheader(f"Top Scorers: {stat_view}")
     top = filtered.nlargest(10, goal_col)
-    fig = go.Figure(go.Bar(
-        x=top["name"], y=top[goal_col],
-        marker=dict(color="#0071e3", line=dict(width=0)),
-        text=top[goal_col].round(2), textposition="outside",
-        textfont=dict(size=12, color="#1d1d1f"),
-        hovertemplate="%{x}<br>" + chart_label + ": %{y}<extra></extra>"
-    ))
-    fig.update_layout(**BASE)
+    fig = go.Figure(
+        go.Bar(
+            x=top["name"],
+            y=top[goal_col],
+            marker=dict(color="#0071e3", line=dict(width=0)),
+            text=top[goal_col].round(2),
+            textposition="outside",
+        )
+    )
+    fig.update_layout(**BASE_LAYOUT)
     fig.update_xaxes(tickangle=-30, tickfont=dict(size=11))
     st.plotly_chart(fig, use_container_width=True)
 
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("Top Assisters")
-        st.dataframe(
-            filtered.nlargest(10, assist_col)[["name","team", assist_col]],
-            use_container_width=True, hide_index=True)
+        st.dataframe(filtered.nlargest(10, assist_col)[["name", "team", assist_col]], use_container_width=True, hide_index=True)
     with col2:
         st.subheader("Most Booked")
-        filtered_copy = filtered.copy()
-        filtered_copy["total_cards"] = filtered_copy["yellow_cards"] + filtered_copy["red_cards"]
-        st.dataframe(
-            filtered_copy.nlargest(10,"total_cards")[
-                ["name","team","yellow_cards","red_cards"]],
-            use_container_width=True, hide_index=True)
+        booked = filtered.copy()
+        booked["total_cards"] = booked["yellow_cards"] + booked["red_cards"]
+        st.dataframe(booked.nlargest(10, "total_cards")[["name", "team", "yellow_cards", "red_cards", "total_cards"]], use_container_width=True, hide_index=True)
 
     st.subheader("Full Stats Table")
     if stat_view == "Per 90":
-        cols = ["name","team","position","goals_p90","assists_p90",
-                "shots_p90","sot_p90","tackles_p90","contrib_p90","rating"]
+        display_cols = ["name", "team", "position", "season", "goals_p90", "assists_p90", "shots_p90", "sot_p90", "tackles_p90", "contrib_p90", "rating"]
     else:
-        cols = ["name","team","position","goals","assists","appearances",
-                "minutes","yellow_cards","red_cards","shots_on_target","rating"]
-    st.dataframe(
-        filtered[cols].sort_values(goal_col, ascending=False),
-        use_container_width=True, hide_index=True)
+        display_cols = ["name", "team", "position", "season", "goals", "assists", "appearances", "minutes", "yellow_cards", "red_cards", "shots_on_target", "rating"]
+    st.dataframe(filtered[display_cols].sort_values(goal_col, ascending=False), use_container_width=True, hide_index=True)
 
-# ═══════════════════════════════════════════════════════════════════════════════
+
+# =============================================================================
 # PLAYER COMPARISON
-# ═══════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 elif page == "⚔️  Player Comparison":
     st.markdown("# Player Comparison")
-    st.markdown("Compare two players side by side with radar charts.")
+    st.markdown("Compare two players side by side with percentile radar charts.")
     st.divider()
 
     if players is None:
+        st.error("Player data is not available. Add data/processed/player_stats.csv first.")
         st.stop()
 
-    pnames = sorted(players["name"].unique())
+    if len(players) < 2:
+        st.warning("At least two players are needed for comparison.")
+        st.stop()
+
+    player_names = sorted(players["name"].dropna().astype(str).unique().tolist())
     col1, col2 = st.columns(2)
     with col1:
-        p1_name = st.selectbox("Player 1", pnames, index=0)
+        first_name = st.selectbox("Player 1", player_names, index=0)
     with col2:
-        p2_name = st.selectbox("Player 2", pnames, index=1)
+        second_name = st.selectbox("Player 2", player_names, index=min(1, len(player_names) - 1))
 
-    p1 = players[players["name"] == p1_name].iloc[0]
-    p2 = players[players["name"] == p2_name].iloc[0]
-
-    st.divider()
+    first_player = players[players["name"].astype(str) == first_name].iloc[0]
+    second_player = players[players["name"].astype(str) == second_name].iloc[0]
 
     col1, col2 = st.columns(2)
     with col1:
-        st.subheader(f"👤 {p1_name}")
-        st.caption(f"{p1['team']} · {p1['position']} · {int(p1['minutes'])} mins")
-        ca,cb,cc,cd = st.columns(4)
-        ca.metric("Goals",      int(p1["goals"]))
-        cb.metric("Assists",    int(p1["assists"]))
-        cc.metric("Goals/90",   f"{p1['goals_p90']:.2f}")
-        cd.metric("Rating",     p1["rating"])
+        st.subheader(f"👤 {first_name}")
+        st.caption(f"{first_player['team']} · {first_player['position']} · {int(first_player['minutes'])} mins")
+        a, b, c, d = st.columns(4)
+        a.metric("Goals", int(first_player["goals"]))
+        b.metric("Assists", int(first_player["assists"]))
+        c.metric("Goals/90", f"{first_player['goals_p90']:.2f}")
+        d.metric("Rating", f"{first_player['rating']:.1f}")
     with col2:
-        st.subheader(f"👤 {p2_name}")
-        st.caption(f"{p2['team']} · {p2['position']} · {int(p2['minutes'])} mins")
-        ca,cb,cc,cd = st.columns(4)
-        ca.metric("Goals",      int(p2["goals"]))
-        cb.metric("Assists",    int(p2["assists"]))
-        cc.metric("Goals/90",   f"{p2['goals_p90']:.2f}")
-        cd.metric("Rating",     p2["rating"])
+        st.subheader(f"👤 {second_name}")
+        st.caption(f"{second_player['team']} · {second_player['position']} · {int(second_player['minutes'])} mins")
+        a, b, c, d = st.columns(4)
+        a.metric("Goals", int(second_player["goals"]))
+        b.metric("Assists", int(second_player["assists"]))
+        c.metric("Goals/90", f"{second_player['goals_p90']:.2f}")
+        d.metric("Rating", f"{second_player['rating']:.1f}")
 
     st.divider()
-
-    stat_mode = st.radio("Radar Mode", ["Raw Stats","Per 90"], horizontal=True)
+    stat_mode = st.radio("Radar Mode", ["Raw Stats", "Per 90"], horizontal=True)
     if stat_mode == "Per 90":
-        radar_cols   = ["goals_p90","assists_p90","sot_p90",
-                        "tackles_p90","interc_p90","contrib_p90"]
-        radar_labels = ["Goals/90","Assists/90","Shots on Target/90",
-                        "Tackles/90","Interceptions/90","Contributions/90"]
+        radar_cols = ["goals_p90", "assists_p90", "sot_p90", "tackles_p90", "interc_p90", "contrib_p90"]
+        radar_labels = ["Goals/90", "Assists/90", "Shots on Target/90", "Tackles/90", "Interceptions/90", "Contributions/90"]
     else:
-        radar_cols   = ["goals","assists","shots_on_target",
-                        "pass_accuracy","dribbles","tackles"]
-        radar_labels = ["Goals","Assists","Shots on Target",
-                        "Pass Accuracy","Dribbles","Tackles"]
+        radar_cols = ["goals", "assists", "shots_on_target", "pass_accuracy", "dribbles", "tackles"]
+        radar_labels = ["Goals", "Assists", "Shots on Target", "Pass Accuracy", "Dribbles", "Tackles"]
 
-    def percentile(player, col):
-        val = player[col]
-        return float((players[col] <= val).mean() * 100)
+    def percentile(player_row: pd.Series, col: str) -> float:
+        return float((players[col] <= player_row[col]).mean() * 100)
 
-    p1_vals = [percentile(p1, c) for c in radar_cols]
-    p2_vals = [percentile(p2, c) for c in radar_cols]
+    first_values = [percentile(first_player, col) for col in radar_cols]
+    second_values = [percentile(second_player, col) for col in radar_cols]
 
     st.subheader("Radar Comparison")
     fig = go.Figure()
-    fig.add_trace(go.Scatterpolar(
-        r=p1_vals + [p1_vals[0]], theta=radar_labels + [radar_labels[0]],
-        fill="toself", fillcolor="rgba(0,113,227,0.15)",
-        line=dict(color="#0071e3", width=2.5), name=p1_name,
-        hovertemplate="%{theta}: %{r:.0f}th percentile<extra></extra>"
-    ))
-    fig.add_trace(go.Scatterpolar(
-        r=p2_vals + [p2_vals[0]], theta=radar_labels + [radar_labels[0]],
-        fill="toself", fillcolor="rgba(255,59,48,0.15)",
-        line=dict(color="#ff3b30", width=2.5), name=p2_name,
-        hovertemplate="%{theta}: %{r:.0f}th percentile<extra></extra>"
-    ))
+    fig.add_trace(
+        go.Scatterpolar(
+            r=first_values + [first_values[0]],
+            theta=radar_labels + [radar_labels[0]],
+            fill="toself",
+            fillcolor="rgba(0,113,227,0.15)",
+            line=dict(color="#0071e3", width=2.5),
+            name=first_name,
+        )
+    )
+    fig.add_trace(
+        go.Scatterpolar(
+            r=second_values + [second_values[0]],
+            theta=radar_labels + [radar_labels[0]],
+            fill="toself",
+            fillcolor="rgba(255,59,48,0.15)",
+            line=dict(color="#ff3b30", width=2.5),
+            name=second_name,
+        )
+    )
     fig.update_layout(
         paper_bgcolor="rgba(0,0,0,0)",
         polar=dict(
             bgcolor="rgba(0,0,0,0)",
-            radialaxis=dict(visible=True, range=[0,100],
-                            tickfont=dict(size=10, color="#6e6e73"),
-                            gridcolor="#e0e0e5"),
-            angularaxis=dict(tickfont=dict(size=12, color="#1d1d1f"),
-                             gridcolor="#e0e0e5")
+            radialaxis=dict(visible=True, range=[0, 100], tickfont=dict(size=10, color="#6e6e73"), gridcolor="#e0e0e5"),
+            angularaxis=dict(tickfont=dict(size=12, color="#1d1d1f"), gridcolor="#e0e0e5"),
         ),
-        showlegend=True, legend=dict(orientation="h", y=-0.1),
-        margin=dict(l=40, r=40, t=40, b=40), height=480
+        showlegend=True,
+        legend=dict(orientation="h", y=-0.1),
+        margin=dict(l=40, r=40, t=40, b=40),
+        height=480,
     )
     st.plotly_chart(fig, use_container_width=True)
 
-    # Percentile table
-    st.divider()
     st.subheader("Percentile Rankings")
-    pct_data = []
+    rows = []
     for col, label in zip(radar_cols, radar_labels):
-        p1_pct = (players[col] <= p1[col]).mean() * 100
-        p2_pct = (players[col] <= p2[col]).mean() * 100
-        better = p1_name if p1_pct >= p2_pct else p2_name
-        pct_data.append({
-            "Stat":              label,
-            f"{p1_name} (raw)":  round(float(p1[col]),2),
-            f"{p1_name} (pct)":  f"{p1_pct:.0f}th",
-            f"{p2_name} (raw)":  round(float(p2[col]),2),
-            f"{p2_name} (pct)":  f"{p2_pct:.0f}th",
-            "Better":            better,
-        })
-    st.dataframe(pd.DataFrame(pct_data), use_container_width=True, hide_index=True)
+        first_pct = percentile(first_player, col)
+        second_pct = percentile(second_player, col)
+        rows.append(
+            {
+                "Stat": label,
+                f"{first_name} Raw": round(float(first_player[col]), 2),
+                f"{first_name} Percentile": f"{first_pct:.0f}th",
+                f"{second_name} Raw": round(float(second_player[col]), 2),
+                f"{second_name} Percentile": f"{second_pct:.0f}th",
+                "Better": first_name if first_pct >= second_pct else second_name,
+            }
+        )
+    pct_frame = pd.DataFrame(rows)
+    st.dataframe(pct_frame, use_container_width=True, hide_index=True)
 
-    # Strengths summary
-    st.divider()
-    p1_wins = sum(1 for d in pct_data if d["Better"] == p1_name)
-    p2_wins = sum(1 for d in pct_data if d["Better"] == p2_name)
-    if p1_wins > p2_wins:
-        insight_card("🏆", f"<b>{p1_name}</b> edges this comparison, winning <b>{p1_wins}</b> of {len(pct_data)} statistical categories.")
-    elif p2_wins > p1_wins:
-        insight_card("🏆", f"<b>{p2_name}</b> edges this comparison, winning <b>{p2_wins}</b> of {len(pct_data)} statistical categories.")
+    first_wins = (pct_frame["Better"] == first_name).sum()
+    second_wins = (pct_frame["Better"] == second_name).sum()
+    if first_wins > second_wins:
+        insight_card("🏆", f"<b>{first_name}</b> wins <b>{first_wins}</b> of {len(pct_frame)} categories.")
+    elif second_wins > first_wins:
+        insight_card("🏆", f"<b>{second_name}</b> wins <b>{second_wins}</b> of {len(pct_frame)} categories.")
     else:
-        insight_card("🤝", f"These players are evenly matched — both win <b>{p1_wins}</b> statistical categories each.")
+        insight_card("🤝", f"These players are evenly matched across the selected categories.")
 
-    # Similar players
     st.divider()
-    st.subheader(f"Players Similar to {p1_name}")
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.metrics.pairwise import cosine_similarity
-    num_cols = ["goals","assists","shots_on_target","pass_accuracy",
-                "dribbles","tackles"]
-    scaler  = StandardScaler()
-    matrix  = scaler.fit_transform(players[num_cols].fillna(0))
-    idx     = players[players["name"] == p1_name].index[0]
-    pos     = players.index.get_loc(idx)
-    sims    = cosine_similarity([matrix[pos]], matrix)[0]
-    players_copy = players.copy()
-    players_copy["similarity"] = sims
-    similar = (players_copy[players_copy["name"] != p1_name]
-               .nlargest(5,"similarity")
-               [["name","team","goals","assists","rating","similarity"]])
-    similar["similarity"] = similar["similarity"].apply(lambda x: f"{x:.0%}")
-    st.dataframe(similar, use_container_width=True, hide_index=True)
+    st.subheader(f"Players Similar to {first_name}")
+    if StandardScaler is None or cosine_similarity is None:
+        st.warning("Install scikit learn to enable similarity matching.")
+    else:
+        similarity_cols = ["goals", "assists", "shots_on_target", "pass_accuracy", "dribbles", "tackles"]
+        scaler = StandardScaler()
+        matrix = scaler.fit_transform(players[similarity_cols].fillna(0))
+        player_index = players[players["name"].astype(str) == first_name].index[0]
+        matrix_position = players.index.get_loc(player_index)
+        similarities = cosine_similarity([matrix[matrix_position]], matrix)[0]
+        similar = players.copy()
+        similar["similarity"] = similarities
+        similar = similar[similar["name"].astype(str) != first_name].nlargest(5, "similarity")
+        similar["similarity"] = similar["similarity"].apply(lambda value: f"{value:.0%}")
+        st.dataframe(similar[["name", "team", "position", "goals", "assists", "rating", "similarity"]], use_container_width=True, hide_index=True)
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# TEAM ANALYSIS — FIXED DRAW BUG
-# ═══════════════════════════════════════════════════════════════════════════════
+
+# =============================================================================
+# TEAM ANALYSIS
+# =============================================================================
 elif page == "🏟️  Team Analysis":
     st.markdown("# Team Analysis")
     st.markdown("Deep dive into any team's performance.")
     st.divider()
 
     league = st.selectbox("League", LEAGUES, key="team_league")
-    fdf    = filter_df(league)
-    teams  = sorted(set(fdf["home_team"].unique()) | set(fdf["away_team"].unique()))
-    team   = st.selectbox("Select Team", teams)
+    frame = filter_matches_by_league(league)
+    teams = sorted(set(frame["home_team"].astype(str)) | set(frame["away_team"].astype(str)))
+    team = st.selectbox("Select Team", teams, key="team_select")
 
-    home_df  = fdf[fdf["home_team"] == team].copy()
-    away_df  = fdf[fdf["away_team"] == team].copy()
+    home_frame = frame[frame["home_team"].astype(str) == team].copy()
+    away_frame = frame[frame["away_team"].astype(str) == team].copy()
 
-    home_df["gf"]    = home_df["home_goals"]
-    home_df["ga"]    = home_df["away_goals"]
-    home_df["venue"] = "Home"
+    home_frame["gf"] = home_frame["home_goals"]
+    home_frame["ga"] = home_frame["away_goals"]
+    home_frame["venue"] = "Home"
 
-    away_df["gf"]    = away_df["away_goals"]
-    away_df["ga"]    = away_df["home_goals"]
-    away_df["venue"] = "Away"
+    away_frame["gf"] = away_frame["away_goals"]
+    away_frame["ga"] = away_frame["home_goals"]
+    away_frame["venue"] = "Away"
 
-    all_team = pd.concat([home_df, away_df]).copy()
+    team_matches = pd.concat([home_frame, away_frame], ignore_index=True)
+    if "date" in team_matches.columns:
+        team_matches = team_matches.sort_values("date", na_position="last")
 
-    # ── FIX: Proper win/draw/loss logic ──────────────────────────────────────
-    def result_label(row):
-        if row["gf"] > row["ga"]:   return "✅ Win"
-        elif row["gf"] == row["ga"]: return "🟡 Draw"
-        else:                        return "❌ Loss"
+    stop_if_empty(team_matches, "No matches found for this team.")
 
-    all_team["result_label"] = all_team.apply(result_label, axis=1)
-    all_team["win"]  = (all_team["gf"] >  all_team["ga"]).astype(int)
-    all_team["draw"] = (all_team["gf"] == all_team["ga"]).astype(int)
-    all_team["loss"] = (all_team["gf"] <  all_team["ga"]).astype(int)
+    team_matches["result_label"] = team_matches.apply(lambda row: result_label_from_scores(row["gf"], row["ga"]), axis=1)
+    team_matches["win"] = (team_matches["gf"] > team_matches["ga"]).astype(int)
+    team_matches["draw"] = (team_matches["gf"] == team_matches["ga"]).astype(int)
+    team_matches["loss"] = (team_matches["gf"] < team_matches["ga"]).astype(int)
 
-    total = len(all_team)
-    wins  = all_team["win"].sum()
-    draws = all_team["draw"].sum()
-    gf    = all_team["gf"].sum()
-    ga    = all_team["ga"].sum()
+    total = len(team_matches)
+    wins = int(team_matches["win"].sum())
+    draws = int(team_matches["draw"].sum())
+    losses = int(team_matches["loss"].sum())
+    goals_for = int(team_matches["gf"].sum())
+    goals_against = int(team_matches["ga"].sum())
 
-    insight_card("🏆", f"<b>{team}</b> — <b>{wins}W {draws}D {total-wins-draws}L</b> from {total} matches. Win rate: <b>{wins/total:.0%}</b>.")
-    insight_card("⚽", f"Scored <b>{int(gf)}</b> · Conceded <b>{int(ga)}</b> · Goal difference <b>{int(gf-ga):+}</b>.")
+    insight_card("🏆", f"<b>{team}</b>: <b>{wins}W {draws}D {losses}L</b> from {total} matches. Win rate: <b>{wins / total:.0%}</b>.")
+    insight_card("⚽", f"Scored <b>{goals_for}</b>, conceded <b>{goals_against}</b>, goal difference <b>{goals_for - goals_against:+}</b>.")
     st.divider()
 
     c1, c2, c3, c4, c5 = st.columns(5)
-    c1.metric("Games",    total)
-    c2.metric("Wins",     int(wins))
-    c3.metric("Draws",    int(draws))
-    c4.metric("Goals For", int(gf))
-    c5.metric("Goals Against", int(ga))
-    st.divider()
+    c1.metric("Games", total)
+    c2.metric("Wins", wins)
+    c3.metric("Draws", draws)
+    c4.metric("Goals For", goals_for)
+    c5.metric("Goals Against", goals_against)
 
+    st.divider()
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("Home vs Away")
-        hv = all_team.groupby("venue").agg(
-            Wins=("win","sum"), Draws=("draw","sum"),
-            Goals=("gf","mean"), Conceded=("ga","mean")
-        ).reset_index()
+        venue_stats = team_matches.groupby("venue", as_index=False).agg(Wins=("win", "sum"), Draws=("draw", "sum"), Losses=("loss", "sum"), Goals=("gf", "mean"), Conceded=("ga", "mean"))
         fig = go.Figure()
-        for i, metric in enumerate(["Wins","Draws","Goals","Conceded"]):
-            fig.add_trace(go.Bar(
-                name=metric, x=hv["venue"], y=hv[metric],
-                marker=dict(color=COLORS[i], line=dict(width=0))
-            ))
-        fig.update_layout(**BASE, barmode="group",
-                          legend=dict(orientation="h", y=-0.15))
+        for i, metric in enumerate(["Wins", "Draws", "Losses", "Goals", "Conceded"]):
+            fig.add_trace(go.Bar(name=metric, x=venue_stats["venue"], y=venue_stats[metric], marker=dict(color=COLORS[i], line=dict(width=0))))
+        fig.update_layout(**BASE_LAYOUT, barmode="group", legend=dict(orientation="h", y=-0.15))
         st.plotly_chart(fig, use_container_width=True)
 
     with col2:
         st.subheader("Last 5 Matches")
-        last5 = all_team.tail(5)[["date","venue","gf","ga","result_label"]].copy()
-        last5 = last5.rename(columns={"date":"Date","venue":"Venue",
-                                       "gf":"GF","ga":"GA",
-                                       "result_label":"Result"})
-        st.dataframe(last5, use_container_width=True, hide_index=True)
+        last_five = team_matches.tail(5)[["date", "venue", "gf", "ga", "result_label"]].copy()
+        last_five = last_five.rename(columns={"date": "Date", "venue": "Venue", "gf": "GF", "ga": "GA", "result_label": "Result"})
+        st.dataframe(last_five, use_container_width=True, hide_index=True)
 
     st.subheader("Goals Per Season")
-    gps = all_team.groupby("season")["gf"].sum().reset_index()
-    fig = go.Figure(go.Bar(
-        x=gps["season"], y=gps["gf"],
-        marker=dict(color="#0071e3", line=dict(width=0)),
-        hovertemplate="Season %{x}<br>Goals: %{y}<extra></extra>"
-    ))
-    fig.update_layout(**BASE)
+    goals_by_season = team_matches.groupby("season", as_index=False)["gf"].sum()
+    fig = go.Figure(
+        go.Bar(
+            x=goals_by_season["season"],
+            y=goals_by_season["gf"],
+            marker=dict(color="#0071e3", line=dict(width=0)),
+            hovertemplate="Season %{x}<br>Goals: %{y}<extra></extra>",
+        )
+    )
+    fig.update_layout(**BASE_LAYOUT)
     st.plotly_chart(fig, use_container_width=True)
 
-    # Clean sheet and attack stats
     st.divider()
     st.subheader("Team Strength Profile")
-    clean_sheets = (all_team["ga"] == 0).sum()
-    failed_score = (all_team["gf"] == 0).sum()
-    home_wins    = home_df[home_df["gf"] > home_df["ga"]].shape[0]
-    away_wins    = away_df[away_df["gf"] > away_df["ga"]].shape[0]
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Clean Sheets",    f"{clean_sheets} ({clean_sheets/total:.0%})")
-    c2.metric("Failed to Score", f"{failed_score} ({failed_score/total:.0%})")
-    c3.metric("Home Win Rate",   f"{home_wins/max(len(home_df),1):.0%}")
-    c4.metric("Away Win Rate",   f"{away_wins/max(len(away_df),1):.0%}")
+    clean_sheets = int((team_matches["ga"] == 0).sum())
+    failed_to_score = int((team_matches["gf"] == 0).sum())
+    home_win_rate = (home_frame["home_goals"] > home_frame["away_goals"]).mean() if len(home_frame) else 0
+    away_win_rate = (away_frame["away_goals"] > away_frame["home_goals"]).mean() if len(away_frame) else 0
 
-    # Auto insight
-    if home_wins/max(len(home_df),1) > away_wins/max(len(away_df),1) * 1.3:
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Clean Sheets", f"{clean_sheets} ({clean_sheets / total:.0%})")
+    c2.metric("Failed to Score", f"{failed_to_score} ({failed_to_score / total:.0%})")
+    c3.metric("Home Win Rate", format_percent(home_win_rate))
+    c4.metric("Away Win Rate", format_percent(away_win_rate))
+
+    if home_win_rate > away_win_rate * 1.3 and home_win_rate > 0:
         insight_card("🏠", f"<b>{team}</b>'s home form is significantly stronger than their away form.")
-    elif away_wins/max(len(away_df),1) > home_wins/max(len(home_df),1) * 1.3:
+    elif away_win_rate > home_win_rate * 1.3 and away_win_rate > 0:
         insight_card("✈️", f"<b>{team}</b> are surprisingly strong away from home.")
     else:
-        insight_card("⚖️", f"<b>{team}</b> perform consistently both home and away.")
+        insight_card("⚖️", f"<b>{team}</b> perform fairly consistently home and away.")
 
-# ═══════════════════════════════════════════════════════════════════════════════
+
+# =============================================================================
 # TRANSFER ANALYSIS
-# ═══════════════════════════════════════════════════════════════════════════════
-# ═══════════════════════════════════════════════════════════════════════════════
-# TRANSFER ANALYSIS & SCOUTING TOOL
-# Replace your existing "💰  Transfer Analysis" page with this entire block
-# ═══════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 elif page == "💰  Transfer Analysis":
     st.markdown("# Transfer & Scouting")
-    st.markdown("Find hidden gems, analyse team weaknesses, and build recruitment shortlists.")
+    st.markdown("Find hidden gems, analyse team weaknesses and build recruitment shortlists.")
     st.divider()
 
     if players is None:
-        st.error("Run player_stats.py first to fetch player data.")
+        st.error("Player data is not available. Add data/processed/player_stats.csv first.")
         st.stop()
 
-    # ── TABS ──────────────────────────────────────────────────────────────────
-    tab1, tab2, tab3, tab4 = st.tabs([
-        "🔍 Player Scouting",
-        "💎 Hidden Gems",
-        "🏟️ Team Weaknesses",
-        "📊 Attack vs Defence"
-    ])
+    tab1, tab2, tab3, tab4 = st.tabs(["🔍 Player Scouting", "💎 Hidden Gems", "🏟️ Team Weaknesses", "📊 Attack vs Defence"])
 
-    # ══════════════════════════════════════════════════════════════════════════
-    # TAB 1 — RECRUITMENT SHORTLIST BUILDER
-    # ══════════════════════════════════════════════════════════════════════════
     with tab1:
         st.subheader("Recruitment Shortlist Builder")
         st.markdown("Filter players by your exact requirements to build a ranked shortlist.")
@@ -1056,317 +1332,480 @@ elif page == "💰  Transfer Analysis":
 
         col1, col2, col3 = st.columns(3)
         with col1:
-            positions  = ["All"] + sorted(players["position"].dropna().unique().tolist())
-            pos_filter = st.selectbox("Position", positions, key="scout_pos")
-            min_age    = st.number_input("Min Age", min_value=16, max_value=40, value=18)
-            max_age    = st.number_input("Max Age", min_value=16, max_value=40, value=28)
+            scout_positions = ["All"] + sorted(players["position"].dropna().astype(str).unique().tolist())
+            scout_position = st.selectbox("Position", scout_positions, key="scout_position")
+            min_age = st.number_input("Min Age", min_value=0, max_value=50, value=18, key="scout_min_age")
+            max_age = st.number_input("Max Age", min_value=0, max_value=50, value=28, key="scout_max_age")
         with col2:
-            min_goals_p90   = st.number_input("Min Goals/90",   min_value=0.0, max_value=2.0, value=0.0, step=0.05)
-            min_assists_p90 = st.number_input("Min Assists/90", min_value=0.0, max_value=2.0, value=0.0, step=0.05)
-            min_rating      = st.number_input("Min Rating",     min_value=0.0, max_value=10.0, value=0.0, step=0.1)
+            min_goals_p90 = st.number_input("Min Goals/90", min_value=0.0, max_value=5.0, value=0.0, step=0.05, key="scout_min_goals")
+            min_assists_p90 = st.number_input("Min Assists/90", min_value=0.0, max_value=5.0, value=0.0, step=0.05, key="scout_min_assists")
+            min_rating = st.number_input("Min Rating", min_value=0.0, max_value=10.0, value=0.0, step=0.1, key="scout_min_rating")
         with col3:
-            min_minutes = st.number_input("Min Minutes Played", min_value=0, max_value=3000, value=90, step=90)
-            teams_list  = ["All"] + sorted(players["team"].unique().tolist())
-            team_filter = st.selectbox("Team", teams_list, key="scout_team")
-            nat_list    = ["All"] + sorted(players["nationality"].dropna().unique().tolist())
-            nat_filter  = st.selectbox("Nationality", nat_list)
+            min_minutes = st.number_input("Min Minutes Played", min_value=0, max_value=int(max(players["minutes"].max(), 90)), value=90, step=90, key="scout_min_minutes")
+            scout_teams = ["All"] + sorted(players["team"].dropna().astype(str).unique().tolist())
+            scout_team = st.selectbox("Team", scout_teams, key="scout_team")
+            scout_nations = ["All"] + sorted(players["nationality"].dropna().astype(str).unique().tolist())
+            scout_nation = st.selectbox("Nationality", scout_nations, key="scout_nation")
 
         if st.button("Build Shortlist →", key="build_shortlist"):
             shortlist = players.copy()
-
-            # Apply filters
-            if pos_filter  != "All": shortlist = shortlist[shortlist["position"]    == pos_filter]
-            if team_filter != "All": shortlist = shortlist[shortlist["team"]        == team_filter]
-            if nat_filter  != "All": shortlist = shortlist[shortlist["nationality"] == nat_filter]
+            if scout_position != "All":
+                shortlist = shortlist[shortlist["position"].astype(str) == scout_position]
+            if scout_team != "All":
+                shortlist = shortlist[shortlist["team"].astype(str) == scout_team]
+            if scout_nation != "All":
+                shortlist = shortlist[shortlist["nationality"].astype(str) == scout_nation]
 
             shortlist = shortlist[
-                (shortlist["age"]         >= min_age) &
-                (shortlist["age"]         <= max_age) &
-                (shortlist["minutes"]     >= min_minutes) &
-                (shortlist["goals_p90"]   >= min_goals_p90) &
-                (shortlist["assists_p90"] >= min_assists_p90) &
-                (shortlist["rating"]      >= min_rating)
-            ]
+                (shortlist["age"] >= min_age)
+                & (shortlist["age"] <= max_age)
+                & (shortlist["minutes"] >= min_minutes)
+                & (shortlist["goals_p90"] >= min_goals_p90)
+                & (shortlist["assists_p90"] >= min_assists_p90)
+                & (shortlist["rating"] >= min_rating)
+            ].copy()
 
-            if len(shortlist) == 0:
-                st.warning("No players match your criteria. Try relaxing the filters.")
+            if shortlist.empty:
+                st.warning("No players match your criteria. Relax the filters slightly.")
             else:
-                # Calculate composite score
-                from sklearn.preprocessing import MinMaxScaler
-                score_cols = ["goals_p90","assists_p90","sot_p90","rating","contrib_p90"]
-                scaler     = MinMaxScaler()
-                shortlist  = shortlist.copy()
-                scaled     = scaler.fit_transform(shortlist[score_cols].fillna(0))
-                shortlist["score"] = (scaled.mean(axis=1) * 100).round(1)
-                shortlist = shortlist.sort_values("score", ascending=False).reset_index(drop=True)
-                shortlist.index += 1
+                score_cols = ["goals_p90", "assists_p90", "sot_p90", "rating", "contrib_p90"]
+                if MinMaxScaler is not None and len(shortlist) > 1:
+                    scaler = MinMaxScaler()
+                    scaled = scaler.fit_transform(shortlist[score_cols].fillna(0))
+                    shortlist["score"] = (scaled.mean(axis=1) * 100).round(1)
+                else:
+                    shortlist["score"] = (shortlist[score_cols].fillna(0).mean(axis=1)).round(1)
 
-                insight_card("🎯", f"Found <b>{len(shortlist)}</b> players matching your criteria. Ranked by composite performance score.")
-                st.markdown("<br>", unsafe_allow_html=True)
+                shortlist = shortlist.sort_values("score", ascending=False)
+                display_cols = ["name", "team", "age", "position", "goals_p90", "assists_p90", "rating", "minutes", "score"]
+                insight_card("🎯", f"Found <b>{len(shortlist)}</b> players matching your criteria.")
+                st.dataframe(shortlist[display_cols], use_container_width=True, hide_index=True)
 
-                # Display shortlist
-                display_cols = ["name","team","age","position","goals_p90",
-                                "assists_p90","rating","minutes","score"]
-                st.dataframe(
-                    shortlist[display_cols].style.format({
-                        "goals_p90":   "{:.2f}",
-                        "assists_p90": "{:.2f}",
-                        "rating":      "{:.1f}",
-                        "score":       "{:.1f}",
-                    }),
-                    use_container_width=True
-                )
-
-                # Download button
                 csv = shortlist[display_cols].to_csv(index=False)
-                st.download_button(
-                    "⬇️ Download Shortlist CSV",
-                    data=csv,
-                    file_name="recruitment_shortlist.csv",
-                    mime="text/csv"
-                )
+                st.download_button("⬇️ Download Shortlist CSV", data=csv, file_name="recruitment_shortlist.csv", mime="text/csv")
 
-                # Top recommendation
                 top = shortlist.iloc[0]
-                st.divider()
-                insight_card("⭐", f"Top recommendation: <b>{top['name']}</b> ({top['team']}) — Score: <b>{top['score']}</b>/100 · Goals/90: <b>{top['goals_p90']:.2f}</b> · Rating: <b>{top['rating']:.1f}</b>")
+                insight_card("⭐", f"Top recommendation: <b>{top['name']}</b> from <b>{top['team']}</b>. Score: <b>{top['score']}</b>/100.")
 
-    # ══════════════════════════════════════════════════════════════════════════
-    # TAB 2 — HIDDEN GEMS
-    # ══════════════════════════════════════════════════════════════════════════
     with tab2:
         st.subheader("Hidden Gems Finder")
-        st.markdown("Players with high output but low minutes — underused talents.")
+        st.markdown("Players with strong output, young age or low minutes.")
         st.divider()
 
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("**Best Under 23s**")
-            u23 = players[
-                (players["age"] <= 23) &
-                (players["minutes"] >= 90)
-            ].copy()
-            u23["score"] = (u23["goals_p90"] + u23["assists_p90"] +
-                            u23["rating"].astype(float) / 10).round(2)
-            u23 = u23.nlargest(10, "score")
-            st.dataframe(
-                u23[["name","team","age","goals_p90","assists_p90","rating","score"]],
-                use_container_width=True, hide_index=True
-            )
+            under_23 = players[(players["age"] <= 23) & (players["minutes"] >= 90)].copy()
+            if under_23.empty:
+                st.info("No under 23 players found with the current data.")
+            else:
+                under_23["score"] = (under_23["goals_p90"] + under_23["assists_p90"] + under_23["rating"] / 10).round(2)
+                st.dataframe(under_23.nlargest(10, "score")[["name", "team", "age", "goals_p90", "assists_p90", "rating", "score"]], use_container_width=True, hide_index=True)
 
         with col2:
             st.markdown("**High Output Low Minutes**")
-            hidden = players[
-                (players["minutes"] >= 90) &
-                (players["minutes"] <= 900)
-            ].copy()
-            hidden["score"] = (hidden["goals_p90"] + hidden["assists_p90"]).round(2)
-            hidden = hidden.nlargest(10, "score")
-            st.dataframe(
-                hidden[["name","team","minutes","goals_p90","assists_p90","rating"]],
-                use_container_width=True, hide_index=True
-            )
+            hidden = players[(players["minutes"] >= 90) & (players["minutes"] <= 900)].copy()
+            if hidden.empty:
+                st.info("No low minute players found with the current data.")
+            else:
+                hidden["score"] = (hidden["goals_p90"] + hidden["assists_p90"]).round(2)
+                st.dataframe(hidden.nlargest(10, "score")[["name", "team", "minutes", "goals_p90", "assists_p90", "rating"]], use_container_width=True, hide_index=True)
 
         st.divider()
-
         col1, col2 = st.columns(2)
+        overperformers = players[players["minutes"] >= 90].copy()
+        overperformers["expected_goals_proxy"] = overperformers["shots_on_target"] * 0.35
+        overperformers["overperformance"] = (overperformers["goals"] - overperformers["expected_goals_proxy"]).round(2)
+
         with col1:
-            st.markdown("**Overperformers** — better than expected")
-            overperf = players[players["minutes"] >= 90].copy()
-            overperf["expected_goals"] = overperf["shots_on_target"] * 0.35
-            overperf["overperformance"] = (overperf["goals"] - overperf["expected_goals"]).round(2)
-            top_over = overperf.nlargest(10, "overperformance")
-            st.dataframe(
-                top_over[["name","team","goals","expected_goals","overperformance"]].style.format({
-                    "expected_goals":  "{:.1f}",
-                    "overperformance": "{:+.1f}"
-                }),
-                use_container_width=True, hide_index=True
-            )
-
+            st.markdown("**Overperformers**")
+            st.dataframe(overperformers.nlargest(10, "overperformance")[["name", "team", "goals", "expected_goals_proxy", "overperformance"]], use_container_width=True, hide_index=True)
         with col2:
-            st.markdown("**Underperformers** — below expected")
-            under = overperf.nsmallest(10, "overperformance")
-            st.dataframe(
-                under[["name","team","goals","expected_goals","overperformance"]].style.format({
-                    "expected_goals":  "{:.1f}",
-                    "overperformance": "{:+.1f}"
-                }),
-                use_container_width=True, hide_index=True
-            )
+            st.markdown("**Underperformers**")
+            st.dataframe(overperformers.nsmallest(10, "overperformance")[["name", "team", "goals", "expected_goals_proxy", "overperformance"]], use_container_width=True, hide_index=True)
 
-    # ══════════════════════════════════════════════════════════════════════════
-    # TAB 3 — TEAM WEAKNESSES
-    # ══════════════════════════════════════════════════════════════════════════
     with tab3:
         st.subheader("Team Needs Analysis")
         st.markdown("Select a team to find where they need reinforcement.")
         st.divider()
 
-        league_tw  = st.selectbox("League", LEAGUES, key="tw_league")
-        fdf_tw     = filter_df(league_tw)
-        teams_tw   = sorted(set(fdf_tw["home_team"].unique()) |
-                            set(fdf_tw["away_team"].unique()))
-        team_tw    = st.selectbox("Select Team", teams_tw, key="tw_team")
+        league_tw = st.selectbox("League", LEAGUES, key="needs_league")
+        frame_tw = filter_matches_by_league(league_tw)
+        team_options = sorted(set(frame_tw["home_team"].astype(str)) | set(frame_tw["away_team"].astype(str)))
+        team_tw = st.selectbox("Select Team", team_options, key="needs_team")
 
-        home_tw = fdf_tw[fdf_tw["home_team"] == team_tw]
-        away_tw = fdf_tw[fdf_tw["away_team"] == team_tw]
+        home_tw = frame_tw[frame_tw["home_team"].astype(str) == team_tw]
+        away_tw = frame_tw[frame_tw["away_team"].astype(str) == team_tw]
 
-        avg_scored   = (home_tw["home_goals"].mean() + away_tw["away_goals"].mean()) / 2
-        avg_conceded = (home_tw["away_goals"].mean() + away_tw["home_goals"].mean()) / 2
-        league_avg_scored   = (fdf_tw["home_goals"].mean() + fdf_tw["away_goals"].mean()) / 2
-        league_avg_conceded = (fdf_tw["away_goals"].mean() + fdf_tw["home_goals"].mean()) / 2
-
-        attack_diff  = avg_scored   - league_avg_scored
+        avg_scored = (safe_mean(home_tw["home_goals"], 0.0) + safe_mean(away_tw["away_goals"], 0.0)) / 2
+        avg_conceded = (safe_mean(home_tw["away_goals"], 0.0) + safe_mean(away_tw["home_goals"], 0.0)) / 2
+        league_avg_scored = frame_tw["total_goals"].mean() / 2
+        league_avg_conceded = frame_tw["total_goals"].mean() / 2
+        attack_diff = avg_scored - league_avg_scored
         defence_diff = avg_conceded - league_avg_conceded
 
-        home_wr  = (home_tw["result"] == 1).mean()
-        away_wr  = (away_tw["result"] == -1).mean()
-        all_results = pd.concat([
-            home_tw.assign(gf=home_tw["home_goals"], ga=home_tw["away_goals"]),
-            away_tw.assign(gf=away_tw["away_goals"], ga=away_tw["home_goals"])
-        ])
-        draw_rate    = (all_results["gf"] == all_results["ga"]).mean()
-        clean_sheets = (all_results["ga"] == 0).mean()
-        fail_score   = (all_results["gf"] == 0).mean()
+        all_team_results = pd.concat(
+            [
+                home_tw.assign(gf=home_tw["home_goals"], ga=home_tw["away_goals"]),
+                away_tw.assign(gf=away_tw["away_goals"], ga=away_tw["home_goals"]),
+            ],
+            ignore_index=True,
+        )
 
-        st.markdown(f"### {team_tw} — Weakness Report")
-        st.divider()
+        home_wr = (home_tw["result"] == 1).mean() if len(home_tw) else 0
+        away_wr = (away_tw["result"] == -1).mean() if len(away_tw) else 0
+        clean_sheet_rate = (all_team_results["ga"] == 0).mean() if len(all_team_results) else 0
+        fail_score_rate = (all_team_results["gf"] == 0).mean() if len(all_team_results) else 0
 
         weaknesses = []
-        strengths  = []
-
+        strengths = []
         if attack_diff < -0.2:
-            weaknesses.append(f"⚠️ **Weak attack** — scoring {avg_scored:.2f} goals/game vs league avg {league_avg_scored:.2f}")
+            weaknesses.append(f"⚠️ **Weak attack**: scoring {avg_scored:.2f} goals per game vs league average {league_avg_scored:.2f}.")
         elif attack_diff > 0.2:
-            strengths.append(f"✅ **Strong attack** — scoring {avg_scored:.2f} goals/game vs league avg {league_avg_scored:.2f}")
+            strengths.append(f"✅ **Strong attack**: scoring {avg_scored:.2f} goals per game vs league average {league_avg_scored:.2f}.")
 
         if defence_diff > 0.2:
-            weaknesses.append(f"⚠️ **Leaky defence** — conceding {avg_conceded:.2f} goals/game vs league avg {league_avg_conceded:.2f}")
+            weaknesses.append(f"⚠️ **Leaky defence**: conceding {avg_conceded:.2f} goals per game vs league average {league_avg_conceded:.2f}.")
         elif defence_diff < -0.2:
-            strengths.append(f"✅ **Solid defence** — conceding only {avg_conceded:.2f} goals/game vs league avg {league_avg_conceded:.2f}")
+            strengths.append(f"✅ **Solid defence**: conceding {avg_conceded:.2f} goals per game vs league average {league_avg_conceded:.2f}.")
 
         if home_wr < 0.35:
-            weaknesses.append(f"⚠️ **Poor home form** — winning only {home_wr:.0%} of home games")
+            weaknesses.append(f"⚠️ **Poor home form**: winning only {home_wr:.0%} of home games.")
         if away_wr < 0.25:
-            weaknesses.append(f"⚠️ **Poor away form** — winning only {away_wr:.0%} of away games")
-        if fail_score > 0.25:
-            weaknesses.append(f"⚠️ **Struggling to score** — fails to score in {fail_score:.0%} of games")
-        if clean_sheets < 0.2:
-            weaknesses.append(f"⚠️ **Defensive frailty** — keeps clean sheet in only {clean_sheets:.0%} of games")
+            weaknesses.append(f"⚠️ **Poor away form**: winning only {away_wr:.0%} of away games.")
+        if fail_score_rate > 0.25:
+            weaknesses.append(f"⚠️ **Scoring issue**: fails to score in {fail_score_rate:.0%} of games.")
+        if clean_sheet_rate < 0.20:
+            weaknesses.append(f"⚠️ **Defensive frailty**: keeps a clean sheet in only {clean_sheet_rate:.0%} of games.")
 
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("**⚠️ Areas Needing Improvement**")
             if weaknesses:
-                for w in weaknesses:
-                    st.markdown(w)
+                for item in weaknesses:
+                    st.markdown(item)
             else:
                 st.markdown("No major weaknesses identified.")
-
         with col2:
             st.markdown("**✅ Team Strengths**")
             if strengths:
-                for s in strengths:
-                    st.markdown(s)
+                for item in strengths:
+                    st.markdown(item)
             else:
                 st.markdown("No standout strengths identified.")
 
         st.divider()
-
-        # Transfer suggestions based on weaknesses
         st.subheader("💡 Transfer Suggestions")
-        if weaknesses:
-            if any("attack" in w.lower() or "score" in w.lower() for w in weaknesses):
-                insight_card("⚽", f"<b>{team_tw}</b> need attacking reinforcement. Consider a striker with high goals/90.")
-                strikers = players[
-                    (players["position"].str.contains("Forward|Attacker", na=False)) &
-                    (players["minutes"] >= 90)
-                ].nlargest(5, "goals_p90")[["name","team","age","goals_p90","assists_p90","rating"]]
-                if len(strikers) > 0:
-                    st.markdown("**Top striker targets:**")
-                    st.dataframe(strikers, use_container_width=True, hide_index=True)
+        if any("attack" in item.lower() or "score" in item.lower() for item in weaknesses):
+            insight_card("⚽", f"<b>{team_tw}</b> need attacking reinforcement. Look for high goals per 90 and contribution per 90.")
+            striker_targets = players[(players["position"].astype(str).str.contains("forward|attacker|striker", case=False, na=False)) & (players["minutes"] >= 90)].nlargest(5, "goals_p90")
+            st.dataframe(striker_targets[["name", "team", "age", "goals_p90", "assists_p90", "rating"]], use_container_width=True, hide_index=True)
+        if any("defence" in item.lower() or "defensive" in item.lower() for item in weaknesses):
+            insight_card("🛡️", f"<b>{team_tw}</b> need defensive reinforcement. Look for high tackles and interceptions per 90.")
+            defender_targets = players[(players["position"].astype(str).str.contains("defender|back", case=False, na=False)) & (players["minutes"] >= 90)].nlargest(5, "tackles_p90")
+            st.dataframe(defender_targets[["name", "team", "age", "tackles_p90", "interc_p90", "rating"]], use_container_width=True, hide_index=True)
+        if not weaknesses:
+            insight_card("✅", f"<b>{team_tw}</b> appear balanced. Focus on depth signings rather than emergency starters.")
 
-            if any("defence" in w.lower() or "defensive" in w.lower() for w in weaknesses):
-                insight_card("🛡️", f"<b>{team_tw}</b> need defensive reinforcement. Consider a defender with high tackle/interception rates.")
-                defenders = players[
-                    (players["position"].str.contains("Defender", na=False)) &
-                    (players["minutes"] >= 90)
-                ].nlargest(5, "tackles_p90")[["name","team","age","tackles_p90","interc_p90","rating"]]
-                if len(defenders) > 0:
-                    st.markdown("**Top defender targets:**")
-                    st.dataframe(defenders, use_container_width=True, hide_index=True)
-        else:
-            insight_card("✅", f"<b>{team_tw}</b> appear well-balanced. Focus on depth signings rather than starters.")
-
-    # ══════════════════════════════════════════════════════════════════════════
-    # TAB 4 — ATTACK VS DEFENCE SCATTER
-    # ══════════════════════════════════════════════════════════════════════════
     with tab4:
-        st.subheader("Attack vs Defence — All Teams")
+        st.subheader("Attack vs Defence")
         st.markdown("Team efficiency across the selected league.")
         st.divider()
 
-        league_sc  = st.selectbox("League", LEAGUES, key="sc_league")
-        fdf_sc     = filter_df(league_sc)
+        league_scatter = st.selectbox("League", LEAGUES, key="scatter_league")
+        frame_scatter = filter_matches_by_league(league_scatter)
 
-        home_s = fdf_sc.groupby("home_team").agg(hg=("home_goals","mean"), hc=("away_goals","mean"))
-        away_s = fdf_sc.groupby("away_team").agg(ag=("away_goals","mean"), ac=("home_goals","mean"))
-        ts     = pd.DataFrame({
-            "attack":  (home_s["hg"] + away_s["ag"]) / 2,
-            "defence": (home_s["hc"] + away_s["ac"]) / 2
-        }).dropna().reset_index()
-        ts.columns = ["team","attack","defence"]
-        ts["score"] = ts["attack"] - ts["defence"]
+        home_stats = frame_scatter.groupby("home_team").agg(home_attack=("home_goals", "mean"), home_defence=("away_goals", "mean"))
+        away_stats = frame_scatter.groupby("away_team").agg(away_attack=("away_goals", "mean"), away_defence=("home_goals", "mean"))
+        team_stats = pd.DataFrame(
+            {
+                "attack": (home_stats["home_attack"] + away_stats["away_attack"]) / 2,
+                "defence": (home_stats["home_defence"] + away_stats["away_defence"]) / 2,
+            }
+        ).dropna().reset_index()
+        team_stats.columns = ["team", "attack", "defence"]
+        team_stats["score"] = team_stats["attack"] - team_stats["defence"]
 
-        best_att = ts.loc[ts["attack"].idxmax()]
-        best_def = ts.loc[ts["defence"].idxmin()]
-        insight_card("⚔️",  f"<b>{best_att['team']}</b> — best attack at <b>{best_att['attack']:.2f}</b> goals/game.")
-        insight_card("🛡️", f"<b>{best_def['team']}</b> — best defence conceding only <b>{best_def['defence']:.2f}</b>/game.")
-        st.markdown("<br>", unsafe_allow_html=True)
+        stop_if_empty(team_stats, "Not enough data to build attack vs defence chart.")
 
-        search_team  = st.text_input("🔍 Highlight a team", placeholder="e.g. Arsenal", key="sc_search")
-        ts["highlight"] = ts["team"].str.contains(search_team, case=False) if search_team else False
+        best_attack = team_stats.loc[team_stats["attack"].idxmax()]
+        best_defence = team_stats.loc[team_stats["defence"].idxmin()]
+        insight_card("⚔️", f"<b>{best_attack['team']}</b> have the strongest attack at <b>{best_attack['attack']:.2f}</b> goals per game.")
+        insight_card("🛡️", f"<b>{best_defence['team']}</b> have the strongest defence, conceding <b>{best_defence['defence']:.2f}</b> per game.")
+
+        highlight = st.text_input("🔍 Highlight a team", placeholder="Example: Chelsea", key="scatter_search")
+        team_stats["highlight"] = team_stats["team"].astype(str).str.contains(highlight, case=False, na=False) if highlight else False
 
         fig = go.Figure()
-        normal = ts[~ts["highlight"]]
-        fig.add_trace(go.Scatter(
-            x=normal["defence"], y=normal["attack"], mode="markers",
-            name="Teams",
-            marker=dict(size=9, color=normal["score"],
-                        colorscale=[[0,"#ff3b30"],[0.5,"#ff9f0a"],[1,"#34c759"]],
-                        line=dict(width=0)),
-            text=normal["team"],
-            hovertemplate="<b>%{text}</b><br>Attack: %{y:.2f}<br>Defence: %{x:.2f}<extra></extra>",
-        ))
-        if search_team and ts["highlight"].any():
-            hl = ts[ts["highlight"]]
-            fig.add_trace(go.Scatter(
-                x=hl["defence"], y=hl["attack"], mode="markers+text",
-                name="Highlighted",
-                marker=dict(size=16, color="#0071e3", line=dict(color="white", width=2)),
-                text=hl["team"], textposition="top center",
-                textfont=dict(size=13, color="#0071e3"),
-                hovertemplate="<b>%{text}</b><br>Attack: %{y:.2f}<br>Conceded: %{x:.2f}<extra></extra>"
-            ))
-        fig.update_layout(
-            **BASE,
-            xaxis_title="Avg Goals Conceded (lower = better)",
-            yaxis_title="Avg Goals Scored (higher = better)",
-            height=520
+        normal = team_stats[~team_stats["highlight"]]
+        fig.add_trace(
+            go.Scatter(
+                x=normal["defence"],
+                y=normal["attack"],
+                mode="markers",
+                name="Teams",
+                marker=dict(size=9, color=normal["score"], colorscale=[[0, "#ff3b30"], [0.5, "#ff9f0a"], [1, "#34c759"]], line=dict(width=0)),
+                text=normal["team"],
+                hovertemplate="<b>%{text}</b><br>Attack: %{y:.2f}<br>Defence: %{x:.2f}<extra></extra>",
+            )
         )
+        highlighted = team_stats[team_stats["highlight"]]
+        if not highlighted.empty:
+            fig.add_trace(
+                go.Scatter(
+                    x=highlighted["defence"],
+                    y=highlighted["attack"],
+                    mode="markers+text",
+                    name="Highlighted",
+                    marker=dict(size=16, color="#0071e3", line=dict(color="white", width=2)),
+                    text=highlighted["team"],
+                    textposition="top center",
+                )
+            )
+        fig.update_layout(**BASE_LAYOUT, xaxis_title="Avg Goals Conceded", yaxis_title="Avg Goals Scored", height=520)
         st.plotly_chart(fig, use_container_width=True)
 
         col1, col2 = st.columns(2)
         with col1:
-            st.subheader("🏆 Top 10 Attack")
-            st.dataframe(
-                ts.nlargest(10,"attack")[["team","attack","defence"]]
-                  .style.format({"attack":"{:.2f}","defence":"{:.2f}"}),
-                use_container_width=True)
+            st.subheader("Top 10 Attack")
+            st.dataframe(team_stats.nlargest(10, "attack")[["team", "attack", "defence"]], use_container_width=True, hide_index=True)
         with col2:
-            st.subheader("🛡️ Top 10 Defence")
-            st.dataframe(
-                ts.nsmallest(10,"defence")[["team","attack","defence"]]
-                  .style.format({"attack":"{:.2f}","defence":"{:.2f}"}),
-                use_container_width=True)
+            st.subheader("Top 10 Defence")
+            st.dataframe(team_stats.nsmallest(10, "defence")[["team", "attack", "defence"]], use_container_width=True, hide_index=True)
+
+
+# =============================================================================
+# MODEL PERFORMANCE
+# =============================================================================
+# =============================================================================
+# MODEL PERFORMANCE PAGE — Replace your existing elif page == "📈  Model Performance": block
+# =============================================================================
+elif page == "📈  Model Performance":
+    st.markdown("# Model Performance")
+    st.markdown("Full evaluation of the match prediction model trained on 30 years of football data.")
+    st.divider()
+
+    if model is None:
+        st.warning("Model file not found. Run src/model.py first.")
+        st.stop()
+
+    if not metrics:
+        st.warning("No metrics.json found. Run src/model.py to generate evaluation metrics.")
+        st.stop()
+
+    # ── PULL DATA FROM METRICS.JSON ───────────────────────────────────────────
+    results    = metrics.get("model_results", {})
+    baseline   = metrics.get("baseline_accuracy", 0)
+    importance = metrics.get("feature_importance", {})
+    train_size = metrics.get("train_size", 0)
+    test_size  = metrics.get("test_size", 0)
+    features   = metrics.get("features", MODEL_FEATURES)
+    xgb        = results.get("XGBoost", {})
+
+    # ── INSIGHT CARDS ─────────────────────────────────────────────────────────
+    best_model = max(results, key=lambda x: results[x].get("accuracy", 0)) if results else "XGBoost"
+    best_acc   = results.get(best_model, {}).get("accuracy", 0)
+    insight_card("🏆", f"<b>{best_model}</b> is the best model with <b>{best_acc:.1%}</b> accuracy — beating the <b>{baseline:.1%}</b> always-home-win baseline.")
+    insight_card("📊", f"Trained on <b>{train_size:,}</b> matches, tested on <b>{test_size:,}</b> unseen matches using a chronological split.")
+    st.divider()
+
+    # ── TOP METRICS ───────────────────────────────────────────────────────────
+    st.subheader("XGBoost — Best Model")
+    c1, c2, c3, c4, c5 = st.columns(5)
+    c1.metric("Accuracy",      f"{xgb.get('accuracy', 0):.1%}")
+    c2.metric("Baseline",      f"{baseline:.1%}")
+    c3.metric("Precision",     f"{xgb.get('precision', 0):.1%}")
+    c4.metric("Recall",        f"{xgb.get('recall', 0):.1%}")
+    c5.metric("F1 Score",      f"{xgb.get('f1', 0):.1%}")
+    st.divider()
+
+    # ── MODEL COMPARISON ──────────────────────────────────────────────────────
+    st.subheader("Model Comparison")
+    st.caption("All models evaluated on the same chronological test set — seasons after 2021/22.")
+
+    model_names = ["Baseline"] + list(results.keys())
+    accuracies  = [baseline]   + [results[m].get("accuracy", 0) for m in results]
+    f1_scores   = [0]          + [results[m].get("f1", 0)       for m in results]
+
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        name="Accuracy",
+        x=model_names,
+        y=accuracies,
+        marker=dict(
+            color=["#6e6e73", "#ff9f0a", "#34c759", "#0071e3"],
+            line=dict(width=0)
+        ),
+        text=[f"{v:.1%}" for v in accuracies],
+        textposition="outside",
+        textfont=dict(size=12)
+    ))
+    fig.add_trace(go.Bar(
+        name="F1 Score",
+        x=model_names,
+        y=f1_scores,
+        marker=dict(
+            color=["rgba(0,0,0,0)", "#ffcc00", "#30b0c7", "#bf5af2"],
+            line=dict(width=0)
+        ),
+        text=[f"{v:.1%}" if v > 0 else "" for v in f1_scores],
+        textposition="outside",
+        textfont=dict(size=12)
+    ))
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(family="-apple-system", color="#1d1d1f"),
+        xaxis=dict(showgrid=False, zeroline=False,
+                   tickfont=dict(size=12, color="#6e6e73")),
+        yaxis=dict(tickformat=".0%", showgrid=True,
+                   gridcolor="#f0f0f5", zeroline=False,
+                   tickfont=dict(size=12, color="#6e6e73")),
+        margin=dict(l=0, r=0, t=24, b=0),
+        barmode="group",
+        legend=dict(orientation="h", y=-0.15),
+        hoverlabel=dict(bgcolor="white", bordercolor="#e0e0e5",
+                        font=dict(size=13, color="#1d1d1f"))
+    )
+    st.plotly_chart(fig, use_container_width=True)
+    st.divider()
+
+    # ── CONFUSION MATRIX ──────────────────────────────────────────────────────
+    st.subheader("Confusion Matrix — XGBoost")
+    st.caption("Shows what the model predicted vs what actually happened on the test set.")
+
+    cm_data = xgb.get("confusion_matrix", [])
+    if cm_data:
+        import plotly.express as px
+        cm     = np.array(cm_data)
+        labels = ["Away Win", "Draw", "Home Win"]
+        fig    = px.imshow(
+            cm, x=labels, y=labels,
+            color_continuous_scale=[[0, "#f5f5f7"], [1, "#0071e3"]],
+            labels=dict(x="Predicted", y="Actual", color="Count"),
+            text_auto=True
+        )
+        fig.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(family="-apple-system", color="#1d1d1f"),
+            margin=dict(l=0, r=0, t=24, b=0),
+            coloraxis_showscale=False
+        )
+        fig.update_traces(textfont=dict(size=14, color="#1d1d1f"))
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("No confusion matrix found in metrics.json. Re-run model.py to generate it.")
+
+    st.divider()
+
+    # ── PER CLASS PERFORMANCE ─────────────────────────────────────────────────
+    st.subheader("Performance by Outcome")
+    st.caption("Draws are the hardest outcome to predict reliably in football.")
+
+    report = xgb.get("classification_report", {})
+    if report:
+        perf_data = []
+        for outcome in ["Away Win", "Draw", "Home Win"]:
+            if outcome in report:
+                perf_data.append({
+                    "Outcome":   outcome,
+                    "Precision": f"{report[outcome].get('precision', 0):.1%}",
+                    "Recall":    f"{report[outcome].get('recall', 0):.1%}",
+                    "F1 Score":  f"{report[outcome].get('f1-score', 0):.1%}",
+                    "Support":   int(report[outcome].get("support", 0))
+                })
+        if perf_data:
+            st.dataframe(pd.DataFrame(perf_data),
+                         use_container_width=True, hide_index=True)
+    else:
+        st.info("No classification report found. Re-run model.py.")
+
+    st.divider()
+
+    # ── FEATURE IMPORTANCE ────────────────────────────────────────────────────
+    st.subheader("Feature Importance")
+    st.caption("Which features influence the model's predictions most.")
+
+    if importance:
+        feat_names = list(importance.keys())
+        feat_vals  = list(importance.values())
+        sorted_pairs = sorted(zip(feat_vals, feat_names), reverse=True)
+        feat_vals, feat_names = zip(*sorted_pairs)
+
+        fig = go.Figure(go.Bar(
+            x=list(feat_vals),
+            y=list(feat_names),
+            orientation="h",
+            marker=dict(color="#0071e3", line=dict(width=0)),
+            text=[f"{v:.3f}" for v in feat_vals],
+            textposition="outside",
+            hovertemplate="%{y}: %{x:.3f}<extra></extra>"
+        ))
+        fig.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(family="-apple-system", color="#1d1d1f"),
+            xaxis=dict(showgrid=True, gridcolor="#f0f0f5", zeroline=False,
+                       tickfont=dict(size=12, color="#6e6e73")),
+            yaxis=dict(showgrid=False, zeroline=False,
+                       tickfont=dict(size=13, color="#1d1d1f")),
+            margin=dict(l=0, r=60, t=24, b=0),
+            height=max(300, len(feat_names) * 50)
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    elif hasattr(model, "feature_importances_"):
+        # Fallback: read directly from model object
+        importance_vals = model.feature_importances_
+        feat_df = pd.DataFrame({
+            "Feature":    MODEL_FEATURES[:len(importance_vals)],
+            "Importance": importance_vals
+        }).sort_values("Importance", ascending=False)
+        fig = go.Figure(go.Bar(
+            x=feat_df["Importance"],
+            y=feat_df["Feature"],
+            orientation="h",
+            marker=dict(color="#0071e3", line=dict(width=0)),
+        ))
+        fig.update_layout(**BASE_LAYOUT, height=350)
+        fig.update_yaxes(autorange="reversed")
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("No feature importance data available.")
+
+    st.divider()
+
+    # ── TRAIN / TEST SPLIT INFO ────────────────────────────────────────────────
+    st.subheader("Train / Test Split")
+    st.caption("A chronological split is used — the model is trained on older seasons and tested on newer ones. This simulates real-world prediction where future matches are unknown.")
+
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Training Matches",  f"{train_size:,}")
+    c2.metric("Testing Matches",   f"{test_size:,}")
+    c3.metric("Train Seasons",     metrics.get("train_seasons", "up to 2021/22"))
+
+    st.divider()
+
+    # ── WHY XGBOOST ────────────────────────────────────────────────────────────
+    st.subheader("Why XGBoost?")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("""
+        **Advantages over other models:**
+        - Handles non-linear relationships between features
+        - Robust to missing values and outliers
+        - Built-in regularisation prevents overfitting
+        - Faster training than Random Forest
+        - Industry standard for tabular sports prediction
+        - Supports probability output for all three outcomes
+        """)
+    with col2:
+        st.markdown("""
+        **Why not higher accuracy?**
+        - Football has 3 outcomes — random baseline is 33%
+        - Professional betting models sit at 60-65%
+        - Injuries, tactics, and referee decisions are not in the data
+        - Draws are nearly impossible to predict reliably
+        - This model beats the home win baseline meaningfully
+        - Adding Elo ratings and head-to-head features will improve it further
+        """)
