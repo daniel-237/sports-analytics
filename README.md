@@ -1,3 +1,4 @@
+![CI](https://github.com/daniel-237/sports-analytics/actions/workflows/ci.yml/badge.svg)
 # ⚽ Football Analytics Platform
 
 A machine learning powered football intelligence dashboard for analysing team performance, player output, match predictions, and recruitment insights across English football.
