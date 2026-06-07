@@ -105,7 +105,7 @@ Chronological split — trained on seasons up to 2021, tested on 2022 onwards. T
 - Faster and more accurate than Random Forest on this dataset
 - Industry standard for tabular sports prediction
 
-### Why Not 80% Accuracy?
+### Why Not 100% Accuracy?
 Football is genuinely unpredictable. Even professional betting models with GPS tracking, heart rate data, and tactical analysis sit at 60-65%. A model beating 33% random baseline on real historical data is meaningful.
 
 ---
