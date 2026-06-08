@@ -1,11 +1,17 @@
 import json
 from pathlib import Path
+import sys
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 import joblib
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+from src.prediction import predict_match
 
 try:
     from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
@@ -200,6 +206,15 @@ PAGES = [
     "📈  Model Performance",
 ]
 
+BASIC_MODEL_FEATURES = [
+    "home_form",
+    "away_form",
+    "home_conceded_form",
+    "away_conceded_form",
+    "home_shots_form",
+    "away_shots_form",
+]
+
 MODEL_FEATURES = [
     "home_goals_form", "away_goals_form",
     "home_conceded_form", "away_conceded_form",
@@ -312,23 +327,270 @@ def feature_value(team_frame: pd.DataFrame, column: str, fallback: float) -> flo
     return fallback
 
 
-def class_name(value) -> str:
-    mapping = {
+def get_expected_model_features(fitted_model) -> list[str]:
+    """Return the feature names the saved model was trained with.
+
+    This prevents prediction crashes when the dashboard feature list changes
+    but the saved pickle was trained on a smaller or older feature set.
+    """
+    if fitted_model is None:
+        return MODEL_FEATURES
+
+    if hasattr(fitted_model, "feature_names_in_"):
+        return [str(feature) for feature in fitted_model.feature_names_in_]
+
+    try:
+        booster = fitted_model.get_booster()
+        if booster.feature_names:
+            return [str(feature) for feature in booster.feature_names]
+    except Exception:
+        pass
+
+    try:
+        estimator = fitted_model.named_steps.get("model")
+        if hasattr(estimator, "feature_names_in_"):
+            return [str(feature) for feature in estimator.feature_names_in_]
+    except Exception:
+        pass
+
+    # Some pickled models only remember the number of input features, not names.
+    # In that situation, avoid passing 35 features to an old 6-feature model.
+    try:
+        n_features = int(getattr(fitted_model, "n_features_in_"))
+        if n_features == len(BASIC_MODEL_FEATURES):
+            return BASIC_MODEL_FEATURES
+        if n_features == len(MODEL_FEATURES):
+            return MODEL_FEATURES
+        if 0 < n_features <= len(MODEL_FEATURES):
+            return MODEL_FEATURES[:n_features]
+    except Exception:
+        pass
+
+    return MODEL_FEATURES
+
+
+def get_model_classes(fitted_model, probability_count: int | None = None) -> list:
+    """Return model classes safely, including models wrapped inside pipelines."""
+    if fitted_model is not None and hasattr(fitted_model, "classes_"):
+        return list(getattr(fitted_model, "classes_"))
+
+    try:
+        estimator = fitted_model.named_steps.get("model")
+        if hasattr(estimator, "classes_"):
+            return list(getattr(estimator, "classes_"))
+    except Exception:
+        pass
+
+    if probability_count == 3:
+        return [0, 1, 2]
+    return [-1, 0, 1]
+
+
+def class_name(value, classes: list | None = None) -> str:
+    """Convert model class labels into readable football outcomes.
+
+    Handles both common encodings:
+    - [-1, 0, 1] means Away Win, Draw, Home Win
+    - [0, 1, 2] means Away Win, Draw, Home Win
+    """
+    try:
+        class_values = [int(v) for v in classes] if classes is not None else []
+    except Exception:
+        class_values = []
+
+    try:
+        numeric_value = int(value)
+    except Exception:
+        numeric_value = None
+
+    if set(class_values) == {0, 1, 2}:
+        encoded_mapping = {0: "Away Win", 1: "Draw", 2: "Home Win"}
+        if numeric_value in encoded_mapping:
+            return encoded_mapping[numeric_value]
+
+    if set(class_values) == {-1, 0, 1}:
+        signed_mapping = {-1: "Away Win", 0: "Draw", 1: "Home Win"}
+        if numeric_value in signed_mapping:
+            return signed_mapping[numeric_value]
+
+    fallback_mapping = {
         -1: "Away Win",
         0: "Draw",
         1: "Home Win",
+        2: "Home Win",
         "-1": "Away Win",
         "0": "Draw",
         "1": "Home Win",
+        "2": "Home Win",
         "A": "Away Win",
         "D": "Draw",
         "H": "Home Win",
         "away": "Away Win",
         "draw": "Draw",
         "home": "Home Win",
+        "Away Win": "Away Win",
+        "Draw": "Draw",
+        "Home Win": "Home Win",
     }
-    return mapping.get(value, str(value))
+    return fallback_mapping.get(value, str(value))
 
+
+def team_recent_stats(frame: pd.DataFrame, team: str, venue: str | None = None, n: int = 5) -> dict:
+    """Build recent form stats from raw match rows for one team."""
+    team = str(team)
+
+    if venue == "home":
+        recent = frame[frame["home_team"].astype(str) == team].tail(n).copy()
+        gf = recent["home_goals"] if "home_goals" in recent.columns else pd.Series(dtype=float)
+        ga = recent["away_goals"] if "away_goals" in recent.columns else pd.Series(dtype=float)
+        shots = recent["home_shots"] if "home_shots" in recent.columns else recent.get("home_shots_form", pd.Series(dtype=float))
+        sot = recent["home_shots_on_target"] if "home_shots_on_target" in recent.columns else recent.get("home_sot_form", pd.Series(dtype=float))
+    elif venue == "away":
+        recent = frame[frame["away_team"].astype(str) == team].tail(n).copy()
+        gf = recent["away_goals"] if "away_goals" in recent.columns else pd.Series(dtype=float)
+        ga = recent["home_goals"] if "home_goals" in recent.columns else pd.Series(dtype=float)
+        shots = recent["away_shots"] if "away_shots" in recent.columns else recent.get("away_shots_form", pd.Series(dtype=float))
+        sot = recent["away_shots_on_target"] if "away_shots_on_target" in recent.columns else recent.get("away_sot_form", pd.Series(dtype=float))
+    else:
+        home = frame[frame["home_team"].astype(str) == team].copy()
+        away = frame[frame["away_team"].astype(str) == team].copy()
+
+        home["gf"] = home["home_goals"]
+        home["ga"] = home["away_goals"]
+        away["gf"] = away["away_goals"]
+        away["ga"] = away["home_goals"]
+
+        recent = pd.concat([home, away], ignore_index=True)
+        if "date" in recent.columns:
+            recent = recent.sort_values("date", na_position="last")
+        recent = recent.tail(n)
+        gf = recent["gf"] if "gf" in recent.columns else pd.Series(dtype=float)
+        ga = recent["ga"] if "ga" in recent.columns else pd.Series(dtype=float)
+        shots = pd.Series(dtype=float)
+        sot = pd.Series(dtype=float)
+
+    gf = pd.to_numeric(gf, errors="coerce").fillna(0)
+    ga = pd.to_numeric(ga, errors="coerce").fillna(0)
+
+    wins = (gf > ga).astype(int)
+    draws = (gf == ga).astype(int)
+    points = wins * 3 + draws
+    result_sign = np.where(gf > ga, 1, np.where(gf == ga, 0, -1))
+
+    return {
+        "goals": float(gf.mean()) if len(gf) else 0.0,
+        "conceded": float(ga.mean()) if len(ga) else 0.0,
+        "gd": float((gf - ga).mean()) if len(gf) else 0.0,
+        "points": float(points.sum()) if len(points) else 0.0,
+        "win_rate": float(wins.mean()) if len(wins) else 0.0,
+        "cs_rate": float((ga == 0).mean()) if len(ga) else 0.0,
+        "fts_rate": float((gf == 0).mean()) if len(gf) else 0.0,
+        "shots": safe_mean(shots, 0.0),
+        "sot": safe_mean(sot, 0.0),
+        "streak": float(np.sum(result_sign)) if len(result_sign) else 0.0,
+    }
+
+
+def build_prediction_features(frame: pd.DataFrame, fitted_model, home_team: str, away_team: str) -> tuple[pd.DataFrame, list[str]]:
+    """Create the exact model input row while correctly separating home and away form."""
+    expected_features = get_expected_model_features(fitted_model)
+
+    home_home_5 = team_recent_stats(frame, home_team, venue="home", n=5)
+    away_away_5 = team_recent_stats(frame, away_team, venue="away", n=5)
+    home_all_5 = team_recent_stats(frame, home_team, venue=None, n=5)
+    away_all_5 = team_recent_stats(frame, away_team, venue=None, n=5)
+    home_all_10 = team_recent_stats(frame, home_team, venue=None, n=10)
+    away_all_10 = team_recent_stats(frame, away_team, venue=None, n=10)
+
+    league_avg_goals = safe_mean(frame["total_goals"], 2.5) / 2 if "total_goals" in frame.columns else 1.25
+    league_avg_conceded = league_avg_goals
+
+    pair_matches = frame[
+        ((frame["home_team"].astype(str) == str(home_team)) & (frame["away_team"].astype(str) == str(away_team)))
+        | ((frame["home_team"].astype(str) == str(away_team)) & (frame["away_team"].astype(str) == str(home_team)))
+    ].copy()
+
+    h2h_total = len(pair_matches)
+    h2h_home_wins = 0
+    h2h_away_wins = 0
+    h2h_draws = 0
+    for _, row in pair_matches.iterrows():
+        hg = row["home_goals"]
+        ag = row["away_goals"]
+        if hg == ag:
+            h2h_draws += 1
+        elif str(row["home_team"]) == str(home_team) and hg > ag:
+            h2h_home_wins += 1
+        elif str(row["away_team"]) == str(home_team) and ag > hg:
+            h2h_home_wins += 1
+        else:
+            h2h_away_wins += 1
+
+    home_latest = frame[(frame["home_team"].astype(str) == str(home_team)) | (frame["away_team"].astype(str) == str(home_team))].tail(1)
+    away_latest = frame[(frame["home_team"].astype(str) == str(away_team)) | (frame["away_team"].astype(str) == str(away_team))].tail(1)
+
+    def latest_value(feature: str, fallback: float = 0.0) -> float:
+        if feature in home_latest.columns and len(home_latest):
+            return safe_mean(home_latest[feature], fallback)
+        if feature in away_latest.columns and len(away_latest):
+            return safe_mean(away_latest[feature], fallback)
+        if feature in frame.columns:
+            return safe_mean(frame[feature].tail(10), fallback)
+        return fallback
+
+    home_elo = latest_value("home_elo", 1500.0)
+    away_elo = latest_value("away_elo", 1500.0)
+
+    computed = {
+        "home_form": home_home_5["goals"],
+        "away_form": away_away_5["goals"],
+        "home_goals_form": home_home_5["goals"],
+        "away_goals_form": away_away_5["goals"],
+        "home_conceded_form": home_home_5["conceded"],
+        "away_conceded_form": away_away_5["conceded"],
+        "home_shots_form": home_home_5["shots"],
+        "away_shots_form": away_away_5["shots"],
+        "home_sot_form": home_home_5["sot"],
+        "away_sot_form": away_away_5["sot"],
+        "home_gd_form": home_all_5["gd"],
+        "away_gd_form": away_all_5["gd"],
+        "home_points_form5": home_all_5["points"],
+        "away_points_form5": away_all_5["points"],
+        "home_points_form10": home_all_10["points"],
+        "away_points_form10": away_all_10["points"],
+        "home_win_rate": home_all_5["win_rate"],
+        "away_win_rate": away_all_5["win_rate"],
+        "home_cs_rate": home_all_5["cs_rate"],
+        "away_cs_rate": away_all_5["cs_rate"],
+        "home_fts_rate": home_all_5["fts_rate"],
+        "away_fts_rate": away_all_5["fts_rate"],
+        "home_elo": home_elo,
+        "away_elo": away_elo,
+        "elo_diff": home_elo - away_elo,
+        "home_streak": home_all_5["streak"],
+        "away_streak": away_all_5["streak"],
+        "home_attack_strength": home_all_5["goals"] / league_avg_goals if league_avg_goals else 0.0,
+        "away_attack_strength": away_all_5["goals"] / league_avg_goals if league_avg_goals else 0.0,
+        "home_defence_strength": home_all_5["conceded"] / league_avg_conceded if league_avg_conceded else 0.0,
+        "away_defence_strength": away_all_5["conceded"] / league_avg_conceded if league_avg_conceded else 0.0,
+        "season_stage": latest_value("season_stage", 0.5),
+        "h2h_home_wins": float(h2h_home_wins),
+        "h2h_away_wins": float(h2h_away_wins),
+        "h2h_draws": float(h2h_draws),
+        "h2h_total": float(h2h_total),
+        "h2h_home_rate": float(h2h_home_wins / h2h_total) if h2h_total else 0.0,
+    }
+
+    feature_row = {}
+    for feature in expected_features:
+        if feature in computed:
+            feature_row[feature] = computed[feature]
+        elif feature in frame.columns:
+            feature_row[feature] = safe_mean(frame[feature].tail(10), 0.0)
+        else:
+            feature_row[feature] = 0.0
+
+    return pd.DataFrame([feature_row], columns=expected_features), expected_features
 
 def stop_if_empty(frame: pd.DataFrame, message: str) -> None:
     if frame is None or len(frame) == 0:
@@ -391,9 +653,14 @@ def load_match_data() -> pd.DataFrame:
         "away_conceded_form": frame["home_goals"].mean(),
         "home_shots_form": 0.0,
         "away_shots_form": 0.0,
+        "home_goals_form": frame["home_goals"].mean(),
+        "away_goals_form": frame["away_goals"].mean(),
     }
+    for feature in MODEL_FEATURES:
+        fallback_features.setdefault(feature, 0.0)
+
     frame = ensure_columns(frame, fallback_features)
-    frame = numeric_columns(frame, MODEL_FEATURES)
+    frame = numeric_columns(frame, BASIC_MODEL_FEATURES + MODEL_FEATURES)
 
     return frame
 
@@ -843,130 +1110,228 @@ elif page == "🔮  Match Predictor":
     st.divider()
 
     if model is None:
-        st.warning("Model file not found. Add models/match_predictor.pkl to enable predictions.")
+        st.warning("Model file not found. Run python scripts/train_model.py first.")
         st.stop()
 
-    teams = sorted(set(matches["home_team"].astype(str)) | set(matches["away_team"].astype(str)))
+    teams = sorted(
+        set(matches["home_team"].astype(str))
+        | set(matches["away_team"].astype(str))
+    )
+
     col1, col2 = st.columns(2)
+
     with col1:
         st.markdown("**🏠 Home Team**")
-        home_team = st.selectbox("Home", teams, index=0, label_visibility="collapsed")
+        home_team = st.selectbox(
+            "Home Team",
+            teams,
+            index=0,
+            label_visibility="collapsed",
+            key="predictor_home_team",
+        )
+
     with col2:
         st.markdown("**✈️ Away Team**")
-        away_team = st.selectbox("Away", teams, index=min(1, len(teams) - 1), label_visibility="collapsed")
+        away_team = st.selectbox(
+            "Away Team",
+            teams,
+            index=min(1, len(teams) - 1),
+            label_visibility="collapsed",
+            key="predictor_away_team",
+        )
 
     if home_team == away_team:
         st.warning("Choose two different teams.")
         st.stop()
 
-    if st.button("Predict Match →"):
-        home_matches = matches[(matches["home_team"] == home_team) | (matches["away_team"] == home_team)].tail(5)
-        away_matches = matches[(matches["home_team"] == away_team) | (matches["away_team"] == away_team)].tail(5)
-        home_home = matches[matches["home_team"] == home_team].tail(5)
-        away_away = matches[matches["away_team"] == away_team].tail(5)
-
-        fallback = {feature: safe_mean(matches[feature], 0.0) for feature in MODEL_FEATURES}
-        features = pd.DataFrame(
-            [
-                {
-                    "home_form": safe_mean(home_home["home_goals"], fallback["home_form"]),
-                    "away_form": safe_mean(away_away["away_goals"], fallback["away_form"]),
-                    "home_conceded_form": safe_mean(home_home["away_goals"], fallback["home_conceded_form"]),
-                    "away_conceded_form": safe_mean(away_away["home_goals"], fallback["away_conceded_form"]),
-                    "home_shots_form": feature_value(home_home, "home_shots_form", fallback["home_shots_form"]),
-                    "away_shots_form": feature_value(away_away, "away_shots_form", fallback["away_shots_form"]),
-                }
-            ],
-            columns=MODEL_FEATURES,
-        )
-
+    if st.button("Predict Match →", key="predict_match_button"):
         try:
-            probabilities = model.predict_proba(features)[0]
-            classes = list(getattr(model, "classes_", [-1, 0, 1]))
+            prediction = predict_match(model, matches, home_team, away_team, metrics)
         except Exception as exc:
             st.error(f"Prediction failed: {exc}")
             st.stop()
 
-        prob_table = pd.DataFrame(
-            {
-                "Outcome": [class_name(value) for value in classes],
-                "Probability": probabilities,
-            }
-        )
-        winner_row = prob_table.loc[prob_table["Probability"].idxmax()]
-        winner = winner_row["Outcome"]
-        confidence = float(winner_row["Probability"])
-        confidence_label = "High" if confidence >= 0.60 else "Medium" if confidence >= 0.45 else "Low"
+        outcome = prediction["prediction"]
+        confidence = prediction["confidence"]
+        probabilities = prediction["probabilities"]
+        feature_row = prediction.get("explanation_features", prediction["features"]).iloc[0]
+
+        def feature(name, default=0.0):
+            return float(feature_row[name]) if name in feature_row.index else default
+
+        if confidence >= 0.60:
+            confidence_label = "High"
+        elif confidence >= 0.45:
+            confidence_label = "Medium"
+        else:
+            confidence_label = "Low"
 
         st.divider()
-        insight_card("🔮", f"Prediction: <b>{winner}</b> with <b>{confidence_label}</b> confidence ({confidence:.0%}).")
+
+        insight_card(
+            "🔮",
+            f"Prediction: <b>{outcome}</b> with <b>{confidence_label}</b> confidence ({confidence:.0%}).",
+        )
 
         st.subheader("Outcome Probabilities")
-        ordered = pd.DataFrame(
-            {
-                "Outcome": ["Home Win", "Draw", "Away Win"],
-                "Probability": [
-                    prob_table.loc[prob_table["Outcome"] == "Home Win", "Probability"].sum(),
-                    prob_table.loc[prob_table["Outcome"] == "Draw", "Probability"].sum(),
-                    prob_table.loc[prob_table["Outcome"] == "Away Win", "Probability"].sum(),
-                ],
-            }
-        )
+
+        home_probability = probabilities.loc[
+            probabilities["Outcome"] == "Home Win",
+            "Probability",
+        ].sum()
+
+        draw_probability = probabilities.loc[
+            probabilities["Outcome"] == "Draw",
+            "Probability",
+        ].sum()
+
+        away_probability = probabilities.loc[
+            probabilities["Outcome"] == "Away Win",
+            "Probability",
+        ].sum()
+
         c1, c2, c3 = st.columns(3)
-        c1.metric("🏠 Home Win", f"{ordered.loc[0, 'Probability']:.0%}")
-        c2.metric("🤝 Draw", f"{ordered.loc[1, 'Probability']:.0%}")
-        c3.metric("✈️ Away Win", f"{ordered.loc[2, 'Probability']:.0%}")
+        c1.metric("🏠 Home Win", f"{home_probability:.0%}")
+        c2.metric("🤝 Draw", f"{draw_probability:.0%}")
+        c3.metric("✈️ Away Win", f"{away_probability:.0%}")
 
         fig = go.Figure(
             go.Bar(
-                x=ordered["Outcome"],
-                y=ordered["Probability"],
-                marker=dict(color=["#0071e3", "#ff9f0a", "#ff3b30"], line=dict(width=0)),
-                text=[f"{p:.0%}" for p in ordered["Probability"]],
+                x=probabilities["Outcome"],
+                y=probabilities["Probability"],
+                marker=dict(
+                    color=["#0071e3", "#ff9f0a", "#ff3b30"],
+                    line=dict(width=0),
+                ),
+                text=[f"{value:.0%}" for value in probabilities["Probability"]],
                 textposition="outside",
                 hovertemplate="%{x}: %{y:.1%}<extra></extra>",
             )
         )
-        fig.update_layout(**BASE_LAYOUT)
-        fig.update_yaxes(tickformat=".0%", showgrid=True, gridcolor="#f0f0f5")
+
+        fig.update_layout(
+            **BASE_LAYOUT,
+            height=420,
+            yaxis_title="Probability",
+        )
+
+        fig.update_yaxes(
+            tickformat=".0%",
+            range=[0, max(probabilities["Probability"].max() + 0.15, 0.6)],
+        )
+
         st.plotly_chart(fig, use_container_width=True)
 
         st.subheader("Why this prediction?")
-        home_scoring = safe_mean(home_home["home_goals"], 0.0)
-        away_scoring = safe_mean(away_away["away_goals"], 0.0)
-        home_conceded = safe_mean(home_home["away_goals"], 0.0)
-        away_conceded = safe_mean(away_away["home_goals"], 0.0)
 
         reasons = []
-        if home_scoring >= away_scoring:
-            reasons.append(f"⚽ {home_team} have stronger recent scoring form at home ({home_scoring:.1f} vs {away_scoring:.1f} goals per game).")
-        else:
-            reasons.append(f"⚽ {away_team} have stronger recent away scoring form ({away_scoring:.1f} vs {home_scoring:.1f} goals per game).")
 
-        if home_conceded <= away_conceded:
-            reasons.append(f"🛡️ {home_team} have conceded fewer goals recently ({home_conceded:.1f} vs {away_conceded:.1f} per game).")
+        elo_diff = feature("elo_diff")
+        home_points_form5 = feature("home_points_form5")
+        away_points_form5 = feature("away_points_form5")
+        home_goals_form = feature("home_goals_form")
+        away_goals_form = feature("away_goals_form")
+        home_conceded_form = feature("home_conceded_form")
+        away_conceded_form = feature("away_conceded_form")
+
+        if elo_diff > 75:
+            reasons.append(f"🏠 {home_team} have the stronger Elo rating advantage.")
+        elif elo_diff < -75:
+            reasons.append(f"✈️ {away_team} have the stronger Elo rating advantage.")
         else:
-            reasons.append(f"🛡️ {away_team} have the stronger recent defensive record ({away_conceded:.1f} vs {home_conceded:.1f} per game).")
+            reasons.append("⚖️ The Elo ratings are fairly close, so the model sees this as competitive.")
+
+        if home_points_form5 > away_points_form5:
+            reasons.append(f"📈 {home_team} have better recent points form.")
+        elif away_points_form5 > home_points_form5:
+            reasons.append(f"📈 {away_team} have better recent points form.")
+
+        if home_goals_form > away_goals_form:
+            reasons.append(f"⚽ {home_team} have stronger recent scoring form.")
+        elif away_goals_form > home_goals_form:
+            reasons.append(f"⚽ {away_team} have stronger recent scoring form.")
+
+        if home_conceded_form < away_conceded_form:
+            reasons.append(f"🛡️ {home_team} have conceded fewer goals recently.")
+        elif away_conceded_form < home_conceded_form:
+            reasons.append(f"🛡️ {away_team} have conceded fewer goals recently.")
 
         if confidence < 0.45:
-            reasons.append("⚠️ The model confidence is low, so this match should be treated as close.")
-        else:
-            reasons.append("🏠 Home advantage and recent form are included in the feature set.")
+            reasons.append("⚠️ The model confidence is low, so this should be treated as a close match.")
 
         for reason in reasons:
             st.markdown(reason)
 
         st.divider()
-        col1, col2 = st.columns(2)
-        with col1:
-            st.subheader(f"Recent Form: {home_team}")
-            recent_home = home_matches[["date", "home_team", "away_team", "home_goals", "away_goals"]].copy()
-            st.dataframe(recent_home, use_container_width=True, hide_index=True)
-        with col2:
-            st.subheader(f"Recent Form: {away_team}")
-            recent_away = away_matches[["date", "home_team", "away_team", "home_goals", "away_goals"]].copy()
-            st.dataframe(recent_away, use_container_width=True, hide_index=True)
 
+        st.subheader("Model Feature Snapshot")
+
+        feature_display = pd.DataFrame(
+            {
+                "Feature": [
+                    "Home Goals Form",
+                    "Away Goals Form",
+                    "Home Conceded Form",
+                    "Away Conceded Form",
+                    "Home Points Form 5",
+                    "Away Points Form 5",
+                    "Home Elo",
+                    "Away Elo",
+                    "Elo Difference",
+                ],
+                "Value": [
+                    feature("home_goals_form"),
+                    feature("away_goals_form"),
+                    feature("home_conceded_form"),
+                    feature("away_conceded_form"),
+                    feature("home_points_form5"),
+                    feature("away_points_form5"),
+                    feature("home_elo"),
+                    feature("away_elo"),
+                    feature("elo_diff"),
+                ],
+            }
+        )
+
+        st.dataframe(
+            feature_display,
+            use_container_width=True,
+            hide_index=True,
+        )
+
+        st.divider()
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.subheader(f"Recent Matches: {home_team}")
+            recent_home = matches[
+                (matches["home_team"].astype(str) == home_team)
+                | (matches["away_team"].astype(str) == home_team)
+            ].tail(5)
+
+            st.dataframe(
+                recent_home[
+                    ["date", "home_team", "away_team", "home_goals", "away_goals"]
+                ],
+                use_container_width=True,
+                hide_index=True,
+            )
+
+        with col2:
+            st.subheader(f"Recent Matches: {away_team}")
+            recent_away = matches[
+                (matches["home_team"].astype(str) == away_team)
+                | (matches["away_team"].astype(str) == away_team)
+            ].tail(5)
+
+            st.dataframe(
+                recent_away[
+                    ["date", "home_team", "away_team", "home_goals", "away_goals"]
+                ],
+                use_container_width=True,
+                hide_index=True,
+            )
 
 # =============================================================================
 # PLAYER STATS
@@ -1768,8 +2133,11 @@ elif page == "📈  Model Performance":
     elif hasattr(model, "feature_importances_"):
         # Fallback: read directly from model object
         importance_vals = model.feature_importances_
+        expected_features = get_expected_model_features(model)
+        if len(expected_features) != len(importance_vals):
+            expected_features = [f"feature_{i}" for i in range(len(importance_vals))]
         feat_df = pd.DataFrame({
-            "Feature":    MODEL_FEATURES[:len(importance_vals)],
+            "Feature":    expected_features,
             "Importance": importance_vals
         }).sort_values("Importance", ascending=False)
         fig = go.Figure(go.Bar(
