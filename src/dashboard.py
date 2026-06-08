@@ -45,123 +45,282 @@ st.set_page_config(
 st.markdown(
     """
 <style>
-    * {
-        font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif !important;
+    html, body, [class*="css"] {
+        font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif !important;
+        color: #1d1d1f !important;
         -webkit-font-smoothing: antialiased;
     }
-    .stApp { background-color: #ffffff; }
+
+    .stApp {
+        background-color: #ffffff !important;
+        color: #1d1d1f !important;
+    }
+
+    .main .block-container {
+        padding: 44px 56px !important;
+        max-width: 1280px !important;
+    }
+
     [data-testid="stSidebar"] {
         background-color: #f5f5f7 !important;
         border-right: 1px solid #e0e0e5 !important;
     }
-    [data-testid="stSidebar"] * { color: #1d1d1f !important; }
+
+    [data-testid="stSidebar"] * {
+        color: #1d1d1f !important;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        color: #1d1d1f !important;
+        letter-spacing: -0.6px !important;
+    }
+
     h1 {
         font-size: 48px !important;
         font-weight: 700 !important;
-        color: #1d1d1f !important;
-        letter-spacing: -1.5px !important;
         line-height: 1.05 !important;
     }
+
     h2 {
-        font-size: 26px !important;
-        font-weight: 600 !important;
-        color: #1d1d1f !important;
-        letter-spacing: -0.5px !important;
+        font-size: 28px !important;
+        font-weight: 650 !important;
     }
+
     h3 {
-        font-size: 19px !important;
-        font-weight: 600 !important;
-        color: #1d1d1f !important;
-        letter-spacing: -0.3px !important;
+        font-size: 21px !important;
+        font-weight: 650 !important;
     }
+
+    p, li, span, label, div {
+        color: #1d1d1f !important;
+    }
+
+    .small-muted {
+        color: #515154 !important;
+        font-size: 15px !important;
+        line-height: 1.55 !important;
+    }
+
+    [data-testid="stMarkdownContainer"] p {
+        color: #1d1d1f !important;
+    }
+
+    [data-testid="stMarkdownContainer"] li {
+        color: #1d1d1f !important;
+    }
+
+    [data-testid="stMarkdownContainer"] strong {
+        color: #1d1d1f !important;
+    }
+
+    [data-testid="stSelectbox"] label,
+    [data-testid="stNumberInput"] label,
+    [data-testid="stTextInput"] label {
+        color: #1d1d1f !important;
+        font-weight: 500 !important;
+    }
+
+    [data-testid="stSelectbox"] div,
+    [data-testid="stNumberInput"] div,
+    [data-testid="stTextInput"] div {
+        color: #1d1d1f !important;
+    }
+
+    [data-baseweb="select"] {
+        background-color: #f5f5f7 !important;
+        border-radius: 14px !important;
+    }
+
+    [data-baseweb="select"] * {
+        color: #1d1d1f !important;
+        -webkit-text-fill-color: #1d1d1f !important;
+    }
+
+    [data-baseweb="input"] {
+        background-color: #f5f5f7 !important;
+        border-radius: 14px !important;
+    }
+
+    input {
+        color: #1d1d1f !important;
+        -webkit-text-fill-color: #1d1d1f !important;
+        background-color: #f5f5f7 !important;
+    }
+
+    input::placeholder {
+        color: #86868b !important;
+        -webkit-text-fill-color: #86868b !important;
+        opacity: 1 !important;
+    }
+
+    [data-testid="stNumberInput"] button {
+        color: #1d1d1f !important;
+        background-color: #f5f5f7 !important;
+    }
+
+    [data-testid="stMetric"] {
+        background: #f5f5f7 !important;
+        border-radius: 18px !important;
+        padding: 20px !important;
+    }
+
     [data-testid="metric-container"] {
         background: #f5f5f7 !important;
         border-radius: 18px !important;
-        padding: 24px !important;
+        padding: 22px !important;
         border: none !important;
-        transition: transform 0.2s ease !important;
     }
-    [data-testid="metric-container"]:hover { transform: scale(1.02) !important; }
+
     [data-testid="metric-container"] label {
-        font-size: 11px !important;
-        font-weight: 600 !important;
-        color: #6e6e73 !important;
+        color: #515154 !important;
+        font-size: 12px !important;
+        font-weight: 650 !important;
         text-transform: uppercase !important;
-        letter-spacing: 0.8px !important;
+        letter-spacing: 0.6px !important;
     }
+
     [data-testid="stMetricValue"] {
-        font-size: 34px !important;
-        font-weight: 700 !important;
         color: #1d1d1f !important;
-        letter-spacing: -1px !important;
+        font-size: 32px !important;
+        font-weight: 750 !important;
     }
+
     .stButton > button {
         background-color: #0071e3 !important;
         color: #ffffff !important;
         border: none !important;
-        border-radius: 980px !important;
+        border-radius: 999px !important;
         padding: 12px 28px !important;
-        font-size: 15px !important;
-        font-weight: 500 !important;
-        transition: all 0.2s ease !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
     }
+
+    .stButton > button * {
+        color: #ffffff !important;
+    }
+
     .stButton > button:hover {
         background-color: #0077ed !important;
-        transform: scale(1.02) !important;
-        box-shadow: 0 4px 20px rgba(0,113,227,0.3) !important;
+        transform: scale(1.01) !important;
+        box-shadow: 0 4px 18px rgba(0,113,227,0.25) !important;
     }
-    [data-testid="stSelectbox"] > div > div {
-        background-color: #f5f5f7 !important;
-        border: 1px solid #d2d2d7 !important;
-        border-radius: 12px !important;
-        font-size: 15px !important;
-    }
-    [data-testid="stTextInput"] > div > div > input {
-        background-color: #f5f5f7 !important;
-        border: 1px solid #d2d2d7 !important;
-        border-radius: 12px !important;
-        padding: 12px 16px !important;
-        font-size: 15px !important;
-    }
+
     hr {
         border: none !important;
         border-top: 1px solid #e0e0e5 !important;
-        margin: 36px 0 !important;
+        margin: 34px 0 !important;
     }
+
     [data-testid="stDataFrame"] {
         border-radius: 18px !important;
         overflow: hidden !important;
         border: 1px solid #e0e0e5 !important;
     }
-    .main .block-container {
-        padding: 48px 60px !important;
-        max-width: 1280px !important;
-    }
-    #MainMenu { visibility: hidden; }
-    footer { visibility: hidden; }
-    header { visibility: hidden; }
+
     .insight-card {
-        background: linear-gradient(135deg, #0071e3 0%, #0051a0 100%);
-        border-radius: 18px;
-        padding: 20px 24px;
-        margin-bottom: 8px;
-        color: white;
+        background: linear-gradient(135deg, #0071e3 0%, #0051a0 100%) !important;
+        border-radius: 18px !important;
+        padding: 20px 24px !important;
+        margin-bottom: 10px !important;
     }
+
+    .insight-card p,
+    .insight-card span,
+    .insight-card b {
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+    }
+
     .insight-card p {
-        color: white !important;
         font-size: 15px !important;
         font-weight: 500 !important;
         margin: 0 !important;
     }
-    .insight-card span { font-size: 22px; }
-    .small-muted {
-        color: #6e6e73;
-        font-size: 14px;
-        line-height: 1.5;
+
+    #MainMenu {
+        visibility: hidden !important;
     }
+
+    footer {
+        visibility: hidden !important;
+    }
+
+    header {
+        visibility: hidden !important;
+    }
+
     @media (max-width: 768px) {
-        .main .block-container { padding: 24px 16px !important; }
-        h1 { font-size: 32px !important; }
+        .main .block-container {
+            padding: 28px 18px 96px 18px !important;
+            max-width: 100% !important;
+        }
+
+        h1 {
+            font-size: 40px !important;
+            line-height: 1.05 !important;
+            letter-spacing: -1.4px !important;
+        }
+
+        h2 {
+            font-size: 27px !important;
+        }
+
+        h3 {
+            font-size: 21px !important;
+        }
+
+        p, li {
+            font-size: 16px !important;
+            line-height: 1.55 !important;
+        }
+        
+        [data-testid="stSidebar"] {
+        background-color: #f5f5f7 !important;
+        }
+        
+
+        [data-testid="stSelectbox"],
+        [data-testid="stNumberInput"],
+        [data-testid="stTextInput"] {
+            width: 100% !important;
+        }
+
+        [data-baseweb="select"] {
+            min-height: 54px !important;
+        }
+
+        input {
+            min-height: 52px !important;
+            font-size: 16px !important;
+        }
+
+        .stButton > button {
+            width: 100% !important;
+            min-height: 56px !important;
+            font-size: 18px !important;
+        }
+
+        [data-testid="metric-container"] {
+            padding: 18px !important;
+            margin-bottom: 12px !important;
+        }
+
+        [data-testid="stMetricValue"] {
+            font-size: 28px !important;
+        }
+
+        .js-plotly-plot .modebar {
+            display: none !important;
+        }
+
+        iframe {
+            max-width: 100% !important;
+        }
+
+        .stDataFrame {
+            max-width: 100% !important;
+            overflow-x: auto !important;
+        }
     }
 </style>
 """,
@@ -178,6 +337,11 @@ BASE_LAYOUT = dict(
     margin=dict(l=0, r=0, t=24, b=0),
     hoverlabel=dict(bgcolor="white", bordercolor="#e0e0e5", font=dict(size=13, color="#1d1d1f")),
 )
+
+PLOTLY_CONFIG = {
+    "displayModeBar": False,
+    "responsive": True,
+}
 
 COLORS = [
     "#0071e3",
@@ -815,11 +979,32 @@ default_page = st.session_state.pop("target_page", PAGES[0])
 if default_page not in PAGES:
     default_page = PAGES[0]
 
-page = st.sidebar.radio(
+if "page" not in st.session_state:
+    st.session_state["page"] = default_page
+
+sidebar_page = st.sidebar.radio(
     "",
     PAGES,
-    index=PAGES.index(default_page),
+    index=PAGES.index(st.session_state["page"]),
+    key="sidebar_page",
 )
+
+mobile_page = st.selectbox(
+    "Navigate",
+    PAGES,
+    index=PAGES.index(st.session_state["page"]),
+    key="mobile_page",
+)
+
+if sidebar_page != st.session_state["page"]:
+    st.session_state["page"] = sidebar_page
+    st.rerun()
+
+if mobile_page != st.session_state["page"]:
+    st.session_state["page"] = mobile_page
+    st.rerun()
+
+page = st.session_state["page"]
 
 st.sidebar.markdown(
     f"""
@@ -962,7 +1147,7 @@ elif page == "⚽  Overview":
             )
         )
         fig.update_layout(**BASE_LAYOUT, showlegend=True, legend=dict(orientation="h", y=-0.1))
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
 
     with col2:
         st.subheader("Matches Per League")
@@ -977,7 +1162,7 @@ elif page == "⚽  Overview":
             )
         )
         fig.update_layout(**BASE_LAYOUT)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
 
     st.subheader("League Entertainment Profile")
 
@@ -1047,7 +1232,7 @@ elif page == "⚽  Overview":
             xaxis_title="League",
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
 
     with col2:
         st.markdown("### Key Stats")
@@ -1223,7 +1408,7 @@ elif page == "🔮  Match Predictor":
             range=[0, max(probabilities["Probability"].max() + 0.15, 0.6)],
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
 
         st.subheader("Why this prediction?")
 
@@ -1426,7 +1611,7 @@ elif page == "👤  Player Stats":
     )
     fig.update_layout(**BASE_LAYOUT)
     fig.update_xaxes(tickangle=-30, tickfont=dict(size=11))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
 
     col1, col2 = st.columns(2)
     with col1:
@@ -1539,7 +1724,7 @@ elif page == "⚔️  Player Comparison":
         margin=dict(l=40, r=40, t=40, b=40),
         height=480,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
 
     st.subheader("Percentile Rankings")
     rows = []
@@ -1648,7 +1833,7 @@ elif page == "🏟️  Team Analysis":
         for i, metric in enumerate(["Wins", "Draws", "Losses", "Goals", "Conceded"]):
             fig.add_trace(go.Bar(name=metric, x=venue_stats["venue"], y=venue_stats[metric], marker=dict(color=COLORS[i], line=dict(width=0))))
         fig.update_layout(**BASE_LAYOUT, barmode="group", legend=dict(orientation="h", y=-0.15))
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
 
     with col2:
         st.subheader("Last 5 Matches")
@@ -1667,7 +1852,7 @@ elif page == "🏟️  Team Analysis":
         )
     )
     fig.update_layout(**BASE_LAYOUT)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
 
     st.divider()
     st.subheader("Team Strength Profile")
@@ -1942,7 +2127,7 @@ elif page == "💰  Transfer Analysis":
                 )
             )
         fig.update_layout(**BASE_LAYOUT, xaxis_title="Avg Goals Conceded", yaxis_title="Avg Goals Scored", height=520)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
 
         col1, col2 = st.columns(2)
         with col1:
@@ -2091,7 +2276,7 @@ elif page == "📈  Model Performance":
             yaxis_title="Rows",
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
 
     with col2:
         st.subheader("Seasons Used")
@@ -2157,7 +2342,7 @@ elif page == "📈  Model Performance":
             )
 
             fig.update_xaxes(side="top")
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
         else:
             st.info("Confusion matrix not available. Run python scripts/train_model.py again to regenerate metrics.json.")
 
@@ -2210,7 +2395,7 @@ elif page == "📈  Model Performance":
 
         fig.update_yaxes(autorange="reversed")
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
 
         top_feature = importance_frame.iloc[0]
 
