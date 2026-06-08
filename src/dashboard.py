@@ -12,7 +12,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 from src.prediction import predict_match
-from src.utils import format_season, sorted_seasons 
+from src.utils import format_season, sorted_seasons
 
 
 try:
@@ -28,9 +28,6 @@ except Exception:
     StandardScaler = None
 
 
-# =============================================================================
-# PAGE CONFIG
-# =============================================================================
 st.set_page_config(
     page_title="Football Analytics",
     page_icon="⚽",
@@ -39,9 +36,6 @@ st.set_page_config(
 )
 
 
-# =============================================================================
-# STYLING
-# =============================================================================
 st.markdown(
     """
 <style>
@@ -237,7 +231,6 @@ st.markdown(
         margin: 0 !important;
     }
 
-    #MainMenu {
         visibility: hidden !important;
     }
 
@@ -273,11 +266,11 @@ st.markdown(
             font-size: 16px !important;
             line-height: 1.55 !important;
         }
-        
+
         [data-testid="stSidebar"] {
         background-color: #f5f5f7 !important;
         }
-        
+
 
         [data-testid="stSelectbox"],
         [data-testid="stNumberInput"],
@@ -402,9 +395,6 @@ MODEL_FEATURES = [
 ]
 
 
-# =============================================================================
-# HELPER FUNCTIONS
-# =============================================================================
 def normalise_columns(frame: pd.DataFrame) -> pd.DataFrame:
     frame = frame.copy()
     frame.columns = (
@@ -494,11 +484,6 @@ def feature_value(team_frame: pd.DataFrame, column: str, fallback: float) -> flo
 
 
 def get_expected_model_features(fitted_model) -> list[str]:
-    """Return the feature names the saved model was trained with.
-
-    This prevents prediction crashes when the dashboard feature list changes
-    but the saved pickle was trained on a smaller or older feature set.
-    """
     if fitted_model is None:
         return MODEL_FEATURES
 
@@ -519,8 +504,6 @@ def get_expected_model_features(fitted_model) -> list[str]:
     except Exception:
         pass
 
-    # Some pickled models only remember the number of input features, not names.
-    # In that situation, avoid passing 35 features to an old 6-feature model.
     try:
         n_features = int(getattr(fitted_model, "n_features_in_"))
         if n_features == len(BASIC_MODEL_FEATURES):
@@ -536,7 +519,6 @@ def get_expected_model_features(fitted_model) -> list[str]:
 
 
 def get_model_classes(fitted_model, probability_count: int | None = None) -> list:
-    """Return model classes safely, including models wrapped inside pipelines."""
     if fitted_model is not None and hasattr(fitted_model, "classes_"):
         return list(getattr(fitted_model, "classes_"))
 
@@ -553,12 +535,6 @@ def get_model_classes(fitted_model, probability_count: int | None = None) -> lis
 
 
 def class_name(value, classes: list | None = None) -> str:
-    """Convert model class labels into readable football outcomes.
-
-    Handles both common encodings:
-    - [-1, 0, 1] means Away Win, Draw, Home Win
-    - [0, 1, 2] means Away Win, Draw, Home Win
-    """
     try:
         class_values = [int(v) for v in classes] if classes is not None else []
     except Exception:
@@ -602,7 +578,6 @@ def class_name(value, classes: list | None = None) -> str:
 
 
 def team_recent_stats(frame: pd.DataFrame, team: str, venue: str | None = None, n: int = 5) -> dict:
-    """Build recent form stats from raw match rows for one team."""
     team = str(team)
 
     if venue == "home":
@@ -658,7 +633,6 @@ def team_recent_stats(frame: pd.DataFrame, team: str, venue: str | None = None, 
 
 
 def build_prediction_features(frame: pd.DataFrame, fitted_model, home_team: str, away_team: str) -> tuple[pd.DataFrame, list[str]]:
-    """Create the exact model input row while correctly separating home and away form."""
     expected_features = get_expected_model_features(fitted_model)
 
     home_home_5 = team_recent_stats(frame, home_team, venue="home", n=5)
@@ -764,9 +738,6 @@ def stop_if_empty(frame: pd.DataFrame, message: str) -> None:
         st.stop()
 
 
-# =============================================================================
-# DATA LOADING
-# =============================================================================
 @st.cache_data
 def load_match_data() -> pd.DataFrame:
     if not MATCH_PATH.exists():
@@ -962,9 +933,83 @@ def filter_matches_by_league(league: str) -> pd.DataFrame:
     return matches[matches["league"].astype(str) == str(league)].copy()
 
 
-# =============================================================================
-# SIDEBAR
-# =============================================================================
+def set_active_page_from_top_nav():
+    st.session_state["active_page"] = st.session_state["top_nav_select"]
+    st.session_state["sidebar_nav_radio"] = st.session_state["top_nav_select"]
+
+
+def set_active_page_from_sidebar():
+    st.session_state["active_page"] = st.session_state["sidebar_nav_radio"]
+    st.session_state["top_nav_select"] = st.session_state["sidebar_nav_radio"]
+
+
+def go_to_page(page_name: str) -> None:
+    st.session_state["active_page"] = page_name
+    st.session_state["top_nav_select"] = page_name
+    st.session_state["sidebar_nav_radio"] = page_name
+
+
+target_page = st.session_state.pop("target_page", None)
+
+if "active_page" not in st.session_state:
+    st.session_state["active_page"] = target_page if target_page in PAGES else PAGES[0]
+
+if target_page in PAGES:
+    st.session_state["active_page"] = target_page
+
+if "top_nav_select" not in st.session_state:
+    st.session_state["top_nav_select"] = st.session_state["active_page"]
+
+if "sidebar_nav_radio" not in st.session_state:
+    st.session_state["sidebar_nav_radio"] = st.session_state["active_page"]
+
+if st.session_state["active_page"] not in PAGES:
+    st.session_state["active_page"] = PAGES[0]
+
+if st.session_state["top_nav_select"] not in PAGES:
+    st.session_state["top_nav_select"] = st.session_state["active_page"]
+
+if st.session_state["sidebar_nav_radio"] not in PAGES:
+    st.session_state["sidebar_nav_radio"] = st.session_state["active_page"]
+
+st.markdown(
+    """
+    <style>
+        .top-nav-area {
+            display: block;
+            margin-bottom: 34px;
+        }
+
+        .nav-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #515154;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .top-nav-area {
+                margin-bottom: 24px;
+            }
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.markdown("<div class='top-nav-area'>", unsafe_allow_html=True)
+st.markdown("<div class='nav-title'>Navigate</div>", unsafe_allow_html=True)
+
+st.selectbox(
+    "Navigate",
+    PAGES,
+    key="top_nav_select",
+    label_visibility="collapsed",
+    on_change=set_active_page_from_top_nav,
+)
+
+st.markdown("</div>", unsafe_allow_html=True)
+
 st.sidebar.markdown(
     """
 <div style='padding:28px 8px 20px 8px;'>
@@ -975,36 +1020,12 @@ st.sidebar.markdown(
     unsafe_allow_html=True,
 )
 
-default_page = st.session_state.pop("target_page", PAGES[0])
-if default_page not in PAGES:
-    default_page = PAGES[0]
-
-if "page" not in st.session_state:
-    st.session_state["page"] = default_page
-
-sidebar_page = st.sidebar.radio(
+st.sidebar.radio(
     "",
     PAGES,
-    index=PAGES.index(st.session_state["page"]),
-    key="sidebar_page",
+    key="sidebar_nav_radio",
+    on_change=set_active_page_from_sidebar,
 )
-
-mobile_page = st.selectbox(
-    "Navigate",
-    PAGES,
-    index=PAGES.index(st.session_state["page"]),
-    key="mobile_page",
-)
-
-if sidebar_page != st.session_state["page"]:
-    st.session_state["page"] = sidebar_page
-    st.rerun()
-
-if mobile_page != st.session_state["page"]:
-    st.session_state["page"] = mobile_page
-    st.rerun()
-
-page = st.session_state["page"]
 
 st.sidebar.markdown(
     f"""
@@ -1017,10 +1038,9 @@ st.sidebar.markdown(
     unsafe_allow_html=True,
 )
 
+page = st.session_state["active_page"]
 
-# =============================================================================
-# HOME
-# =============================================================================
+
 if page == "🏠  Home":
     st.markdown(
         """
@@ -1041,12 +1061,12 @@ if page == "🏠  Home":
 
     col1, col2, col3 = st.columns([1, 1, 4])
     with col1:
-        if st.button("🔮 Try Predictor"):
-            st.session_state["target_page"] = "🔮  Match Predictor"
+        if st.button("🔮 Try Predictor", key="home_try_predictor"):
+            go_to_page("🔮  Match Predictor")
             st.rerun()
     with col2:
-        if st.button("👤 View Players"):
-            st.session_state["target_page"] = "👤  Player Stats"
+        if st.button("👤 View Players", key="home_view_players"):
+            go_to_page("👤  Player Stats")
             st.rerun()
 
     st.divider()
@@ -1103,9 +1123,6 @@ if page == "🏠  Home":
     st.caption("Built by Daniel Olutade · Python · Streamlit · Pandas · Plotly · Scikit Learn · XGBoost")
 
 
-# =============================================================================
-# OVERVIEW
-# =============================================================================
 elif page == "⚽  Overview":
     st.markdown("# Football Analytics")
     st.markdown("Thirty years of English football. Five leagues. One dashboard.")
@@ -1289,9 +1306,6 @@ elif page == "⚽  Overview":
     )
 
 
-# =============================================================================
-# MATCH PREDICTOR
-# =============================================================================
 elif page == "🔮  Match Predictor":
     st.markdown("# Match Predictor")
     st.markdown("Select two teams to forecast the outcome.")
@@ -1521,9 +1535,6 @@ elif page == "🔮  Match Predictor":
                 hide_index=True,
             )
 
-# =============================================================================
-# PLAYER STATS
-# =============================================================================
 elif page == "👤  Player Stats":
     st.markdown("# Player Statistics")
     st.markdown("Filter players by position, team, season and minutes.")
@@ -1631,9 +1642,6 @@ elif page == "👤  Player Stats":
     st.dataframe(filtered[display_cols].sort_values(goal_col, ascending=False), use_container_width=True, hide_index=True)
 
 
-# =============================================================================
-# PLAYER COMPARISON
-# =============================================================================
 elif page == "⚔️  Player Comparison":
     st.markdown("# Player Comparison")
     st.markdown("Compare two players side by side with percentile radar charts.")
@@ -1771,9 +1779,6 @@ elif page == "⚔️  Player Comparison":
         st.dataframe(similar[["name", "team", "position", "goals", "assists", "rating", "similarity"]], use_container_width=True, hide_index=True)
 
 
-# =============================================================================
-# TEAM ANALYSIS
-# =============================================================================
 elif page == "🏟️  Team Analysis":
     st.markdown("# Team Analysis")
     st.markdown("Deep dive into any team's performance.")
@@ -1875,9 +1880,6 @@ elif page == "🏟️  Team Analysis":
         insight_card("⚖️", f"<b>{team}</b> perform fairly consistently home and away.")
 
 
-# =============================================================================
-# TRANSFER ANALYSIS
-# =============================================================================
 elif page == "💰  Transfer Analysis":
     st.markdown("# Transfer & Scouting")
     st.markdown("Find hidden gems, analyse team weaknesses and build recruitment shortlists.")
@@ -2138,12 +2140,6 @@ elif page == "💰  Transfer Analysis":
             st.dataframe(team_stats.nsmallest(10, "defence")[["team", "attack", "defence"]], use_container_width=True, hide_index=True)
 
 
-# =============================================================================
-# MODEL PERFORMANCE
-# =============================================================================
-# =============================================================================
-# MODEL PERFORMANCE PAGE — Replace your existing elif page == "📈  Model Performance": block
-# =============================================================================
 elif page == "📈  Model Performance":
     st.markdown("# Model Performance")
     st.markdown("Review how the match prediction model performs on recent unseen seasons.")
@@ -2211,7 +2207,7 @@ elif page == "📈  Model Performance":
 
     raw_train_seasons = first_metric_value(metrics, ["train_seasons", "training_seasons"], [])
     raw_test_seasons = first_metric_value(metrics, ["test_seasons", "testing_seasons"], [])
-    
+
     train_seasons = [
     format_season(season)
     for season in sorted_seasons(as_list(raw_train_seasons))
