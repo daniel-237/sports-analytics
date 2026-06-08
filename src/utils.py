@@ -87,3 +87,48 @@ def class_name(value) -> str:
     }
 
     return mapping.get(value, str(value))
+
+def season_start_year(value) -> int:
+    text = str(value).strip()
+
+    if text.lower() in {"", "nan", "none", "unknown season"}:
+        return -1
+
+    digits = "".join(char for char in text if char.isdigit())
+
+    if not digits:
+        return -1
+
+    code = digits.zfill(4)[-4:]
+
+    start_yy = int(code[:2])
+    end_yy = int(code[2:])
+
+    if len(digits) == 4 and 1800 <= int(digits) <= 2100:
+        if end_yy != (start_yy + 1) % 100:
+            return int(digits)
+
+    if start_yy >= 70:
+        return 1900 + start_yy
+
+    return 2000 + start_yy
+
+
+def format_season(value) -> str:
+    start_year = season_start_year(value)
+
+    if start_year < 0:
+        return str(value)
+
+    end_year = (start_year + 1) % 100
+
+    return f"{start_year}/{end_year:02d}"
+
+
+def sorted_seasons(values) -> list:
+    unique_values = list(dict.fromkeys(values))
+
+    return sorted(
+        unique_values,
+        key=lambda value: (season_start_year(value), str(value)),
+    )

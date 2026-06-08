@@ -12,6 +12,8 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 from src.prediction import predict_match
+from src.utils import format_season, sorted_seasons 
+
 
 try:
     from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
@@ -774,6 +776,7 @@ def load_model():
 def load_metrics() -> dict:
     if not METRICS_PATH.exists():
         return {}
+
     try:
         with open(METRICS_PATH, "r", encoding="utf-8") as file:
             return json.load(file)
@@ -1958,233 +1961,287 @@ elif page == "💰  Transfer Analysis":
 # =============================================================================
 elif page == "📈  Model Performance":
     st.markdown("# Model Performance")
-    st.markdown("Full evaluation of the match prediction model trained on 30 years of football data.")
+    st.markdown("Review how the match prediction model performs on recent unseen seasons.")
     st.divider()
-
-    if model is None:
-        st.warning("Model file not found. Run src/model.py first.")
-        st.stop()
 
     if not metrics:
-        st.warning("No metrics.json found. Run src/model.py to generate evaluation metrics.")
+        st.warning("No metrics found. Run python scripts/train_model.py first.")
         st.stop()
 
-    # ── PULL DATA FROM METRICS.JSON ───────────────────────────────────────────
-    results    = metrics.get("model_results", {})
-    baseline   = metrics.get("baseline_accuracy", 0)
-    importance = metrics.get("feature_importance", {})
-    train_size = metrics.get("train_size", 0)
-    test_size  = metrics.get("test_size", 0)
-    features   = metrics.get("features", MODEL_FEATURES)
-    xgb        = results.get("XGBoost", {})
+    def first_metric_value(data, keys, default=0):
+        for key in keys:
+            if key in data:
+                return data[key]
+        return default
 
-    # ── INSIGHT CARDS ─────────────────────────────────────────────────────────
-    best_model = max(results, key=lambda x: results[x].get("accuracy", 0)) if results else "XGBoost"
-    best_acc   = results.get(best_model, {}).get("accuracy", 0)
-    insight_card("🏆", f"<b>{best_model}</b> is the best model with <b>{best_acc:.1%}</b> accuracy — beating the <b>{baseline:.1%}</b> always-home-win baseline.")
-    insight_card("📊", f"Trained on <b>{train_size:,}</b> matches, tested on <b>{test_size:,}</b> unseen matches using a chronological split.")
+    def as_list(value):
+        if value is None:
+            return []
+
+        if isinstance(value, list):
+            return [str(item) for item in value]
+
+        if isinstance(value, tuple):
+            return [str(item) for item in value]
+
+        if isinstance(value, set):
+            return [str(item) for item in sorted(value)]
+
+        return [str(value)]
+
+    def build_importance_frame(value):
+        if value is None:
+            return pd.DataFrame(columns=["feature", "importance"])
+
+        if isinstance(value, list):
+            frame = pd.DataFrame(value)
+
+            if frame.empty:
+                return pd.DataFrame(columns=["feature", "importance"])
+
+            if "feature" not in frame.columns or "importance" not in frame.columns:
+                return pd.DataFrame(columns=["feature", "importance"])
+
+            frame["importance"] = pd.to_numeric(frame["importance"], errors="coerce").fillna(0)
+            return frame[["feature", "importance"]]
+
+        if isinstance(value, dict):
+            if "feature" in value and "importance" in value:
+                frame = pd.DataFrame([value])
+                frame["importance"] = pd.to_numeric(frame["importance"], errors="coerce").fillna(0)
+                return frame[["feature", "importance"]]
+
+            frame = pd.DataFrame(
+                [{"feature": key, "importance": item} for key, item in value.items()]
+            )
+
+            frame["importance"] = pd.to_numeric(frame["importance"], errors="coerce").fillna(0)
+            return frame[["feature", "importance"]]
+
+        return pd.DataFrame(columns=["feature", "importance"])
+
+    accuracy = float(first_metric_value(metrics, ["accuracy", "test_accuracy", "model_accuracy"], 0))
+    train_rows = int(first_metric_value(metrics, ["train_rows", "training_rows"], 0))
+    test_rows = int(first_metric_value(metrics, ["test_rows", "testing_rows"], 0))
+
+    raw_train_seasons = first_metric_value(metrics, ["train_seasons", "training_seasons"], [])
+    raw_test_seasons = first_metric_value(metrics, ["test_seasons", "testing_seasons"], [])
+    
+    train_seasons = [
+    format_season(season)
+    for season in sorted_seasons(as_list(raw_train_seasons))
+]
+    test_seasons = [
+    format_season(season)
+    for season in sorted_seasons(as_list(raw_test_seasons))
+]
+
+    report = first_metric_value(metrics, ["classification_report", "report"], {})
+    matrix = first_metric_value(metrics, ["confusion_matrix", "matrix"], [])
+    feature_importance = first_metric_value(metrics, ["feature_importance", "importances"], [])
+    model_features = as_list(first_metric_value(metrics, ["model_features", "features"], []))
+
+    c1, c2, c3, c4 = st.columns(4)
+
+    c1.metric("Accuracy", f"{accuracy:.1%}")
+    c2.metric("Training Rows", f"{train_rows:,}")
+    c3.metric("Testing Rows", f"{test_rows:,}")
+    c4.metric("Model Features", len(model_features))
+
     st.divider()
 
-    # ── TOP METRICS ───────────────────────────────────────────────────────────
-    st.subheader("XGBoost — Best Model")
-    c1, c2, c3, c4, c5 = st.columns(5)
-    c1.metric("Accuracy",      f"{xgb.get('accuracy', 0):.1%}")
-    c2.metric("Baseline",      f"{baseline:.1%}")
-    c3.metric("Precision",     f"{xgb.get('precision', 0):.1%}")
-    c4.metric("Recall",        f"{xgb.get('recall', 0):.1%}")
-    c5.metric("F1 Score",      f"{xgb.get('f1', 0):.1%}")
-    st.divider()
-
-    # ── MODEL COMPARISON ──────────────────────────────────────────────────────
-    st.subheader("Model Comparison")
-    st.caption("All models evaluated on the same chronological test set — seasons after 2021/22.")
-
-    model_names = ["Baseline"] + list(results.keys())
-    accuracies  = [baseline]   + [results[m].get("accuracy", 0) for m in results]
-    f1_scores   = [0]          + [results[m].get("f1", 0)       for m in results]
-
-    fig = go.Figure()
-    fig.add_trace(go.Bar(
-        name="Accuracy",
-        x=model_names,
-        y=accuracies,
-        marker=dict(
-            color=["#6e6e73", "#ff9f0a", "#34c759", "#0071e3"],
-            line=dict(width=0)
-        ),
-        text=[f"{v:.1%}" for v in accuracies],
-        textposition="outside",
-        textfont=dict(size=12)
-    ))
-    fig.add_trace(go.Bar(
-        name="F1 Score",
-        x=model_names,
-        y=f1_scores,
-        marker=dict(
-            color=["rgba(0,0,0,0)", "#ffcc00", "#30b0c7", "#bf5af2"],
-            line=dict(width=0)
-        ),
-        text=[f"{v:.1%}" if v > 0 else "" for v in f1_scores],
-        textposition="outside",
-        textfont=dict(size=12)
-    ))
-    fig.update_layout(
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="-apple-system", color="#1d1d1f"),
-        xaxis=dict(showgrid=False, zeroline=False,
-                   tickfont=dict(size=12, color="#6e6e73")),
-        yaxis=dict(tickformat=".0%", showgrid=True,
-                   gridcolor="#f0f0f5", zeroline=False,
-                   tickfont=dict(size=12, color="#6e6e73")),
-        margin=dict(l=0, r=0, t=24, b=0),
-        barmode="group",
-        legend=dict(orientation="h", y=-0.15),
-        hoverlabel=dict(bgcolor="white", bordercolor="#e0e0e5",
-                        font=dict(size=13, color="#1d1d1f"))
-    )
-    st.plotly_chart(fig, use_container_width=True)
-    st.divider()
-
-    # ── CONFUSION MATRIX ──────────────────────────────────────────────────────
-    st.subheader("Confusion Matrix — XGBoost")
-    st.caption("Shows what the model predicted vs what actually happened on the test set.")
-
-    cm_data = xgb.get("confusion_matrix", [])
-    if cm_data:
-        import plotly.express as px
-        cm     = np.array(cm_data)
-        labels = ["Away Win", "Draw", "Home Win"]
-        fig    = px.imshow(
-            cm, x=labels, y=labels,
-            color_continuous_scale=[[0, "#f5f5f7"], [1, "#0071e3"]],
-            labels=dict(x="Predicted", y="Actual", color="Count"),
-            text_auto=True
-        )
-        fig.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(family="-apple-system", color="#1d1d1f"),
-            margin=dict(l=0, r=0, t=24, b=0),
-            coloraxis_showscale=False
-        )
-        fig.update_traces(textfont=dict(size=14, color="#1d1d1f"))
-        st.plotly_chart(fig, use_container_width=True)
+    if accuracy >= 0.50:
+        insight_card("✅", f"The model achieved <b>{accuracy:.1%}</b> accuracy, which is strong for a three outcome football prediction task.")
+    elif accuracy >= 0.42:
+        insight_card("📊", f"The model achieved <b>{accuracy:.1%}</b> accuracy. This is realistic for football because draws and away wins are difficult to predict.")
     else:
-        st.info("No confusion matrix found in metrics.json. Re-run model.py to generate it.")
+        insight_card("⚠️", f"The model achieved <b>{accuracy:.1%}</b> accuracy. This suggests the feature set or training approach needs improvement.")
+
+    if test_seasons:
+        insight_card("🧪", f"The model was tested on recent unseen seasons: <b>{', '.join(test_seasons)}</b>.")
 
     st.divider()
 
-    # ── PER CLASS PERFORMANCE ─────────────────────────────────────────────────
-    st.subheader("Performance by Outcome")
-    st.caption("Draws are the hardest outcome to predict reliably in football.")
-
-    report = xgb.get("classification_report", {})
-    if report:
-        perf_data = []
-        for outcome in ["Away Win", "Draw", "Home Win"]:
-            if outcome in report:
-                perf_data.append({
-                    "Outcome":   outcome,
-                    "Precision": f"{report[outcome].get('precision', 0):.1%}",
-                    "Recall":    f"{report[outcome].get('recall', 0):.1%}",
-                    "F1 Score":  f"{report[outcome].get('f1-score', 0):.1%}",
-                    "Support":   int(report[outcome].get("support", 0))
-                })
-        if perf_data:
-            st.dataframe(pd.DataFrame(perf_data),
-                         use_container_width=True, hide_index=True)
-    else:
-        st.info("No classification report found. Re-run model.py.")
-
-    st.divider()
-
-    # ── FEATURE IMPORTANCE ────────────────────────────────────────────────────
-    st.subheader("Feature Importance")
-    st.caption("Which features influence the model's predictions most.")
-
-    if importance:
-        feat_names = list(importance.keys())
-        feat_vals  = list(importance.values())
-        sorted_pairs = sorted(zip(feat_vals, feat_names), reverse=True)
-        feat_vals, feat_names = zip(*sorted_pairs)
-
-        fig = go.Figure(go.Bar(
-            x=list(feat_vals),
-            y=list(feat_names),
-            orientation="h",
-            marker=dict(color="#0071e3", line=dict(width=0)),
-            text=[f"{v:.3f}" for v in feat_vals],
-            textposition="outside",
-            hovertemplate="%{y}: %{x:.3f}<extra></extra>"
-        ))
-        fig.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(family="-apple-system", color="#1d1d1f"),
-            xaxis=dict(showgrid=True, gridcolor="#f0f0f5", zeroline=False,
-                       tickfont=dict(size=12, color="#6e6e73")),
-            yaxis=dict(showgrid=False, zeroline=False,
-                       tickfont=dict(size=13, color="#1d1d1f")),
-            margin=dict(l=0, r=60, t=24, b=0),
-            height=max(300, len(feat_names) * 50)
-        )
-        st.plotly_chart(fig, use_container_width=True)
-    elif hasattr(model, "feature_importances_"):
-        # Fallback: read directly from model object
-        importance_vals = model.feature_importances_
-        expected_features = get_expected_model_features(model)
-        if len(expected_features) != len(importance_vals):
-            expected_features = [f"feature_{i}" for i in range(len(importance_vals))]
-        feat_df = pd.DataFrame({
-            "Feature":    expected_features,
-            "Importance": importance_vals
-        }).sort_values("Importance", ascending=False)
-        fig = go.Figure(go.Bar(
-            x=feat_df["Importance"],
-            y=feat_df["Feature"],
-            orientation="h",
-            marker=dict(color="#0071e3", line=dict(width=0)),
-        ))
-        fig.update_layout(**BASE_LAYOUT, height=350)
-        fig.update_yaxes(autorange="reversed")
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.info("No feature importance data available.")
-
-    st.divider()
-
-    # ── TRAIN / TEST SPLIT INFO ────────────────────────────────────────────────
-    st.subheader("Train / Test Split")
-    st.caption("A chronological split is used — the model is trained on older seasons and tested on newer ones. This simulates real-world prediction where future matches are unknown.")
-
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Training Matches",  f"{train_size:,}")
-    c2.metric("Testing Matches",   f"{test_size:,}")
-    c3.metric("Train Seasons",     metrics.get("train_seasons", "up to 2021/22"))
-
-    st.divider()
-
-    # ── WHY XGBOOST ────────────────────────────────────────────────────────────
-    st.subheader("Why XGBoost?")
     col1, col2 = st.columns(2)
+
     with col1:
-        st.markdown("""
-        **Advantages over other models:**
-        - Handles non-linear relationships between features
-        - Robust to missing values and outliers
-        - Built-in regularisation prevents overfitting
-        - Faster training than Random Forest
-        - Industry standard for tabular sports prediction
-        - Supports probability output for all three outcomes
-        """)
+        st.subheader("Train Test Split")
+
+        split_frame = pd.DataFrame(
+            {
+                "Dataset": ["Training", "Testing"],
+                "Rows": [train_rows, test_rows],
+            }
+        )
+
+        fig = go.Figure(
+            go.Bar(
+                x=split_frame["Dataset"],
+                y=split_frame["Rows"],
+                marker=dict(color=["#0071e3", "#ff9f0a"], line=dict(width=0)),
+                text=split_frame["Rows"],
+                textposition="outside",
+                hovertemplate="%{x}<br>Rows: %{y:,}<extra></extra>",
+            )
+        )
+
+        fig.update_layout(
+            **BASE_LAYOUT,
+            height=360,
+            yaxis_title="Rows",
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
     with col2:
-        st.markdown("""
-        **Why not higher accuracy?**
-        - Football has 3 outcomes — random baseline is 33%
-        - Professional betting models sit at 60-65%
-        - Injuries, tactics, and referee decisions are not in the data
-        - Draws are nearly impossible to predict reliably
-        - This model beats the home win baseline meaningfully
-        - Adding Elo ratings and head-to-head features will improve it further
-        """)
+        st.subheader("Seasons Used")
+
+        st.markdown("**Training seasons**")
+        st.write(", ".join(train_seasons) if train_seasons else "Not available")
+
+        st.markdown("**Testing seasons**")
+        st.write(", ".join(test_seasons) if test_seasons else "Not available")
+
+    st.divider()
+
+    st.subheader("Classification Report")
+
+    report_rows = []
+
+    if isinstance(report, dict):
+        for label in ["Away Win", "Draw", "Home Win", "macro avg", "weighted avg"]:
+            if label in report and isinstance(report[label], dict):
+                values = report[label]
+
+                report_rows.append(
+                    {
+                        "Class": label,
+                        "Precision": round(float(values.get("precision", 0)), 4),
+                        "Recall": round(float(values.get("recall", 0)), 4),
+                        "F1 Score": round(float(values.get("f1-score", 0)), 4),
+                        "Support": int(values.get("support", 0)),
+                    }
+                )
+
+    if report_rows:
+        report_frame = pd.DataFrame(report_rows)
+        st.dataframe(report_frame, use_container_width=True, hide_index=True)
+    else:
+        st.info("Classification report not available. Run python scripts/train_model.py again to regenerate metrics.json.")
+
+    st.divider()
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("Confusion Matrix")
+
+        if matrix and isinstance(matrix, list):
+            labels = ["Away Win", "Draw", "Home Win"]
+
+            fig = go.Figure(
+                data=go.Heatmap(
+                    z=matrix,
+                    x=[f"Predicted {label}" for label in labels],
+                    y=[f"Actual {label}" for label in labels],
+                    text=matrix,
+                    texttemplate="%{text}",
+                    hovertemplate="%{y}<br>%{x}<br>Matches: %{z}<extra></extra>",
+                    colorscale="Blues",
+                )
+            )
+
+            fig.update_layout(
+                **BASE_LAYOUT,
+                height=420,
+            )
+
+            fig.update_xaxes(side="top")
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("Confusion matrix not available. Run python scripts/train_model.py again to regenerate metrics.json.")
+
+    with col2:
+        st.subheader("Model Reality Check")
+
+        st.markdown(
+            """
+            Football prediction is difficult because the model has to choose between three outcomes:
+
+            **Home Win**, **Draw**, and **Away Win**.
+
+            Draws are usually the hardest class because they sit between both win outcomes. A realistic football model should be judged on whether it beats a simple baseline, not whether it predicts every match correctly.
+            """
+        )
+
+        if report_rows:
+            draw_row = next((row for row in report_rows if row["Class"] == "Draw"), None)
+
+            if draw_row:
+                st.metric("Draw F1 Score", f"{draw_row['F1 Score']:.3f}")
+
+    st.divider()
+
+    st.subheader("Feature Importance")
+
+    importance_frame = build_importance_frame(feature_importance)
+
+    if not importance_frame.empty:
+        importance_frame = importance_frame.sort_values("importance", ascending=False).head(15)
+
+        fig = go.Figure(
+            go.Bar(
+                x=importance_frame["importance"],
+                y=importance_frame["feature"],
+                orientation="h",
+                marker=dict(color="#0071e3", line=dict(width=0)),
+                text=importance_frame["importance"].round(4),
+                textposition="outside",
+                hovertemplate="%{y}<br>Importance: %{x:.4f}<extra></extra>",
+            )
+        )
+
+        fig.update_layout(
+            **BASE_LAYOUT,
+            height=520,
+            xaxis_title="Importance",
+            yaxis_title="Feature",
+        )
+
+        fig.update_yaxes(autorange="reversed")
+
+        st.plotly_chart(fig, use_container_width=True)
+
+        top_feature = importance_frame.iloc[0]
+
+        insight_card(
+            "🔥",
+            f"The most important feature is <b>{top_feature['feature']}</b>, with an importance score of <b>{top_feature['importance']:.4f}</b>.",
+        )
+
+        st.markdown("### Top Features Table")
+
+        st.dataframe(
+            importance_frame.rename(
+                columns={
+                    "feature": "Feature",
+                    "importance": "Importance",
+                }
+            ),
+            use_container_width=True,
+            hide_index=True,
+        )
+    else:
+        st.info("Feature importance not available. Run python scripts/train_model.py again to regenerate metrics.json.")
+
+    st.divider()
+
+    st.subheader("Limitations")
+
+    st.markdown(
+        """
+        This model does not currently include injuries, confirmed lineups, tactical changes, transfer news, weather, betting market odds, or live form updates.
+
+        The predictions are based on historical match patterns, engineered team form, Elo strength, recent points, goals, shots, clean sheets, failed to score rate, streaks, and head to head history.
+        """
+    )
