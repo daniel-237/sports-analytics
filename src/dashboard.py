@@ -239,8 +239,27 @@ st.markdown(
     }
 
     header {
-        visibility: hidden !important;
+    visibility: visible !important;
+    background: transparent !important;
     }
+
+[data-testid="collapsedControl"] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 999999 !important;
+    position: fixed !important;
+    top: 14px !important;
+    left: 14px !important;
+    background: #ffffff !important;
+    border: 1px solid #e0e0e5 !important;
+    border-radius: 999px !important;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.12) !important;
+}
+
+[data-testid="collapsedControl"] button {
+    color: #1d1d1f !important;
+}
 
     @media (max-width: 768px) {
         .main .block-container {
