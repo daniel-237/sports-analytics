@@ -758,7 +758,7 @@ def stop_if_empty(frame: pd.DataFrame, message: str) -> None:
 
 
 @st.cache_data
-def load_match_data() -> pd.DataFrame:
+def load_match_data(file_version: float) -> pd.DataFrame:
     if not MATCH_PATH.exists():
         st.error(f"Match data not found at {MATCH_PATH}")
         st.stop()
@@ -822,7 +822,7 @@ def load_match_data() -> pd.DataFrame:
 
 
 @st.cache_data
-def load_player_data() -> pd.DataFrame | None:
+def load_player_data(file_version: float) -> pd.DataFrame | None:
     if not PLAYER_PATH.exists():
         st.warning(f"Player data not found at {PLAYER_PATH}. Player pages will be limited.")
         return None
@@ -916,7 +916,7 @@ def load_player_data() -> pd.DataFrame | None:
 
 
 @st.cache_resource
-def load_model():
+def load_model(file_version: float):
     if not MODEL_PATH.exists():
         return None
     try:
@@ -927,7 +927,7 @@ def load_model():
 
 
 @st.cache_data
-def load_metrics() -> dict:
+def load_metrics(file_version: float) -> dict:
     if not METRICS_PATH.exists():
         return {}
 
@@ -938,10 +938,14 @@ def load_metrics() -> dict:
         return {}
 
 
-matches = load_match_data()
-players = load_player_data()
-model = load_model()
-metrics = load_metrics()
+def path_version(path: Path) -> float:
+    return path.stat().st_mtime if path.exists() else 0.0
+
+
+matches = load_match_data(path_version(MATCH_PATH))
+players = load_player_data(path_version(PLAYER_PATH))
+model = load_model(path_version(MODEL_PATH))
+metrics = load_metrics(path_version(METRICS_PATH))
 
 LEAGUES = ["All"] + sorted(matches["league"].dropna().astype(str).unique().tolist())
 
