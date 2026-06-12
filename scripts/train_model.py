@@ -14,14 +14,14 @@ sys.path.append(str(PROJECT_ROOT))
 from src.config import METRICS_PATH, MODEL_FEATURES, MODEL_PATH, RANDOM_STATE
 from src.data_loader import load_match_data
 from src.feature_engineering import build_match_features
-
+from src.utils import format_season, sorted_seasons
 
 def prepare_target(frame: pd.DataFrame) -> pd.Series:
     return frame["result"].map({-1: 0, 0: 1, 1: 2}).astype(int)
 
 
 def get_season_split(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
-    seasons = sorted(frame["season"].dropna().astype(str).unique().tolist())
+    seasons = sorted_seasons(frame["season"].dropna().unique().tolist())
 
     if len(seasons) < 4:
         train_frame, test_frame = train_test_split(
@@ -33,8 +33,10 @@ def get_season_split(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
         return train_frame, test_frame
 
     test_seasons = seasons[-3:]
-    train_frame = frame[~frame["season"].astype(str).isin(test_seasons)].copy()
-    test_frame = frame[frame["season"].astype(str).isin(test_seasons)].copy()
+    test_season_strings = [str(season) for season in test_seasons]
+
+    train_frame = frame[~frame["season"].astype(str).isin(test_season_strings)].copy()
+    test_frame = frame[frame["season"].astype(str).isin(test_season_strings)].copy()
 
     if train_frame.empty or test_frame.empty:
         train_frame, test_frame = train_test_split(
@@ -100,8 +102,8 @@ def train_model() -> None:
         "accuracy": accuracy,
         "train_rows": int(len(train_frame)),
         "test_rows": int(len(test_frame)),
-        "train_seasons": sorted(train_frame["season"].astype(str).unique().tolist()),
-        "test_seasons": sorted(test_frame["season"].astype(str).unique().tolist()),
+        "train_seasons": [format_season(season) for season in sorted_seasons(train_frame["season"].dropna().unique().tolist())],
+        "test_seasons": [format_season(season) for season in sorted_seasons(test_frame["season"].dropna().unique().tolist())],
         "target_mapping": {
             "0": "Away Win",
             "1": "Draw",
