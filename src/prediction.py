@@ -354,9 +354,12 @@ def predict_match(model, frame: pd.DataFrame, home_team: str, away_team: str, me
 
     winner_row = ordered.loc[ordered["Probability"].idxmax()]
 
+    full_features = build_prediction_features(frame, home_team, away_team, MODEL_FEATURES)
+    
     return {
-        "prediction": winner_row["Outcome"],
-        "confidence": float(winner_row["Probability"]),
-        "probabilities": ordered,
-        "features": features,
-    }
+    "prediction": winner_row["Outcome"],
+    "confidence": float(winner_row["Probability"]),
+    "probabilities": ordered,
+    "features": features,
+    "explanation_features": full_features,
+}

@@ -1,12 +1,15 @@
 from pathlib import Path
 import json
 import re
+import shutil
+import zipfile
 import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW_DIRS = [
     ROOT / "data" / "raw",
+    ROOT / "data" / "raw" / "uploads",
     ROOT / "data" / "raw" / "update_uploads",
 ]
 PROCESSED_DIR = ROOT / "data" / "processed"
@@ -16,45 +19,82 @@ PLAYER_OUTPUT = PROCESSED_DIR / "player_stats.csv"
 SUMMARY_OUTPUT = ROOT / "data_update_summary.json"
 
 LEAGUE_MAP = {
+    "B1": "Belgian Pro League",
+    "D1": "Bundesliga",
+    "D2": "Bundesliga 2",
     "E0": "Premier League",
     "E1": "Championship",
     "E2": "League One",
     "E3": "League Two",
     "EC": "National League",
+    "F1": "Ligue 1",
+    "F2": "Ligue 2",
+    "G1": "Greek Super League",
+    "I1": "Serie A",
+    "I2": "Serie B",
+    "N1": "Eredivisie",
+    "P1": "Primeira Liga",
+    "SC0": "Scottish Premiership",
+    "SC1": "Scottish Championship",
+    "SC2": "Scottish League One",
+    "SC3": "Scottish League Two",
+    "SP1": "La Liga",
+    "SP2": "Segunda Division",
+    "T1": "Turkish Super Lig",
+    "CL": "Champions League",
+    "UCL": "Champions League",
+    "EL": "Europa League",
+    "UEL": "Europa League",
+    "ECL": "Europa Conference League",
+    "UECL": "Europa Conference League",
+    "FAC": "FA Cup",
+    "FA": "FA Cup",
+    "EFLC": "EFL Cup",
+    "LC": "EFL Cup",
+    "CDR": "Copa del Rey",
+    "CIT": "Coppa Italia",
+    "DFB": "DFB Pokal",
+    "CDF": "Coupe de France",
 }
 
 PLAYER_SEASON_PATTERN = re.compile(r"(20\d{2})[_-](20\d{2})")
 
 
-def read_csv(path: Path) -> pd.DataFrame:
-    encodings = ["utf-8", "latin1", "cp1252"]
 
-    for encoding in encodings:
+def normalise_league_value(value, path: Path | None = None) -> str:
+    raw = str(value).strip()
+    compact = raw.upper().replace(" ", "").replace("-", "").replace("_", "")
+    if compact in LEAGUE_MAP:
+        return LEAGUE_MAP[compact]
+
+    context = f"{raw} {path.stem if path is not None else ''}".lower()
+    keyword_map = {
+        "champions": "Champions League",
+        "europa league": "Europa League",
+        "conference league": "Europa Conference League",
+        "fa cup": "FA Cup",
+        "efl cup": "EFL Cup",
+        "league cup": "EFL Cup",
+        "copa del rey": "Copa del Rey",
+        "coppa italia": "Coppa Italia",
+        "dfb pokal": "DFB Pokal",
+        "coupe de france": "Coupe de France",
+    }
+    for keyword, label in keyword_map.items():
+        if keyword in context:
+            return label
+    return raw
+
+
+def read_csv(path: Path) -> pd.DataFrame:
+    for encoding in ["utf-8", "utf-8-sig", "cp1252", "latin1"]:
         try:
-            return pd.read_csv(
-                path,
-                encoding=encoding,
-                low_memory=False,
-                on_bad_lines="skip",
-            )
+            return pd.read_csv(path, encoding=encoding, low_memory=False, on_bad_lines="skip")
         except UnicodeDecodeError:
             continue
         except pd.errors.ParserError:
-            return pd.read_csv(
-                path,
-                encoding=encoding,
-                low_memory=False,
-                on_bad_lines="skip",
-                engine="python",
-            )
-
-    return pd.read_csv(
-        path,
-        encoding="latin1",
-        low_memory=False,
-        on_bad_lines="skip",
-        engine="python",
-    )
+            return pd.read_csv(path, encoding=encoding, low_memory=False, on_bad_lines="skip", engine="python")
+    return pd.read_csv(path, encoding="latin1", low_memory=False, on_bad_lines="skip", engine="python")
 
 
 def normalise_columns(frame: pd.DataFrame) -> pd.DataFrame:
@@ -105,18 +145,55 @@ def result_code(home_goals, away_goals) -> int:
     return -1
 
 
+def safe_extract_name(value: str) -> str:
+    return re.sub(r"[^A-Za-z0-9_.-]+", "_", value)
+
+
+def extract_zip_sources() -> Path:
+    extract_dir = ROOT / ".data_update_zip_extract"
+    if extract_dir.exists():
+        shutil.rmtree(extract_dir)
+    extract_dir.mkdir(parents=True, exist_ok=True)
+
+    seen = set()
+    for raw_dir in RAW_DIRS:
+        if not raw_dir.exists():
+            continue
+        for zip_path in raw_dir.rglob("*.zip"):
+            resolved = zip_path.resolve()
+            if resolved in seen:
+                continue
+            seen.add(resolved)
+            target_dir = extract_dir / safe_extract_name(zip_path.stem)
+            target_dir.mkdir(parents=True, exist_ok=True)
+            try:
+                with zipfile.ZipFile(zip_path) as archive:
+                    for member in archive.namelist():
+                        if member.lower().endswith(".csv"):
+                            output_path = target_dir / Path(member).name
+                            with archive.open(member) as source, open(output_path, "wb") as target:
+                                shutil.copyfileobj(source, target)
+            except zipfile.BadZipFile:
+                continue
+
+    return extract_dir
+
+
 def source_files() -> list[Path]:
     files = []
     seen = set()
-    for raw_dir in RAW_DIRS:
+    extract_dir = extract_zip_sources()
+    scan_dirs = RAW_DIRS + [extract_dir]
+
+    for raw_dir in scan_dirs:
         if raw_dir.exists():
             for file in raw_dir.rglob("*.csv"):
                 resolved = file.resolve()
                 if resolved not in seen:
                     files.append(file)
                     seen.add(resolved)
-    return sorted(files)
 
+    return sorted(files)
 
 def clean_existing_matches(path: Path) -> pd.DataFrame:
     if not path.exists():
@@ -182,10 +259,10 @@ def clean_football_data_file(path: Path) -> pd.DataFrame:
     frame = frame[frame["FTHG"].notna() & frame["FTAG"].notna()]
 
     cleaned = pd.DataFrame()
-    division = frame["Div"].astype(str).str.strip() if "Div" in frame.columns else path.stem.split()[0]
+    division = frame["Div"].astype(str).str.strip() if "Div" in frame.columns else pd.Series([path.stem.split()[0]] * len(frame), index=frame.index)
     cleaned["date"] = frame["date"]
     cleaned["season"] = cleaned["date"].apply(season_from_date)
-    cleaned["league"] = division.map(LEAGUE_MAP).fillna(division)
+    cleaned["league"] = division.apply(lambda value: normalise_league_value(value, path))
     cleaned["division_code"] = division
     cleaned["home_team"] = frame["HomeTeam"].astype(str).str.strip()
     cleaned["away_team"] = frame["AwayTeam"].astype(str).str.strip()
@@ -226,6 +303,81 @@ def clean_football_data_file(path: Path) -> pd.DataFrame:
     return cleaned
 
 
+
+
+def clean_international_results_file(path: Path) -> pd.DataFrame:
+    if path.name.lower() != "results.csv":
+        return pd.DataFrame()
+
+    frame = read_csv(path)
+    required = {"date", "home_team", "away_team", "home_score", "away_score"}
+    if not required.issubset(set(frame.columns)):
+        return pd.DataFrame()
+
+    frame = frame.copy()
+    frame["date"] = parse_date(frame["date"])
+    frame = frame[frame["date"].notna()]
+    frame = frame[frame["home_score"].notna() & frame["away_score"].notna()]
+
+    cleaned = pd.DataFrame()
+    cleaned["date"] = frame["date"]
+    cleaned["season"] = cleaned["date"].apply(season_from_date)
+    cleaned["league"] = "International"
+    cleaned["tournament"] = frame["tournament"].astype(str).str.strip() if "tournament" in frame.columns else "Unknown"
+    cleaned["home_team"] = frame["home_team"].astype(str).str.strip()
+    cleaned["away_team"] = frame["away_team"].astype(str).str.strip()
+    cleaned["home_goals"] = numeric(frame["home_score"]).astype(int)
+    cleaned["away_goals"] = numeric(frame["away_score"]).astype(int)
+    cleaned["result"] = [result_code(h, a) for h, a in zip(cleaned["home_goals"], cleaned["away_goals"])]
+    cleaned["total_goals"] = cleaned["home_goals"] + cleaned["away_goals"]
+    cleaned["city"] = frame["city"].astype(str).str.strip() if "city" in frame.columns else "Unknown"
+    cleaned["country"] = frame["country"].astype(str).str.strip() if "country" in frame.columns else "Unknown"
+    cleaned["neutral"] = frame["neutral"] if "neutral" in frame.columns else False
+    cleaned["source_file"] = path.name
+    cleaned["data_source"] = "uploaded_international_results"
+    return cleaned
+
+
+def clean_generic_match_file(path: Path) -> pd.DataFrame:
+    if path.name.lower() in {"results.csv", "goalscorers.csv", "shootouts.csv", "players.csv", "former_names.csv"}:
+        return pd.DataFrame()
+
+    raw = read_csv(path)
+    frame = normalise_columns(raw)
+    home_col = next((column for column in ["home_team", "hometeam", "home", "home_side", "home_name"] if column in frame.columns), None)
+    away_col = next((column for column in ["away_team", "awayteam", "away", "away_side", "away_name"] if column in frame.columns), None)
+    home_goals_col = next((column for column in ["home_goals", "home_score", "homegoal", "home_goals_ft", "fthg", "hg"] if column in frame.columns), None)
+    away_goals_col = next((column for column in ["away_goals", "away_score", "awaygoal", "away_goals_ft", "ftag", "ag"] if column in frame.columns), None)
+    date_col = next((column for column in ["date", "match_date", "utc_date", "fixture_date"] if column in frame.columns), None)
+
+    if home_col is None or away_col is None or home_goals_col is None or away_goals_col is None:
+        return pd.DataFrame()
+
+    cleaned = pd.DataFrame()
+    cleaned["date"] = parse_date(frame[date_col]) if date_col is not None else pd.NaT
+    cleaned["home_team"] = frame[home_col].astype(str).str.strip()
+    cleaned["away_team"] = frame[away_col].astype(str).str.strip()
+    cleaned["home_goals"] = numeric(frame[home_goals_col]).astype(int)
+    cleaned["away_goals"] = numeric(frame[away_goals_col]).astype(int)
+    league_col = next((column for column in ["league", "competition", "comp", "division", "div", "league_name", "competition_name", "tournament"] if column in frame.columns), None)
+    country_col = next((column for column in ["country", "country_name"] if column in frame.columns), None)
+    if league_col is not None:
+        cleaned["league"] = frame[league_col].astype(str).str.strip()
+    elif country_col is not None:
+        cleaned["league"] = frame[country_col].astype(str).str.strip()
+    else:
+        cleaned["league"] = path.stem
+    cleaned["league"] = cleaned["league"].apply(lambda value: normalise_league_value(value, path))
+    cleaned["season"] = frame["season"].astype(str).str.strip() if "season" in frame.columns else cleaned["date"].apply(season_from_date)
+    cleaned["result"] = [result_code(h, a) for h, a in zip(cleaned["home_goals"], cleaned["away_goals"])]
+    cleaned["total_goals"] = cleaned["home_goals"] + cleaned["away_goals"]
+    cleaned["source_file"] = path.name
+    cleaned["data_source"] = "uploaded_generic_match_data"
+    cleaned = cleaned[cleaned["home_team"].ne("") & cleaned["away_team"].ne("")]
+    cleaned = cleaned[cleaned["home_team"].str.lower().ne("nan") & cleaned["away_team"].str.lower().ne("nan")]
+    return cleaned
+
+
 def build_matches() -> pd.DataFrame:
     frames = []
     existing = clean_existing_matches(MATCH_OUTPUT)
@@ -236,9 +388,17 @@ def build_matches() -> pd.DataFrame:
         cleaned = clean_football_data_file(file)
         if not cleaned.empty:
             frames.append(cleaned)
+            continue
+        cleaned = clean_international_results_file(file)
+        if not cleaned.empty:
+            frames.append(cleaned)
+            continue
+        cleaned = clean_generic_match_file(file)
+        if not cleaned.empty:
+            frames.append(cleaned)
 
     if not frames:
-        raise FileNotFoundError("No match data found. Keep your existing data/processed/matches_clean.csv or add Football-Data CSVs to data/raw/update_uploads.")
+        raise FileNotFoundError("No match data found. Keep your existing data/processed/matches_clean.csv or add match CSVs to data/raw/uploads.")
 
     matches = pd.concat(frames, ignore_index=True, sort=False)
     matches["home_team"] = matches["home_team"].astype(str).str.strip()

@@ -1,57 +1,164 @@
 {
-    "accuracy": 0.4826086956521739,
-    "train_rows": 82683,
-    "test_rows": 1610,
+    "accuracy": 0.5732177263969171,
+    "train_rows": 281926,
+    "test_rows": 1038,
     "train_seasons": [
-        "1011",
-        "1112",
-        "1213",
-        "1314",
-        "1415",
-        "1516",
-        "1718",
-        "1920",
+        "1970/71",
+        "1971/72",
+        "1972/73",
+        "1972/73",
+        "1973/74",
+        "1973/74",
+        "1974/75",
+        "1974/75",
+        "1975/76",
+        "1975/76",
+        "1976/77",
+        "1976/77",
+        "1977/78",
+        "1977/78",
+        "1978/79",
+        "1978/79",
+        "1979/80",
+        "1979/80",
+        "1980/81",
+        "1980/81",
+        "1981/82",
+        "1981/82",
+        "1982/83",
+        "1982/83",
+        "1983/84",
+        "1983/84",
+        "1984/85",
+        "1984/85",
+        "1985/86",
+        "1985/86",
+        "1986/87",
+        "1986/87",
+        "1987/88",
+        "1987/88",
+        "1988/89",
+        "1988/89",
+        "1989/90",
+        "1989/90",
+        "1990/91",
+        "1990/91",
+        "1991/92",
+        "1991/92",
+        "1992/93",
+        "1992/93",
+        "1993/94",
         "1993/94",
         "1994/95",
+        "1994/95",
+        "1995/96",
         "1995/96",
         "1996/97",
+        "1996/97",
+        "1997/98",
         "1997/98",
         "1998/99",
+        "1998/99",
+        "1999/00",
         "1999/00",
         "2000/01",
+        "2000/01",
+        "2001/02",
         "2001/02",
         "2002/03",
+        "2002/03",
+        "2003/04",
         "2003/04",
         "2004/05",
+        "2004/05",
+        "2005/06",
         "2005/06",
         "2006/07",
+        "2006/07",
+        "2007/08",
         "2007/08",
         "2008/09",
+        "2008/09",
+        "2009/10",
         "2009/10",
         "2010/11",
+        "2010/11",
+        "2011/12",
         "2011/12",
         "2012/13",
+        "2012/13",
+        "2013/14",
         "2013/14",
         "2014/15",
+        "2014/15",
+        "2015/16",
         "2015/16",
         "2016/17",
+        "2016/17",
+        "2017/18",
         "2017/18",
         "2018/19",
+        "2018/19",
+        "2019/20",
         "2019/20",
         "2020/21",
+        "2020/21",
+        "2021/22",
         "2021/22",
         "2022/23",
+        "2022/23",
+        "2023/24",
         "2023/24",
         "2024/25",
+        "2024/25",
         "2025/26",
-        "2223",
-        "506",
-        "607"
+        "2025/26",
+        "2026/27",
+        "2027/28",
+        "2028/29",
+        "2029/30",
+        "2030/31",
+        "2031/32",
+        "2032/33",
+        "2033/34",
+        "2034/35",
+        "2035/36",
+        "2036/37",
+        "2037/38",
+        "2038/39",
+        "2039/40",
+        "2040/41",
+        "2041/42",
+        "2042/43",
+        "2043/44",
+        "2044/45",
+        "2045/46",
+        "2046/47",
+        "2047/48",
+        "2048/49",
+        "2049/50",
+        "2050/51",
+        "2051/52",
+        "2052/53",
+        "2053/54",
+        "2054/55",
+        "2055/56",
+        "2056/57",
+        "2057/58",
+        "2058/59",
+        "2059/60",
+        "2060/61",
+        "2061/62",
+        "2062/63",
+        "2063/64",
+        "2064/65",
+        "2065/66",
+        "2066/67"
     ],
     "test_seasons": [
-        "708",
-        "809",
-        "910"
+        "2067/68",
+        "2068/69",
+        "2069/70"
     ],
     "target_mapping": {
         "0": "Away Win",
@@ -60,194 +167,194 @@
     },
     "classification_report": {
         "Away Win": {
-            "precision": 0.4274028629856851,
-            "recall": 0.4354166666666667,
-            "f1-score": 0.43137254901960786,
-            "support": 480.0
+            "precision": 0.44299674267100975,
+            "recall": 0.5210727969348659,
+            "f1-score": 0.4788732394366197,
+            "support": 261.0
         },
         "Draw": {
-            "precision": 0.34444444444444444,
-            "recall": 0.07506053268765134,
-            "f1-score": 0.12326043737574553,
-            "support": 413.0
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1-score": 0.0,
+            "support": 230.0
         },
         "Home Win": {
-            "precision": 0.5208535402521823,
-            "recall": 0.7489539748953975,
-            "f1-score": 0.61441647597254,
-            "support": 717.0
+            "precision": 0.627906976744186,
+            "recall": 0.8391224862888482,
+            "f1-score": 0.7183098591549296,
+            "support": 547.0
         },
-        "accuracy": 0.4826086956521739,
+        "accuracy": 0.5732177263969171,
         "macro avg": {
-            "precision": 0.4309002825607706,
-            "recall": 0.41981039141657184,
-            "f1-score": 0.38968315412263116,
-            "support": 1610.0
+            "precision": 0.35696790647173193,
+            "recall": 0.453398427741238,
+            "f1-score": 0.39906103286384975,
+            "support": 1038.0
         },
         "weighted avg": {
-            "precision": 0.4477397007139747,
-            "recall": 0.4826086956521739,
-            "f1-score": 0.43385217232168066,
-            "support": 1610.0
+            "precision": 0.44228060319480084,
+            "recall": 0.5732177263969171,
+            "f1-score": 0.4989416266384434,
+            "support": 1038.0
         }
     },
     "confusion_matrix": [
         [
-            209,
-            27,
-            244
+            136,
+            0,
+            125
         ],
         [
-            132,
-            31,
-            250
+            83,
+            0,
+            147
         ],
         [
-            148,
-            32,
-            537
+            88,
+            0,
+            459
         ]
     ],
     "feature_importance": [
         {
             "feature": "elo_diff",
-            "importance": 0.16121715307235718
-        },
-        {
-            "feature": "home_streak",
-            "importance": 0.06154199689626694
-        },
-        {
-            "feature": "away_streak",
-            "importance": 0.05968378856778145
-        },
-        {
-            "feature": "home_sot_form",
-            "importance": 0.05614639073610306
-        },
-        {
-            "feature": "h2h_away_wins",
-            "importance": 0.0465879924595356
-        },
-        {
-            "feature": "away_sot_form",
-            "importance": 0.04620920121669769
-        },
-        {
-            "feature": "h2h_total",
-            "importance": 0.04347781091928482
-        },
-        {
-            "feature": "away_shots_form",
-            "importance": 0.042130954563617706
-        },
-        {
-            "feature": "home_shots_form",
-            "importance": 0.03967637941241264
-        },
-        {
-            "feature": "h2h_draws",
-            "importance": 0.036288969218730927
-        },
-        {
-            "feature": "h2h_home_rate",
-            "importance": 0.02944648265838623
-        },
-        {
-            "feature": "home_win_rate",
-            "importance": 0.028093663975596428
-        },
-        {
-            "feature": "home_cs_rate",
-            "importance": 0.022363193333148956
+            "importance": 0.4232546389102936
         },
         {
             "feature": "home_elo",
-            "importance": 0.022155504673719406
-        },
-        {
-            "feature": "h2h_home_wins",
-            "importance": 0.021328456699848175
-        },
-        {
-            "feature": "away_win_rate",
-            "importance": 0.020755203440785408
-        },
-        {
-            "feature": "home_points_form5",
-            "importance": 0.020665958523750305
+            "importance": 0.04788322374224663
         },
         {
             "feature": "away_elo",
-            "importance": 0.018403517082333565
-        },
-        {
-            "feature": "away_points_form5",
-            "importance": 0.018132900819182396
-        },
-        {
-            "feature": "away_points_form10",
-            "importance": 0.01597852259874344
-        },
-        {
-            "feature": "home_gd_form",
-            "importance": 0.015658434480428696
-        },
-        {
-            "feature": "home_points_form10",
-            "importance": 0.015597444958984852
-        },
-        {
-            "feature": "home_fts_rate",
-            "importance": 0.015414196066558361
-        },
-        {
-            "feature": "away_cs_rate",
-            "importance": 0.014564103446900845
-        },
-        {
-            "feature": "away_fts_rate",
-            "importance": 0.014524446800351143
-        },
-        {
-            "feature": "home_conceded_form",
-            "importance": 0.01269600261002779
-        },
-        {
-            "feature": "away_gd_form",
-            "importance": 0.012098117731511593
-        },
-        {
-            "feature": "season_stage",
-            "importance": 0.012035290710628033
-        },
-        {
-            "feature": "away_defence_strength",
-            "importance": 0.011434383690357208
-        },
-        {
-            "feature": "home_goals_form",
-            "importance": 0.011402453295886517
-        },
-        {
-            "feature": "home_attack_strength",
-            "importance": 0.011140433140099049
+            "importance": 0.04402577131986618
         },
         {
             "feature": "home_defence_strength",
-            "importance": 0.010837789624929428
+            "importance": 0.025319835171103477
         },
         {
-            "feature": "away_attack_strength",
-            "importance": 0.010824039578437805
+            "feature": "away_points_form10",
+            "importance": 0.02468417026102543
         },
         {
-            "feature": "away_goals_form",
-            "importance": 0.010749097913503647
+            "feature": "home_gd_form",
+            "importance": 0.024291643872857094
+        },
+        {
+            "feature": "away_shots_form",
+            "importance": 0.023902367800474167
+        },
+        {
+            "feature": "away_gd_form",
+            "importance": 0.02388835698366165
+        },
+        {
+            "feature": "home_points_form10",
+            "importance": 0.023605460301041603
+        },
+        {
+            "feature": "h2h_home_rate",
+            "importance": 0.022657830268144608
+        },
+        {
+            "feature": "away_defence_strength",
+            "importance": 0.022132420912384987
+        },
+        {
+            "feature": "h2h_away_wins",
+            "importance": 0.021201016381382942
         },
         {
             "feature": "away_conceded_form",
-            "importance": 0.010739736258983612
+            "importance": 0.020672224462032318
+        },
+        {
+            "feature": "home_shots_form",
+            "importance": 0.020382991060614586
+        },
+        {
+            "feature": "home_conceded_form",
+            "importance": 0.019948145374655724
+        },
+        {
+            "feature": "home_goals_form",
+            "importance": 0.015045538544654846
+        },
+        {
+            "feature": "away_sot_form",
+            "importance": 0.01489537674933672
+        },
+        {
+            "feature": "home_sot_form",
+            "importance": 0.013539043255150318
+        },
+        {
+            "feature": "away_goals_form",
+            "importance": 0.012509113177657127
+        },
+        {
+            "feature": "home_attack_strength",
+            "importance": 0.011350003071129322
+        },
+        {
+            "feature": "h2h_draws",
+            "importance": 0.011189992539584637
+        },
+        {
+            "feature": "home_points_form5",
+            "importance": 0.010767695493996143
+        },
+        {
+            "feature": "season_stage",
+            "importance": 0.010717695578932762
+        },
+        {
+            "feature": "away_cs_rate",
+            "importance": 0.010621530935168266
+        },
+        {
+            "feature": "h2h_home_wins",
+            "importance": 0.01038652379065752
+        },
+        {
+            "feature": "away_points_form5",
+            "importance": 0.009986629709601402
+        },
+        {
+            "feature": "home_win_rate",
+            "importance": 0.009888418018817902
+        },
+        {
+            "feature": "away_attack_strength",
+            "importance": 0.009874025359749794
+        },
+        {
+            "feature": "away_win_rate",
+            "importance": 0.009779921732842922
+        },
+        {
+            "feature": "h2h_total",
+            "importance": 0.009739731438457966
+        },
+        {
+            "feature": "away_fts_rate",
+            "importance": 0.009164601564407349
+        },
+        {
+            "feature": "home_fts_rate",
+            "importance": 0.008741630241274834
+        },
+        {
+            "feature": "home_cs_rate",
+            "importance": 0.008676599711179733
+        },
+        {
+            "feature": "home_streak",
+            "importance": 0.007848662324249744
+        },
+        {
+            "feature": "away_streak",
+            "importance": 0.007427164353430271
         }
     ],
     "model_features": [

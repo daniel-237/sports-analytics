@@ -3,3 +3,10 @@ venv/
 __pycache__/
 .pytest_cache/
 *.pyc
+data/raw/statsbomb/
+
+data/raw/statsbomb/
+
+data/raw/uploads/
+
+.data_update_zip_extract/
