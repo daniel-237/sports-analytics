@@ -26,6 +26,13 @@ import plotly.graph_objects as go
 import streamlit as st
 import streamlit.components.v1 as components
 from src.prediction import explain_prediction, latest_team_elo, predict_match
+from src.league_simulation import (
+    build_fixture_probabilities,
+    load_fixtures,
+    load_standings,
+    simulate_league_table,
+    upcoming_fixtures,
+)
 from src.utils import format_season, sorted_seasons
 
 
@@ -377,6 +384,7 @@ PAGES = [
     "  Player Stats",
     "  Player Comparison",
     "  Team Analysis",
+    "  League Simulator",
     "  Transfer Analysis",
     "  Model Performance",
 ]
@@ -1848,6 +1856,14 @@ def filter_unavailable_squad(squad: pd.DataFrame, unavailable: pd.DataFrame) -> 
     squad_copy["name_key"] = squad_copy["name"].astype(str).apply(normalize_name)
     unavailable_keys = set(unavailable["Player"].astype(str).apply(normalize_name))
     return squad_copy[~squad_copy["name_key"].isin(unavailable_keys)].copy()
+
+
+def competition_label(value: str) -> str:
+    return str(value).strip()
+
+
+def competition_matches(competition_a: str, competition_b: str) -> bool:
+    return competition_label(competition_a).lower() == competition_label(competition_b).lower()
 
 
 def numeric_value(row, column, default=0.0):
@@ -3645,6 +3661,151 @@ elif page == "  Team Analysis":
             fig.add_trace(go.Scatter(x=trend["match"], y=trend["ga"], mode="lines+markers", name="Goals Against", line=dict(color="#ff3b30", width=3)))
             fig.update_layout(**BASE_LAYOUT, height=420, xaxis_title="Recent Match", yaxis_title="Goals")
             st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
+
+elif page == "  League Simulator":
+    st.markdown("# League Simulator")
+    st.markdown("Simulate the rest of a season from current standings and upcoming fixtures.")
+    st.divider()
+
+    standings = load_standings()
+    fixtures = load_fixtures()
+
+    if standings.empty:
+        st.warning("League standings are unavailable. Add or refresh `data/processed/current_tables.csv` or `data/processed/api_football_standings.csv`.")
+        st.stop()
+
+    if fixtures.empty:
+        st.info("Fixture data is unavailable, so the page will show the current table without remaining-fixture simulations.")
+
+    competition_options = sorted(standings["competition"].dropna().astype(str).unique().tolist())
+    if not competition_options:
+        st.warning("No competitions were found in the standings data.")
+        st.stop()
+
+    selected_competition = st.selectbox("Competition", competition_options, key="sim_competition")
+    season_options = sorted(
+        standings.loc[standings["competition"].astype(str) == str(selected_competition), "season"]
+        .dropna()
+        .astype(str)
+        .unique()
+        .tolist(),
+        reverse=True,
+    )
+    if not season_options:
+        st.warning("No seasons available for the selected competition.")
+        st.stop()
+
+    selected_season = st.selectbox("Season", season_options, key="sim_season")
+
+    current_table = standings[
+        (standings["competition"].astype(str) == str(selected_competition))
+        & (standings["season"].astype(str) == str(selected_season))
+    ].copy()
+    if current_table.empty:
+        st.warning("No standings found for this competition and season.")
+        st.stop()
+
+    current_table = current_table.sort_values(["rank", "points"], ascending=[True, False])
+    upcoming = upcoming_fixtures(fixtures, selected_competition, selected_season) if not fixtures.empty else pd.DataFrame()
+    if upcoming.empty:
+        st.info("No upcoming fixtures found for this competition and season. Probabilities will reflect the current table only.")
+
+    sim_count = st.slider(
+        "Simulation rounds",
+        min_value=100,
+        max_value=2000,
+        value=400,
+        step=100,
+        help="Higher values produce smoother probabilities but take longer to compute.",
+    )
+    run_simulation = st.button("Run Season Simulation", key="run_season_simulation")
+
+    fixture_probs = pd.DataFrame()
+    if not upcoming.empty:
+        with st.spinner("Computing match probabilities..."):
+            fixture_probs = build_fixture_probabilities(model, metrics, matches, upcoming)
+
+    if fixture_probs.empty and not upcoming.empty:
+        st.warning("Could not compute model probabilities for upcoming fixtures. The simulator will fall back to the current table where needed.")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("Current Standings")
+        table_cols = [
+            col
+            for col in ["rank", "team_name", "points", "played", "win", "draw", "lose", "goals_for", "goals_against", "goal_diff"]
+            if col in current_table.columns
+        ]
+        st.dataframe(current_table[table_cols], use_container_width=True, hide_index=True)
+    with col2:
+        st.subheader("Upcoming Fixtures")
+        if upcoming.empty:
+            st.info("No upcoming fixtures available.")
+        else:
+            fixture_cols = [col for col in ["fixture_date", "home_team", "away_team", "status", "round"] if col in upcoming.columns]
+            st.dataframe(
+                upcoming[fixture_cols].sort_values("fixture_date", na_position="last") if "fixture_date" in upcoming.columns else upcoming[fixture_cols],
+                use_container_width=True,
+                hide_index=True,
+            )
+
+    sim_state_key = f"league_sim_results_{selected_competition}_{selected_season}_{sim_count}"
+    if run_simulation or sim_state_key not in st.session_state:
+        with st.spinner("Running league simulations..."):
+            sim_results = simulate_league_table(fixture_probs, current_table, simulations=sim_count)
+            st.session_state[sim_state_key] = sim_results
+    else:
+        sim_results = st.session_state.get(sim_state_key, pd.DataFrame())
+
+    if sim_results.empty:
+        st.warning("Simulation did not produce results.")
+        st.stop()
+
+    st.divider()
+    st.subheader("Simulated League Probabilities")
+    display_cols = [
+        col
+        for col in [
+            "team_name",
+            "current_rank",
+            "current_points",
+            "expected_points",
+            "expected_rank",
+            "champion_prob",
+            "top_4_prob",
+            "top_6_prob",
+            "bottom_3_prob",
+        ]
+        if col in sim_results.columns
+    ]
+    display_results = sim_results[display_cols].sort_values("expected_rank").reset_index(drop=True).copy()
+    for column in ["champion_prob", "top_4_prob", "top_6_prob", "bottom_3_prob"]:
+        if column in display_results.columns:
+            display_results[column] = (display_results[column] * 100).round(1)
+    if "expected_points" in display_results.columns:
+        display_results["expected_points"] = display_results["expected_points"].round(1)
+    if "expected_rank" in display_results.columns:
+        display_results["expected_rank"] = display_results["expected_rank"].round(2)
+    st.dataframe(display_results, use_container_width=True, hide_index=True)
+
+    fig = go.Figure()
+    fig.add_trace(
+        go.Bar(
+            x=sim_results["team_name"],
+            y=sim_results["champion_prob"],
+            name="Champion probability",
+            marker_color="#0071e3",
+        )
+    )
+    chart_layout = {
+        **BASE_LAYOUT,
+        "title": "Title: Champion Probability",
+        "xaxis_title": "Team",
+        "yaxis_title": "Probability",
+        "yaxis": {**BASE_LAYOUT.get("yaxis", {}), "range": [0, 1]},
+    }
+    fig.update_layout(**chart_layout)
+    st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
 
 elif page == "  Transfer Analysis":
     st.markdown("# Transfer & Scouting")
