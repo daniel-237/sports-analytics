@@ -1,5 +1,7 @@
 import json
 import html
+import re
+import unicodedata
 from pathlib import Path
 import sys
 
@@ -779,6 +781,22 @@ def weighted_percentile_score(frame: pd.DataFrame, weights: dict[str, float]) ->
 def add_performance_scores(frame: pd.DataFrame) -> pd.DataFrame:
     frame = frame.copy()
     frame["position_group"] = frame["position"].apply(player_position_group)
+
+    for column in [
+        "starts", "minutes", "goals", "assists", "shots_total", "shots_on_target", "tackles", "tackles_won",
+        "interceptions", "blocks", "shots_blocked", "passes_blocked", "clearances", "errors", "yellow_cards", "red_cards",
+        "goals_p90", "assists_p90", "contrib_p90", "shots_p90", "sot_p90", "tackles_p90", "interc_p90",
+        "blocks_p90", "clearances_p90", "tackles_won_p90", "errors_p90", "cards_p90"
+    ]:
+        if column not in frame.columns:
+            frame[column] = 0
+        frame[column] = pd.to_numeric(frame[column], errors="coerce").fillna(0)
+
+    if "tackles" in frame.columns and "tackles_won" in frame.columns:
+        frame["tackles"] = np.where(frame["tackles"] <= 0, frame["tackles_won"], frame["tackles"])
+        minutes_safe = frame["minutes"].replace(0, np.nan)
+        frame["tackles_p90"] = (frame["tackles"] / minutes_safe * 90).fillna(0).round(2)
+
     frame["attacking_score"] = 0.0
     frame["creative_score"] = 0.0
     frame["defensive_score"] = 0.0
@@ -786,39 +804,34 @@ def add_performance_scores(frame: pd.DataFrame) -> pd.DataFrame:
 
     group_profiles = {
         "Forward": {
-            "attack": {"goals_p90": 2.6, "contrib_p90": 2.0, "shots_p90": 1.1, "sot_p90": 1.4, "expected_goals": 0.7},
-            "creative": {"assists_p90": 1.5, "key_passes": 1.2, "progressive_carries": 0.8},
-            "defence": {"tackles_p90": 0.6, "interc_p90": 0.4},
-            "mix": (0.68, 0.22, 0.10),
-            "bonus": True,
+            "attack": {"goals_p90": 2.6, "contrib_p90": 2.1, "shots_p90": 1.2, "sot_p90": 1.5, "shots_on_target": 0.5},
+            "creative": {"assists_p90": 1.6, "assists": 0.7, "contrib_p90": 0.5},
+            "defence": {"tackles_p90": 0.5, "interc_p90": 0.3, "blocks_p90": 0.2},
+            "mix": (0.66, 0.22, 0.04, 0.08),
         },
         "Midfielder": {
-            "attack": {"contrib_p90": 1.0, "goals_p90": 0.7, "shots_p90": 0.5},
-            "creative": {"assists_p90": 1.3, "key_passes": 1.4, "progressive_passes": 1.3, "pass_accuracy": 0.8},
-            "defence": {"tackles_p90": 1.1, "interc_p90": 1.0, "duels_won": 0.5},
-            "mix": (0.25, 0.45, 0.30),
-            "bonus": False,
+            "attack": {"goals_p90": 0.8, "contrib_p90": 1.0, "shots_p90": 0.6, "sot_p90": 0.7},
+            "creative": {"assists_p90": 1.4, "assists": 0.8, "contrib_p90": 0.5},
+            "defence": {"tackles_p90": 1.3, "tackles_won_p90": 0.9, "interc_p90": 1.3, "blocks_p90": 0.5, "clearances_p90": 0.3, "errors_p90": -0.7},
+            "mix": (0.22, 0.32, 0.34, 0.12),
         },
         "Defender": {
-            "attack": {"assists_p90": 0.5, "crosses": 0.5, "progressive_passes": 0.8},
-            "creative": {"pass_accuracy": 1.0, "progressive_passes": 1.2},
-            "defence": {"tackles_p90": 1.4, "interc_p90": 1.4, "duels_won": 1.0, "clean_sheets": 0.6},
-            "mix": (0.15, 0.25, 0.60),
-            "bonus": False,
+            "attack": {"goals_p90": 0.3, "assists_p90": 0.5, "shots_p90": 0.2},
+            "creative": {"assists_p90": 0.6, "passes_blocked": 0.2},
+            "defence": {"tackles_p90": 0.9, "tackles_won_p90": 1.1, "interc_p90": 1.2, "blocks_p90": 1.0, "clearances_p90": 1.1, "errors_p90": -1.0},
+            "mix": (0.08, 0.12, 0.46, 0.34),
         },
         "Goalkeeper": {
-            "attack": {"pass_accuracy": 0.5},
-            "creative": {"minutes": 0.5},
-            "defence": {"saves": 1.8, "clean_sheets": 1.2, "goals_against": -0.8},
-            "mix": (0.05, 0.15, 0.80),
-            "bonus": False,
+            "attack": {"minutes": 0.2},
+            "creative": {"minutes": 1.0},
+            "defence": {"minutes": 1.0, "errors_p90": -0.8},
+            "mix": (0.00, 0.10, 0.55, 0.35),
         },
         "Outfield": {
-            "attack": {"contrib_p90": 1.2, "goals_p90": 1.0, "shots_p90": 0.8},
-            "creative": {"assists_p90": 1.0, "key_passes": 1.0, "progressive_passes": 0.8},
-            "defence": {"tackles_p90": 1.0, "interc_p90": 1.0},
-            "mix": (0.34, 0.33, 0.33),
-            "bonus": False,
+            "attack": {"goals_p90": 1.1, "contrib_p90": 1.2, "shots_p90": 0.8},
+            "creative": {"assists_p90": 1.0, "assists": 0.6},
+            "defence": {"tackles_p90": 1.0, "interc_p90": 1.0, "blocks_p90": 0.6, "clearances_p90": 0.5},
+            "mix": (0.28, 0.22, 0.34, 0.16),
         },
     }
 
@@ -831,18 +844,27 @@ def add_performance_scores(frame: pd.DataFrame) -> pd.DataFrame:
         creative = weighted_percentile_score(part, profile["creative"])
         defence = weighted_percentile_score(part, profile["defence"])
         minutes_component = percentile(part["minutes"]) * 100 if "minutes" in part.columns else pd.Series(50.0, index=part.index)
-        a, c, d = profile["mix"]
-        if profile["bonus"]:
-            defence_bonus = ((defence - 50).clip(lower=0) * 0.16)
-            overall = attack * a + creative * c + minutes_component * 0.10 + defence_bonus
+        starts_component = percentile(part["starts"]) * 100 if "starts" in part.columns else minutes_component
+        availability = (minutes_component * 0.60 + starts_component * 0.40).clip(0, 100)
+        a, c, d, av = profile["mix"]
+        if group == "Forward":
+            defensive_bonus = ((defence - 50).clip(lower=0) * 0.08)
+            overall = attack * a + creative * c + availability * av + defensive_bonus
         else:
-            overall = attack * a + creative * c + defence * d + minutes_component * 0.08
+            overall = attack * a + creative * c + defence * d + availability * av
+        if group == "Defender":
+            display_defence = (defence * 0.35 + availability * 0.65).clip(0, 100)
+            overall = attack * 0.08 + creative * 0.12 + display_defence * 0.46 + availability * 0.34
+        elif group == "Goalkeeper":
+            display_defence = (defence * 0.65 + availability * 0.35).clip(0, 100)
+            overall = display_defence * 0.55 + availability * 0.35 + creative * 0.10
+        else:
+            display_defence = defence
         frame.loc[mask, "attacking_score"] = attack.round(1)
         frame.loc[mask, "creative_score"] = creative.round(1)
-        frame.loc[mask, "defensive_score"] = defence.round(1)
+        frame.loc[mask, "defensive_score"] = display_defence.round(1)
         frame.loc[mask, "performance_score"] = overall.clip(0, 100).round(1)
 
-    frame["performance_score"] = frame["performance_score"]
     return frame
 
 @st.cache_data
@@ -942,6 +964,14 @@ def load_player_data(file_version: float) -> pd.DataFrame | None:
             "yellow_cards": ["yellow", "cards_yellow"],
             "red_cards": ["red", "cards_red"],
             "duels_won": ["duels", "duels_won_total"],
+            "starts": ["start", "starts_total"],
+            "tackles_won": ["tklw", "tackles_won_total"],
+            "blocks": ["blocks_total", "blocked"],
+            "shots_blocked": ["shot_blocks", "shots_blocks"],
+            "passes_blocked": ["pass_blocks", "passes_blocks"],
+            "clearances": ["clr", "clearance"],
+            "errors": ["err", "mistakes"],
+            "challenge_success_rate": ["tkl_pct", "challenge_tackle_pct"],
         },
     )
 
@@ -959,12 +989,20 @@ def load_player_data(file_version: float) -> pd.DataFrame | None:
             "assists": 0,
             "minutes": 0,
             "appearances": 0,
+            "starts": 0,
             "shots_total": 0,
             "shots_on_target": 0,
             "pass_accuracy": 0,
             "dribbles": 0,
             "tackles": 0,
+            "tackles_won": 0,
             "interceptions": 0,
+            "blocks": 0,
+            "shots_blocked": 0,
+            "passes_blocked": 0,
+            "clearances": 0,
+            "errors": 0,
+            "challenge_success_rate": 0,
             "performance_score": 0,
             "yellow_cards": 0,
             "red_cards": 0,
@@ -987,12 +1025,20 @@ def load_player_data(file_version: float) -> pd.DataFrame | None:
         "assists",
         "minutes",
         "appearances",
+        "starts",
         "shots_total",
         "shots_on_target",
         "pass_accuracy",
         "dribbles",
         "tackles",
+        "tackles_won",
         "interceptions",
+        "blocks",
+        "shots_blocked",
+        "passes_blocked",
+        "clearances",
+        "errors",
+        "challenge_success_rate",
         "performance_score",
         "yellow_cards",
         "red_cards",
@@ -1014,11 +1060,17 @@ def load_player_data(file_version: float) -> pd.DataFrame | None:
     frame["assists_p90"] = (frame["assists"] / minutes_safe * 90).round(2)
     frame["shots_p90"] = (frame["shots_total"] / minutes_safe * 90).round(2)
     frame["sot_p90"] = (frame["shots_on_target"] / minutes_safe * 90).round(2)
+    frame["tackles"] = np.where(frame["tackles"] <= 0, frame["tackles_won"], frame["tackles"])
     frame["tackles_p90"] = (frame["tackles"] / minutes_safe * 90).round(2)
+    frame["tackles_won_p90"] = (frame["tackles_won"] / minutes_safe * 90).round(2)
     frame["interc_p90"] = (frame["interceptions"] / minutes_safe * 90).round(2)
+    frame["blocks_p90"] = (frame["blocks"] / minutes_safe * 90).round(2)
+    frame["clearances_p90"] = (frame["clearances"] / minutes_safe * 90).round(2)
+    frame["errors_p90"] = (frame["errors"] / minutes_safe * 90).round(3)
     frame["contrib_p90"] = ((frame["goals"] + frame["assists"]) / minutes_safe * 90).round(2)
     frame["cards_p90"] = ((frame["yellow_cards"] + frame["red_cards"]) / minutes_safe * 90).round(2)
     frame = frame.fillna(0)
+    frame = add_performance_scores(frame)
 
     return frame
 
@@ -1353,149 +1405,665 @@ def show_estimated_starting_xi(squad: pd.DataFrame, title: str = "Estimated Star
 
 
 
-def formation_slots(formation: str) -> list[tuple[str, str]]:
-    shapes = {
-        "4-3-3": [
-            ("Goalkeeper", "Goalkeeper"),
-            ("Defender", "Left Back"),
-            ("Defender", "Left Center Back"),
-            ("Defender", "Right Center Back"),
-            ("Defender", "Right Back"),
-            ("Midfielder", "Left Center Midfield"),
-            ("Midfielder", "Center Defensive Midfield"),
-            ("Midfielder", "Right Center Midfield"),
-            ("Forward", "Left Wing"),
-            ("Forward", "Center Forward"),
-            ("Forward", "Right Wing"),
-        ],
-        "4-2-3-1": [
-            ("Goalkeeper", "Goalkeeper"),
-            ("Defender", "Left Back"),
-            ("Defender", "Left Center Back"),
-            ("Defender", "Right Center Back"),
-            ("Defender", "Right Back"),
-            ("Midfielder", "Left Defensive Midfield"),
-            ("Midfielder", "Right Defensive Midfield"),
-            ("Forward", "Left Wing"),
-            ("Midfielder", "Center Attacking Midfield"),
-            ("Forward", "Right Wing"),
-            ("Forward", "Center Forward"),
-        ],
-        "4-4-2": [
-            ("Goalkeeper", "Goalkeeper"),
-            ("Defender", "Left Back"),
-            ("Defender", "Left Center Back"),
-            ("Defender", "Right Center Back"),
-            ("Defender", "Right Back"),
-            ("Midfielder", "Left Midfield"),
-            ("Midfielder", "Left Center Midfield"),
-            ("Midfielder", "Right Center Midfield"),
-            ("Midfielder", "Right Midfield"),
-            ("Forward", "Left Center Forward"),
-            ("Forward", "Right Center Forward"),
-        ],
-        "3-5-2": [
-            ("Goalkeeper", "Goalkeeper"),
-            ("Defender", "Left Center Back"),
-            ("Defender", "Center Back"),
-            ("Defender", "Right Center Back"),
-            ("Midfielder", "Left Midfield"),
-            ("Midfielder", "Left Center Midfield"),
-            ("Midfielder", "Center Defensive Midfield"),
-            ("Midfielder", "Right Center Midfield"),
-            ("Midfielder", "Right Midfield"),
-            ("Forward", "Left Center Forward"),
-            ("Forward", "Right Center Forward"),
-        ],
-        "3-4-3": [
-            ("Goalkeeper", "Goalkeeper"),
-            ("Defender", "Left Center Back"),
-            ("Defender", "Center Back"),
-            ("Defender", "Right Center Back"),
-            ("Midfielder", "Left Midfield"),
-            ("Midfielder", "Left Center Midfield"),
-            ("Midfielder", "Right Center Midfield"),
-            ("Midfielder", "Right Midfield"),
-            ("Forward", "Left Wing"),
-            ("Forward", "Center Forward"),
-            ("Forward", "Right Wing"),
-        ],
-    }
-    return shapes.get(formation, shapes["4-3-3"])
+
+FORMATION_SLOTS = {
+    "4-3-3": [
+        ("GK", "Goalkeeper", 50, 88),
+        ("RB", "Right Back", 80, 72),
+        ("RCB", "Right Center Back", 62, 74),
+        ("LCB", "Left Center Back", 38, 74),
+        ("LB", "Left Back", 20, 72),
+        ("DM", "Defensive Midfielder", 50, 58),
+        ("RCM", "Right Center Midfielder", 63, 45),
+        ("LCM", "Left Center Midfielder", 37, 45),
+        ("RW", "Right Wing", 80, 24),
+        ("LW", "Left Wing", 20, 24),
+        ("ST", "Center Forward", 50, 14),
+    ],
+    "4-2-3-1": [
+        ("GK", "Goalkeeper", 50, 88),
+        ("RB", "Right Back", 80, 72),
+        ("RCB", "Right Center Back", 62, 74),
+        ("LCB", "Left Center Back", 38, 74),
+        ("LB", "Left Back", 20, 72),
+        ("RDM", "Right Defensive Midfielder", 60, 58),
+        ("LDM", "Left Defensive Midfielder", 40, 58),
+        ("RW", "Right Wing", 80, 35),
+        ("AM", "Attacking Midfielder", 50, 34),
+        ("LW", "Left Wing", 20, 35),
+        ("ST", "Center Forward", 50, 14),
+    ],
+    "4-4-2": [
+        ("GK", "Goalkeeper", 50, 88),
+        ("RB", "Right Back", 80, 72),
+        ("RCB", "Right Center Back", 62, 74),
+        ("LCB", "Left Center Back", 38, 74),
+        ("LB", "Left Back", 20, 72),
+        ("RM", "Right Midfielder", 80, 48),
+        ("RCM", "Right Center Midfielder", 60, 50),
+        ("LCM", "Left Center Midfielder", 40, 50),
+        ("LM", "Left Midfielder", 20, 48),
+        ("RST", "Right Center Forward", 60, 18),
+        ("LST", "Left Center Forward", 40, 18),
+    ],
+    "3-4-3": [
+        ("GK", "Goalkeeper", 50, 88),
+        ("RCB", "Right Center Back", 67, 74),
+        ("CB", "Center Back", 50, 76),
+        ("LCB", "Left Center Back", 33, 74),
+        ("RM", "Right Wing Back", 82, 54),
+        ("RCM", "Right Center Midfielder", 60, 52),
+        ("LCM", "Left Center Midfielder", 40, 52),
+        ("LM", "Left Wing Back", 18, 54),
+        ("RW", "Right Wing", 78, 24),
+        ("LW", "Left Wing", 22, 24),
+        ("ST", "Center Forward", 50, 14),
+    ],
+    "3-5-2": [
+        ("GK", "Goalkeeper", 50, 88),
+        ("RCB", "Right Center Back", 67, 74),
+        ("CB", "Center Back", 50, 76),
+        ("LCB", "Left Center Back", 33, 74),
+        ("RWB", "Right Wing Back", 84, 54),
+        ("DM", "Defensive Midfielder", 50, 58),
+        ("RCM", "Right Center Midfielder", 62, 45),
+        ("LCM", "Left Center Midfielder", 38, 45),
+        ("LWB", "Left Wing Back", 16, 54),
+        ("RST", "Right Center Forward", 60, 16),
+        ("LST", "Left Center Forward", 40, 16),
+    ],
+}
+
+PLAYER_POSITION_OVERRIDES = {
+    "cole palmer": ["AM", "RW", "CM"],
+    "moises caicedo": ["DM", "CM", "RB"],
+    "enzo fernandez": ["CM", "AM", "DM"],
+    "pedro neto": ["RW", "LW", "AM"],
+    "alejandro garnacho": ["LW", "RW"],
+    "joao pedro": ["ST", "AM", "LW"],
+    "liam delap": ["ST"],
+    "marc guiu": ["ST"],
+    "marc cucurella": ["LB", "LCB", "LWB"],
+    "malo gusto": ["RB", "RWB", "LB"],
+    "reece james": ["RB", "RWB", "DM"],
+    "trevoh chalobah": ["CB", "DM"],
+    "wesley fofana": ["CB", "RB"],
+    "levi colwill": ["CB", "LB"],
+    "benoit badiashile": ["CB"],
+    "jorrel hato": ["LB", "CB"],
+    "tosin adarabioyo": ["CB"],
+    "robert sanchez": ["GK"],
+    "filip jorgensen": ["GK"],
+    "bukayo saka": ["RW"],
+    "martin odegaard": ["AM", "CM"],
+    "declan rice": ["DM", "CM"],
+    "william saliba": ["CB"],
+    "gabriel magalhaes": ["CB"],
+    "jurrien timber": ["RB", "LB", "CB"],
+    "ben white": ["RB", "CB"],
+    "riccardo calafiori": ["LB", "CB"],
+    "david raya": ["GK"],
+    "kai havertz": ["ST", "AM"],
+    "gabriel martinelli": ["LW", "RW"],
+    "leandro trossard": ["LW", "ST", "AM"],
+    "mohamed salah": ["RW"],
+    "virgil van dijk": ["CB"],
+    "ibrahima konate": ["CB"],
+    "alisson": ["GK"],
+    "trent alexander arnold": ["RB", "CM"],
+    "trent alexander-arnold": ["RB", "CM"],
+    "conor bradley": ["RB"],
+    "andy robertson": ["LB"],
+    "andrew robertson": ["LB"],
+    "alexis mac allister": ["CM", "DM"],
+    "ryan gravenberch": ["CM", "DM"],
+    "dominik szoboszlai": ["AM", "CM", "RW"],
+    "cody gakpo": ["LW", "ST"],
+    "darwin nunez": ["ST", "LW"],
+    "luis diaz": ["LW", "RW"],
+    "erling haaland": ["ST"],
+    "rodri": ["DM"],
+    "ruben dias": ["CB"],
+    "john stones": ["CB", "DM"],
+    "josko gvardiol": ["LB", "CB"],
+    "manuel akanji": ["CB", "RB"],
+    "nathan ake": ["CB", "LB"],
+    "rico lewis": ["RB", "DM", "LB"],
+    "phil foden": ["AM", "RW", "LW"],
+    "bernardo silva": ["CM", "AM", "RW"],
+    "kevin de bruyne": ["AM", "CM"],
+    "jeremy doku": ["LW", "RW"],
+    "savinho": ["RW", "LW"],
+    "omar marmoush": ["ST", "LW"],
+    "ederson": ["GK"],
+    "andre onana": ["GK"],
+    "diogo dalot": ["RB", "LB"],
+    "noussair mazraoui": ["RB", "LB"],
+    "lisandro martinez": ["CB", "LB"],
+    "matthijs de ligt": ["CB"],
+    "leny yoro": ["CB"],
+    "harry maguire": ["CB"],
+    "luke shaw": ["LB", "CB"],
+    "manuel ugarte": ["DM"],
+    "casemiro": ["DM"],
+    "kobbie mainoo": ["CM", "DM"],
+    "bruno fernandes": ["AM", "CM"],
+    "amad diallo": ["RW", "AM"],
+    "marcus rashford": ["LW", "ST"],
+    "rasmus hojlund": ["ST"],
+    "joshua zirkzee": ["ST", "AM"],
+    "harry kane": ["ST"],
+    "kylian mbappe": ["ST", "LW"],
+    "vinicius junior": ["LW", "ST"],
+    "rodrygo": ["RW", "LW", "ST"],
+    "jude bellingham": ["AM", "CM"],
+    "federico valverde": ["CM", "RW", "DM"],
+    "aurelien tchouameni": ["DM", "CB"],
+    "eduardo camavinga": ["CM", "DM", "LB"],
+    "dani carvajal": ["RB"],
+    "ferland mendy": ["LB"],
+    "antonio rudiger": ["CB"],
+    "thibaut courtois": ["GK"],
+    "lamine yamal": ["RW"],
+    "raphinha": ["RW", "LW"],
+    "robert lewandowski": ["ST"],
+    "pedri": ["CM", "AM"],
+    "gavi": ["CM", "AM"],
+    "frenkie de jong": ["CM", "DM"],
+    "alejandro balde": ["LB"],
+    "jules kounde": ["RB", "CB"],
+    "ronald araujo": ["CB", "RB"],
+    "pau cubarsi": ["CB"],
+    "marc andre ter stegen": ["GK"],
+    "marc-andre ter stegen": ["GK"],
+    "ousmane dembele": ["RW", "LW", "ST"],
+    "khvicha kvaratskhelia": ["LW"],
+    "vitinha": ["CM", "AM"],
+    "achraf hakimi": ["RB", "RWB"],
+    "nuno mendes": ["LB", "LWB"],
+    "marquinhos": ["CB"],
+    "gianluigi donnarumma": ["GK"],
+    "lautaro martinez": ["ST"],
+    "nicolo barella": ["CM"],
+    "hakan calhanoglu": ["DM", "CM"],
+    "alessandro bastoni": ["LCB", "CB"],
+    "denzel dumfries": ["RWB", "RB"],
+    "theo hernandez": ["LB", "LWB"],
+    "rafael leao": ["LW"],
+    "christian pulisic": ["RW", "LW", "AM"],
+    "mike maignan": ["GK"],
+    "victor osimhen": ["ST"],
+    "jamal musiala": ["AM", "LW"],
+    "leroy sane": ["RW", "LW"],
+    "michael olise": ["RW", "AM"],
+    "kingsley coman": ["LW", "RW"],
+    "alphonso davies": ["LB", "LWB"],
+    "joshua kimmich": ["DM", "CM", "RB"],
+    "dayot upamecano": ["CB"],
+    "min jae kim": ["CB"],
+    "min-jae kim": ["CB"],
+    "manuel neuer": ["GK"],
+}
 
 
-def prepare_squad_for_lineup(squad: pd.DataFrame) -> pd.DataFrame:
-    prepared = squad.copy()
-    for column in ["minutes", "performance_score", "goals", "assists", "goals_p90", "assists_p90", "contrib_p90"]:
-        if column not in prepared.columns:
-            prepared[column] = 0
-        prepared[column] = pd.to_numeric(prepared[column], errors="coerce").fillna(0)
-    prepared["position_group"] = prepared["position"].apply(position_group_from_position)
-    prepared["lineup_score"] = (
-        prepared["minutes"] * 0.35
-        + prepared["performance_score"] * 35
-        + prepared["goals_p90"] * 500
-        + prepared["assists_p90"] * 350
-        + prepared["contrib_p90"] * 220
-    )
-    return prepared.sort_values("lineup_score", ascending=False)
+LINEUP_REPUTATION_BOOST = {
+    "william saliba": 18,
+    "gabriel magalhaes": 12,
+    "gabriel magalhães": 12,
+    "virgil van dijk": 18,
+    "ruben dias": 15,
+    "rúben dias": 15,
+    "antonio rudiger": 14,
+    "antonio rüdiger": 14,
+    "marquinhos": 13,
+    "alessandro bastoni": 13,
+    "declan rice": 12,
+    "rodri": 18,
+    "moises caicedo": 12,
+    "cole palmer": 14,
+    "bukayo saka": 14,
+    "mohamed salah": 18,
+    "erling haaland": 18,
+    "kylian mbappe": 18,
+    "kylian mbappé": 18,
+    "vinicius junior": 16,
+    "vinícius júnior": 16,
+    "jude bellingham": 16,
+    "lamine yamal": 16,
+    "harry kane": 16,
+}
+
+ROLE_ALIASES = {
+    "GK": "GK",
+    "GOALKEEPER": "GK",
+    "KEEPER": "GK",
+    "RB": "RB",
+    "RIGHT BACK": "RB",
+    "RIGHT-BACK": "RB",
+    "RWB": "RB",
+    "RIGHT WING BACK": "RB",
+    "LB": "LB",
+    "LEFT BACK": "LB",
+    "LEFT-BACK": "LB",
+    "LWB": "LB",
+    "LEFT WING BACK": "LB",
+    "CB": "CB",
+    "CENTER BACK": "CB",
+    "CENTRE BACK": "CB",
+    "CENTRAL DEFENDER": "CB",
+    "RIGHT CENTER BACK": "CB",
+    "LEFT CENTER BACK": "CB",
+    "DEFENDER": "CB",
+    "DM": "DM",
+    "CDM": "DM",
+    "DEFENSIVE MIDFIELD": "DM",
+    "DEFENSIVE MIDFIELDER": "DM",
+    "CENTER DEFENSIVE MIDFIELD": "DM",
+    "CENTRE DEFENSIVE MIDFIELD": "DM",
+    "CM": "CM",
+    "CENTER MIDFIELD": "CM",
+    "CENTRE MIDFIELD": "CM",
+    "CENTER MIDFIELDER": "CM",
+    "CENTRE MIDFIELDER": "CM",
+    "CENTRAL MIDFIELD": "CM",
+    "MIDFIELDER": "CM",
+    "AM": "AM",
+    "CAM": "AM",
+    "ATTACKING MIDFIELD": "AM",
+    "ATTACKING MIDFIELDER": "AM",
+    "CENTER ATTACKING MIDFIELD": "AM",
+    "CENTRE ATTACKING MIDFIELD": "AM",
+    "RW": "RW",
+    "RIGHT WING": "RW",
+    "RIGHT WINGER": "RW",
+    "RM": "RW",
+    "RIGHT MIDFIELD": "RW",
+    "RIGHT MIDFIELDER": "RW",
+    "LW": "LW",
+    "LEFT WING": "LW",
+    "LEFT WINGER": "LW",
+    "LM": "LW",
+    "LEFT MIDFIELD": "LW",
+    "LEFT MIDFIELDER": "LW",
+    "ST": "ST",
+    "CF": "ST",
+    "FW": "ST",
+    "FORWARD": "ST",
+    "STRIKER": "ST",
+    "CENTER FORWARD": "ST",
+    "CENTRE FORWARD": "ST",
+    "CENTER-FORWARD": "ST",
+}
+
+SLOT_CORE = {
+    "GK": "GK",
+    "RB": "RB",
+    "RWB": "RB",
+    "RCB": "CB",
+    "CB": "CB",
+    "LCB": "CB",
+    "LB": "LB",
+    "LWB": "LB",
+    "DM": "DM",
+    "RDM": "DM",
+    "LDM": "DM",
+    "RCM": "CM",
+    "CM": "CM",
+    "LCM": "CM",
+    "AM": "AM",
+    "RM": "RW",
+    "RW": "RW",
+    "LM": "LW",
+    "LW": "LW",
+    "ST": "ST",
+    "RST": "ST",
+    "LST": "ST",
+}
+
+POSITION_FIT = {
+    "GK": {"GK": 100},
+    "RB": {"RB": 100, "LB": 65, "CB": 45, "DM": 38, "CM": 25},
+    "LB": {"LB": 100, "RB": 65, "CB": 45, "DM": 38, "CM": 25},
+    "CB": {"CB": 100, "RB": 48, "LB": 48, "DM": 44},
+    "DM": {"DM": 100, "CM": 78, "CB": 55, "RB": 45, "LB": 45, "AM": 35},
+    "CM": {"CM": 100, "DM": 82, "AM": 78, "RW": 42, "LW": 42, "RB": 32, "LB": 32},
+    "AM": {"AM": 100, "CM": 76, "RW": 75, "LW": 75, "ST": 56, "DM": 34},
+    "RW": {"RW": 100, "LW": 80, "AM": 78, "ST": 35, "CM": 35},
+    "LW": {"LW": 100, "RW": 80, "AM": 78, "ST": 35, "CM": 35},
+    "ST": {"ST": 100, "AM": 64, "RW": 46, "LW": 46},
+}
+
+SLOT_FILL_ORDER = ["GK", "RB", "LB", "RCB", "LCB", "CB", "RWB", "LWB", "DM", "RDM", "LDM", "ST", "RST", "LST", "RW", "LW", "AM", "RCM", "LCM", "CM", "RM", "LM"]
 
 
-def pick_best_player_for_slot(pool: pd.DataFrame, group: str, used: set) -> pd.Series | None:
-    exact = pool[(pool["position_group"] == group) & (~pool.index.isin(used))]
-    if not exact.empty:
-        return exact.iloc[0]
-    if group in {"Defender", "Midfielder", "Forward"}:
-        outfield = pool[(pool["position_group"] != "Goalkeeper") & (~pool.index.isin(used))]
-        if not outfield.empty:
-            return outfield.iloc[0]
-    fallback = pool[~pool.index.isin(used)]
-    if fallback.empty:
-        return None
-    return fallback.iloc[0]
+def strip_accents(value):
+    return "".join(char for char in unicodedata.normalize("NFKD", str(value)) if not unicodedata.combining(char))
 
 
-def build_predicted_lineup(squad: pd.DataFrame, formation: str) -> tuple[pd.DataFrame, pd.DataFrame]:
-    if squad is None or squad.empty:
-        return pd.DataFrame(), pd.DataFrame()
-    pool = prepare_squad_for_lineup(squad)
-    rows = []
-    used = set()
-    for group, slot_position in formation_slots(formation):
-        player = pick_best_player_for_slot(pool, group, used)
-        if player is None:
+def player_key(value):
+    text = strip_accents(value).lower()
+    text = re.sub(r"[^a-z0-9\s-]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
+def numeric_value(row, column, default=0.0):
+    if column not in row.index:
+        return default
+    value = pd.to_numeric(row[column], errors="coerce")
+    if pd.isna(value):
+        return default
+    return float(value)
+
+
+def scale_rating(value):
+    value = pd.to_numeric(value, errors="coerce")
+    if pd.isna(value):
+        return 50.0
+    if value <= 10:
+        return float(np.clip((value - 5.4) / 1.0 * 35 + 55, 35, 95))
+    return float(np.clip(value, 0, 100))
+
+
+def percentile_series(series):
+    values = pd.to_numeric(series, errors="coerce").fillna(0)
+    if values.nunique() <= 1:
+        return pd.Series([50.0] * len(values), index=series.index)
+    return values.rank(pct=True).fillna(0.5) * 100
+
+
+def canonical_from_text(value):
+    text = str(value).upper().replace(",", " ")
+    text = text.replace("/", " ").replace("-", " ")
+    found = []
+
+    for token in re.split(r"[\s,;/]+", text):
+        if token in ROLE_ALIASES:
+            found.append(ROLE_ALIASES[token])
+
+    for raw, canonical in ROLE_ALIASES.items():
+        if raw in text:
+            found.append(canonical)
+
+    cleaned = []
+    for pos in found:
+        if pos not in cleaned:
+            cleaned.append(pos)
+
+    return cleaned
+
+
+def infer_positions_from_row(row):
+    name = player_key(row.get("name", row.get("player", "")))
+
+    if name in PLAYER_POSITION_OVERRIDES:
+        return PLAYER_POSITION_OVERRIDES[name]
+
+    raw_values = []
+    for column in ["primary_position", "best_position", "detailed_position", "position", "positions", "player_positions"]:
+        if column in row.index:
+            raw_values.append(row[column])
+
+    joined = " ".join(str(value) for value in raw_values if str(value).lower() not in {"nan", "none", ""})
+    parsed = canonical_from_text(joined)
+
+    if parsed:
+        raw_upper = joined.upper()
+        if parsed == ["ST"] and "MF" in raw_upper:
+            return ["AM", "ST", "RW", "LW"]
+        if parsed == ["CM"] and "FW" in raw_upper:
+            return ["AM", "RW", "LW", "ST", "CM"]
+        if parsed == ["CB"] and "MF" in raw_upper:
+            return ["RB", "LB", "DM", "CB"]
+        if parsed == ["CM"] and "DF" in raw_upper:
+            return ["DM", "CM", "RB", "LB"]
+        return parsed
+
+    raw_position = str(row.get("position", "")).upper()
+    goals_p90 = numeric_value(row, "goals_p90")
+    assists_p90 = numeric_value(row, "assists_p90")
+    tackles_p90 = numeric_value(row, "tackles_p90")
+    interceptions_p90 = numeric_value(row, "interc_p90")
+
+    if "GK" in raw_position:
+        return ["GK"]
+
+    if "FW" in raw_position and "MF" in raw_position:
+        return ["AM", "RW", "LW", "ST"]
+
+    if "MF" in raw_position and "FW" in raw_position:
+        return ["AM", "RW", "LW", "ST", "CM"]
+
+    if "DF" in raw_position and "MF" in raw_position:
+        return ["RB", "LB", "DM", "CB"]
+
+    if "MF" in raw_position and "DF" in raw_position:
+        return ["DM", "CM", "RB", "LB"]
+
+    if "FW" in raw_position:
+        if assists_p90 > goals_p90 and assists_p90 >= 0.20:
+            return ["RW", "LW", "AM", "ST"]
+        return ["ST", "LW", "RW", "AM"]
+
+    if "DF" in raw_position:
+        return ["CB", "RB", "LB"]
+
+    if "MF" in raw_position:
+        if goals_p90 + assists_p90 >= 0.35:
+            return ["AM", "RW", "LW", "CM"]
+        if tackles_p90 + interceptions_p90 >= 2.0:
+            return ["DM", "CM", "AM"]
+        return ["CM", "AM", "DM"]
+
+    return ["CM"]
+
+
+def prepare_lineup_pool(squad):
+    frame = squad.copy()
+
+    if frame.empty:
+        return frame
+
+    if "name" not in frame.columns and "player" in frame.columns:
+        frame["name"] = frame["player"]
+
+    frame["name_key"] = frame["name"].apply(player_key)
+    frame["minutes"] = pd.to_numeric(frame.get("minutes", 0), errors="coerce").fillna(0)
+    frame["goals"] = pd.to_numeric(frame.get("goals", 0), errors="coerce").fillna(0)
+    frame["assists"] = pd.to_numeric(frame.get("assists", 0), errors="coerce").fillna(0)
+
+    if "performance_score" in frame.columns:
+        frame["performance_score"] = pd.to_numeric(frame["performance_score"], errors="coerce").fillna(50).clip(0, 100)
+    elif "rating" in frame.columns:
+        frame["performance_score"] = frame["rating"].apply(scale_rating)
+    else:
+        frame["performance_score"] = 50.0
+
+    for column in ["goals_p90", "assists_p90", "shots_p90", "sot_p90", "tackles_p90", "interc_p90", "contrib_p90"]:
+        if column not in frame.columns:
+            frame[column] = 0.0
+        frame[column] = pd.to_numeric(frame[column], errors="coerce").fillna(0)
+
+    for column in ["shots_total", "shots_on_target", "key_passes", "crosses", "progressive_passes", "progressive_carries", "tackles", "tackles_won", "interceptions", "blocks", "clearances", "errors", "starts", "saves", "clean_sheets", "goals_against"]:
+        if column not in frame.columns:
+            frame[column] = 0.0
+        frame[column] = pd.to_numeric(frame[column], errors="coerce").fillna(0)
+
+    frame["tackles"] = np.where(frame["tackles"] <= 0, frame["tackles_won"], frame["tackles"])
+    frame["reputation_boost"] = frame["name_key"].map(LINEUP_REPUTATION_BOOST).fillna(0).astype(float)
+
+    frame = frame.sort_values(["name_key", "minutes", "performance_score"], ascending=[True, False, False])
+    frame = frame.drop_duplicates("name_key", keep="first")
+
+    frame["position_options"] = frame.apply(infer_positions_from_row, axis=1)
+    frame["minutes_score"] = percentile_series(frame["minutes"])
+    frame["starts_score"] = percentile_series(frame["starts"])
+    frame["availability_score"] = (frame["minutes_score"] * 0.65 + frame["starts_score"] * 0.35).clip(0, 100)
+    frame["attacking_score"] = percentile_series(frame["goals"] * 1.25 + frame["assists"] + frame["goals_p90"] * 10 + frame["assists_p90"] * 7 + frame["shots_p90"] * 2 + frame["sot_p90"] * 4)
+    frame["creative_score"] = percentile_series(frame["assists"] * 1.5 + frame["assists_p90"] * 10 + frame["key_passes"] + frame["crosses"] * 0.4 + frame["progressive_passes"] * 0.2 + frame["progressive_carries"] * 0.2)
+    frame["defensive_score"] = percentile_series(frame["tackles"] * 0.7 + frame["tackles_won"] * 1.0 + frame["interceptions"] * 1.1 + frame["blocks"] * 0.8 + frame["clearances"] * 0.9 + frame["tackles_p90"] * 5 + frame["interc_p90"] * 7 + frame["minutes"] * 0.012 + frame["starts"] * 0.8 - frame["errors"] * 6)
+    frame["keeper_score"] = percentile_series(frame["minutes"] + frame["saves"] * 4 + frame["clean_sheets"] * 8 - frame["goals_against"] * 2)
+
+    return frame.reset_index(drop=True)
+
+
+def slot_core(slot):
+    return SLOT_CORE.get(slot, slot)
+
+
+def role_strength(row, role):
+    performance = numeric_value(row, "performance_score", 50)
+    minutes = numeric_value(row, "minutes_score", 50)
+    availability = numeric_value(row, "availability_score", minutes)
+    attack = numeric_value(row, "attacking_score", 50)
+    creative = numeric_value(row, "creative_score", 50)
+    defensive = numeric_value(row, "defensive_score", 50)
+    keeper = numeric_value(row, "keeper_score", 50)
+    reputation = numeric_value(row, "reputation_boost", 0)
+
+    if role == "GK":
+        return keeper * 0.45 + performance * 0.20 + availability * 0.35 + reputation
+
+    if role == "ST":
+        return attack * 0.50 + performance * 0.20 + availability * 0.20 + creative * 0.06 + defensive * 0.04 + reputation
+
+    if role in {"RW", "LW"}:
+        return attack * 0.36 + creative * 0.24 + performance * 0.18 + availability * 0.17 + defensive * 0.05 + reputation
+
+    if role == "AM":
+        return creative * 0.34 + attack * 0.26 + performance * 0.18 + availability * 0.17 + defensive * 0.05 + reputation
+
+    if role == "CM":
+        return performance * 0.22 + availability * 0.30 + creative * 0.22 + defensive * 0.18 + attack * 0.08 + reputation
+
+    if role == "DM":
+        return defensive * 0.35 + availability * 0.30 + performance * 0.18 + creative * 0.12 + attack * 0.05 + reputation
+
+    if role in {"RB", "LB"}:
+        return defensive * 0.28 + availability * 0.32 + creative * 0.15 + performance * 0.15 + attack * 0.10 + reputation
+
+    if role == "CB":
+        return availability * 0.42 + defensive * 0.28 + performance * 0.20 + creative * 0.05 + attack * 0.05 + reputation
+
+    return performance * 0.35 + availability * 0.30 + attack * 0.12 + creative * 0.10 + defensive * 0.13 + reputation
+
+
+def position_fit_score(row, slot):
+    role = slot_core(slot)
+    options = row.get("position_options", [])
+
+    if role == "GK":
+        return 100 if "GK" in options else -500
+
+    if "GK" in options:
+        return -500
+
+    scores = []
+    for index, option in enumerate(options):
+        base = POSITION_FIT.get(role, {}).get(option, -250)
+        scores.append(base - index * 6)
+
+    if not scores:
+        return -250
+
+    return max(scores)
+
+
+def select_player_for_slot(pool, selected_keys, slot):
+    role = slot_core(slot)
+    candidates = []
+
+    for _, row in pool.iterrows():
+        key = row["name_key"]
+
+        if key in selected_keys:
             continue
-        used.add(player.name)
-        rows.append(
-            {
-                "player": player.get("name", "Unknown"),
-                "player_display_name": player.get("name", "Unknown"),
-                "jersey_number": "",
-                "position": slot_position,
-                "original_position": player.get("position", "Unknown"),
-                "age": player.get("age", 0),
-                "minutes": player.get("minutes", 0),
-                "goals": player.get("goals", 0),
-                "assists": player.get("assists", 0),
-                "performance_score": player.get("performance_score", 0),
-                "starter": True,
-            }
+
+        fit = position_fit_score(row, slot)
+
+        if fit < 42:
+            continue
+
+        strength = role_strength(row, role)
+        total = strength + fit * 1.15
+
+        if numeric_value(row, "minutes", 0) < 90:
+            total -= 15
+
+        candidates.append((total, fit, strength, row))
+
+    if not candidates:
+        for _, row in pool.iterrows():
+            key = row["name_key"]
+
+            if key in selected_keys:
+                continue
+
+            fit = position_fit_score(row, slot)
+
+            if fit < 20:
+                continue
+
+            strength = role_strength(row, role)
+            total = strength + fit * 0.80 - 20
+            candidates.append((total, fit, strength, row))
+
+    if not candidates:
+        return None
+
+    return sorted(candidates, key=lambda item: item[0], reverse=True)[0]
+
+
+def build_predicted_lineup(squad, formation="4-3-3", bench_size=9):
+    pool = prepare_lineup_pool(squad)
+
+    if pool.empty:
+        return pd.DataFrame(), pd.DataFrame()
+
+    slots = FORMATION_SLOTS.get(formation, FORMATION_SLOTS["4-3-3"])
+    order = sorted(slots, key=lambda item: SLOT_FILL_ORDER.index(item[0]) if item[0] in SLOT_FILL_ORDER else 999)
+
+    selected_keys = set()
+    selected_rows = []
+
+    for slot, label, x, y in order:
+        chosen = select_player_for_slot(pool, selected_keys, slot)
+
+        if chosen is None:
+            continue
+
+        total, fit, strength, row = chosen
+        selected_keys.add(row["name_key"])
+
+        record = row.to_dict()
+        record["slot"] = slot
+        record["slot_label"] = label
+        record["plot_x"] = x
+        record["plot_y"] = y
+        record["position_fit"] = round(float(fit), 1)
+        record["selection_score"] = round(float(total), 1)
+        record["role_strength"] = round(float(strength), 1)
+        record["player_display_name"] = record.get("name", record.get("player", "Unknown"))
+        selected_rows.append(record)
+
+    starters = pd.DataFrame(selected_rows)
+
+    if not starters.empty:
+        starters["slot_order"] = starters["slot"].apply(lambda value: SLOT_FILL_ORDER.index(value) if value in SLOT_FILL_ORDER else 999)
+        starters = starters.sort_values("slot_order").drop(columns=["slot_order"])
+
+    remaining = pool[~pool["name_key"].isin(selected_keys)].copy()
+
+    if not remaining.empty:
+        remaining["bench_score"] = remaining.apply(
+            lambda row: max([role_strength(row, slot_core(slot[0])) + max(position_fit_score(row, slot[0]), 0) for slot in slots]),
+            axis=1,
         )
-    starters = pd.DataFrame(rows)
-    bench_pool = pool[~pool.index.isin(used)].head(9).copy()
-    bench = pd.DataFrame(
-        {
-            "Player": bench_pool.get("name", pd.Series(dtype=str)),
-            "Position": bench_pool.get("position", pd.Series(dtype=str)),
-            "Age": bench_pool.get("age", pd.Series(dtype=float)),
-            "Minutes": bench_pool.get("minutes", pd.Series(dtype=float)),
-            "Performance Score": bench_pool.get("performance_score", pd.Series(dtype=float)),
-        }
-    )
-    if not bench.empty:
-        bench["Performance Score"] = pd.to_numeric(bench["Performance Score"], errors="coerce").fillna(0).round(0).astype(int)
-        bench["Minutes"] = pd.to_numeric(bench["Minutes"], errors="coerce").fillna(0).round(0).astype(int)
-    return starters, bench
+        bench = remaining.sort_values(["bench_score", "minutes", "performance_score"], ascending=False).head(bench_size)
+    else:
+        bench = pd.DataFrame()
+
+    return starters.reset_index(drop=True), bench.reset_index(drop=True)
 
 
 def show_predicted_lineup_visual(squad: pd.DataFrame, team: str, formation: str) -> None:
@@ -1505,108 +2073,45 @@ def show_predicted_lineup_visual(squad: pd.DataFrame, team: str, formation: str)
         return
     c1, c2 = st.columns([2, 1])
     with c1:
-        render_lineup_pitch(starters, f"{team} Predicted XI")
+        render_lineup_pitch(starters, f"{team} Predicted XI", formation)
     with c2:
         st.markdown("### Bench Options")
-        if bench.empty:
+        bench_table = clean_bench_table(bench)
+        if bench_table.empty:
             st.info("No bench options available.")
         else:
-            st.dataframe(bench, use_container_width=True, hide_index=True)
-    st.caption("Predicted lineup based on players from the selected team and season, using minutes, position and performance score. It is not a confirmed matchday lineup.")
+            st.dataframe(bench_table, use_container_width=True, hide_index=True)
+    st.caption("Predicted lineup based on players from the selected team and season, using position suitability, minutes and performance score. It is not a confirmed matchday lineup.")
 
 
 def short_player_name(name: str) -> str:
-    parts = str(name).strip().split()
+    text = str(name).strip()
+    parts = text.split()
     if len(parts) <= 2:
-        return str(name).strip()
+        return text
     return f"{parts[0][0]}. {' '.join(parts[1:])}"
 
 
-def lineup_position_coordinates(position: str, index: int = 0, count: int = 1) -> tuple[float, float]:
-    text = str(position).lower()
-    coordinates = {
-        "goalkeeper": (50, 88),
-        "left back": (20, 72),
-        "right back": (80, 72),
-        "left center back": (38, 75),
-        "right center back": (62, 75),
-        "center back": (50, 75),
-        "left defensive midfield": (34, 58),
-        "right defensive midfield": (66, 58),
-        "center defensive midfield": (50, 58),
-        "left midfield": (26, 48),
-        "right midfield": (74, 48),
-        "center midfield": (50, 48),
-        "left center midfield": (38, 48),
-        "right center midfield": (62, 48),
-        "left attacking midfield": (35, 34),
-        "right attacking midfield": (65, 34),
-        "center attacking midfield": (50, 34),
-        "left wing": (22, 25),
-        "right wing": (78, 25),
-        "left center forward": (38, 18),
-        "right center forward": (62, 18),
-        "center forward": (50, 16),
-    }
-    for key, value in coordinates.items():
-        if key in text:
-            return value
-    if "keeper" in text:
-        return (50, 88)
-    if "back" in text or "defender" in text:
-        slots = [(20, 72), (38, 75), (62, 75), (80, 72), (50, 76)]
-    elif "defensive" in text:
-        slots = [(38, 58), (62, 58), (50, 58)]
-    elif "wing" in text:
-        slots = [(22, 25), (78, 25)]
-    elif "forward" in text or "striker" in text:
-        slots = [(50, 16), (38, 18), (62, 18)]
-    else:
-        slots = [(50, 48), (35, 48), (65, 48), (25, 42), (75, 42)]
-    return slots[index % len(slots)]
-
-
-def inferred_formation(starters: pd.DataFrame) -> str:
+def render_lineup_pitch(starters: pd.DataFrame, title: str, formation: str) -> None:
     if starters is None or starters.empty:
-        return "Unknown"
-    counts = {"D": 0, "M": 0, "F": 0}
-    for position in starters["position"].astype(str):
-        lower = position.lower()
-        if "goalkeeper" in lower:
-            continue
-        if "back" in lower or "center back" in lower:
-            counts["D"] += 1
-        elif "forward" in lower or "wing" in lower:
-            counts["F"] += 1
-        else:
-            counts["M"] += 1
-    parts = [str(counts[key]) for key in ["D", "M", "F"] if counts[key] > 0]
-    return "-".join(parts) if parts else "Unknown"
-
-
-def render_lineup_pitch(starters: pd.DataFrame, title: str) -> None:
-    if starters is None or starters.empty:
-        st.info("No starting XI available for this match.")
+        st.info("No lineup could be generated for this team and season.")
         return
 
-    starters = starters.copy().head(11).reset_index(drop=True)
-    formation = inferred_formation(starters)
     markers = []
-    occupied = {}
 
     for _, player in starters.iterrows():
-        position = str(player.get("position", "Unknown"))
-        key = position.lower()
-        occupied[key] = occupied.get(key, 0) + 1
-        x, y = lineup_position_coordinates(position, occupied[key] - 1, occupied[key])
+        x = float(player.get("plot_x", 50))
+        y = float(player.get("plot_y", 50))
         number = str(player.get("jersey_number", "")).replace(".0", "")
-        display_name = html.escape(short_player_name(player.get("player_display_name", player.get("player", "Unknown"))))
-        pos_label = html.escape(position)
-        badge = html.escape(number) if number and number.lower() != "nan" else ""
+        if number.lower() in {"nan", "none"}:
+            number = ""
+        display_name = html.escape(short_player_name(player.get("player_display_name", player.get("name", "Unknown"))))
+        pos_label = html.escape(str(player.get("slot_label", player.get("slot", ""))))
+
         markers.append(
             f"""
             <div class='lineup-player' style='left:{x}%;top:{y}%;'>
-                <div class='lineup-badge'>{badge}</div>
+                <div class='lineup-badge'>{html.escape(number)}</div>
                 <div class='lineup-name'>{display_name}</div>
                 <div class='lineup-position'>{pos_label}</div>
             </div>
@@ -1614,132 +2119,155 @@ def render_lineup_pitch(starters: pd.DataFrame, title: str) -> None:
         )
 
     lineup_html = f"""
-    <html>
-    <head>
-        <style>
-            body {{
-                margin:0;
-                font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
-                background:transparent;
-            }}
-            .lineup-wrap {{
-                background:#0b7f45;
-                border-radius:26px;
-                padding:18px;
-                box-shadow:0 18px 42px rgba(0,0,0,0.16);
-                box-sizing:border-box;
-                width:100%;
-            }}
-            .lineup-head {{
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-                color:white;
-                margin-bottom:12px;
-                font-weight:800;
-                font-size:16px;
-            }}
-            .lineup-pitch {{
-                position:relative;
-                height:640px;
-                border:3px solid rgba(255,255,255,0.75);
-                border-radius:22px;
-                overflow:hidden;
-                background:linear-gradient(180deg,#10884d 0%,#08733f 100%);
-            }}
-            .lineup-pitch:before {{
-                content:'';
-                position:absolute;
-                left:5%;
-                right:5%;
-                top:50%;
-                border-top:2px solid rgba(255,255,255,0.55);
-            }}
-            .lineup-pitch:after {{
-                content:'';
-                position:absolute;
-                left:38%;
-                right:38%;
-                top:42%;
-                bottom:42%;
-                border:2px solid rgba(255,255,255,0.55);
-                border-radius:999px;
-            }}
-            .lineup-box-top {{
-                position:absolute;
-                left:28%;
-                right:28%;
-                top:0;
-                height:15%;
-                border-left:2px solid rgba(255,255,255,0.55);
-                border-right:2px solid rgba(255,255,255,0.55);
-                border-bottom:2px solid rgba(255,255,255,0.55);
-            }}
-            .lineup-box-bottom {{
-                position:absolute;
-                left:28%;
-                right:28%;
-                bottom:0;
-                height:15%;
-                border-left:2px solid rgba(255,255,255,0.55);
-                border-right:2px solid rgba(255,255,255,0.55);
-                border-top:2px solid rgba(255,255,255,0.55);
-            }}
-            .lineup-player {{
-                position:absolute;
-                transform:translate(-50%,-50%);
-                text-align:center;
-                min-width:92px;
-                max-width:118px;
-            }}
-            .lineup-badge {{
-                width:44px;
-                height:44px;
-                border-radius:50%;
-                background:#ffffff;
-                color:#08753f;
-                margin:0 auto 6px auto;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                font-weight:900;
-                border:3px solid rgba(255,255,255,0.9);
-                box-shadow:0 8px 18px rgba(0,0,0,0.25);
-            }}
-            .lineup-name {{
-                color:#ffffff;
-                font-size:12px;
-                font-weight:800;
-                text-shadow:0 1px 3px rgba(0,0,0,0.5);
-                line-height:1.1;
-            }}
-            .lineup-position {{
-                color:rgba(255,255,255,0.82);
-                font-size:10px;
-                font-weight:600;
-                text-shadow:0 1px 2px rgba(0,0,0,0.45);
-                margin-top:2px;
-            }}
-        </style>
-    </head>
-    <body>
-        <div class='lineup-wrap'>
-            <div class='lineup-head'>
-                <span>{html.escape(title)}</span>
-                <span>Formation: {html.escape(formation)}</span>
-            </div>
-            <div class='lineup-pitch'>
-                <div class='lineup-box-top'></div>
-                <div class='lineup-box-bottom'></div>
-                {''.join(markers)}
-            </div>
+    <style>
+        .lineup-wrap {{
+            background:#0b7f45;
+            border-radius:26px;
+            padding:18px;
+            box-shadow:0 18px 42px rgba(0,0,0,0.16);
+        }}
+        .lineup-head {{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            color:white;
+            margin-bottom:12px;
+            font-weight:900;
+            font-size:18px;
+        }}
+        .lineup-pitch {{
+            position:relative;
+            height:640px;
+            border:3px solid rgba(255,255,255,0.78);
+            border-radius:22px;
+            overflow:hidden;
+            background:linear-gradient(180deg,#10884d 0%,#08733f 100%);
+        }}
+        .lineup-pitch:before {{
+            content:'';
+            position:absolute;
+            left:5%;
+            right:5%;
+            top:50%;
+            border-top:2px solid rgba(255,255,255,0.55);
+        }}
+        .lineup-pitch:after {{
+            content:'';
+            position:absolute;
+            left:38%;
+            right:38%;
+            top:42%;
+            bottom:42%;
+            border:2px solid rgba(255,255,255,0.55);
+            border-radius:999px;
+        }}
+        .lineup-box-top {{
+            position:absolute;
+            left:28%;
+            right:28%;
+            top:0;
+            height:16%;
+            border-left:2px solid rgba(255,255,255,0.55);
+            border-right:2px solid rgba(255,255,255,0.55);
+            border-bottom:2px solid rgba(255,255,255,0.55);
+        }}
+        .lineup-box-bottom {{
+            position:absolute;
+            left:28%;
+            right:28%;
+            bottom:0;
+            height:16%;
+            border-left:2px solid rgba(255,255,255,0.55);
+            border-right:2px solid rgba(255,255,255,0.55);
+            border-top:2px solid rgba(255,255,255,0.55);
+        }}
+        .lineup-player {{
+            position:absolute;
+            transform:translate(-50%,-50%);
+            text-align:center;
+            width:118px;
+            z-index:3;
+        }}
+        .lineup-badge {{
+            width:46px;
+            height:46px;
+            border-radius:50%;
+            background:#ffffff;
+            color:#08753f;
+            margin:0 auto 6px auto;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:900;
+            box-shadow:0 4px 10px rgba(0,0,0,0.22);
+            font-size:17px;
+        }}
+        .lineup-name {{
+            color:#ffffff;
+            font-size:12px;
+            font-weight:900;
+            text-shadow:0 1px 4px rgba(0,0,0,0.75);
+            line-height:1.05;
+            white-space:normal;
+        }}
+        .lineup-position {{
+            color:rgba(255,255,255,0.86);
+            font-size:10px;
+            font-weight:700;
+            text-shadow:0 1px 3px rgba(0,0,0,0.75);
+            line-height:1.05;
+            margin-top:2px;
+        }}
+    </style>
+
+    <div class='lineup-wrap'>
+        <div class='lineup-head'>
+            <div>{html.escape(title)}</div>
+            <div>Formation: {html.escape(formation)}</div>
         </div>
-    </body>
-    </html>
+        <div class='lineup-pitch'>
+            <div class='lineup-box-top'></div>
+            <div class='lineup-box-bottom'></div>
+            {''.join(markers)}
+        </div>
+    </div>
     """
 
-    components.html(lineup_html, height=760, scrolling=False)
+    components.html(lineup_html, height=740, scrolling=False)
 
+
+def clean_bench_table(bench: pd.DataFrame) -> pd.DataFrame:
+    if bench is None or bench.empty:
+        return pd.DataFrame()
+
+    columns = []
+    for column in ["name", "position", "age", "minutes", "performance_score", "defensive_score", "position_fit", "goals", "assists", "tackles", "interceptions"]:
+        if column in bench.columns:
+            columns.append(column)
+
+    table = bench[columns].copy()
+
+    rename_map = {
+        "name": "Player",
+        "position": "Position",
+        "age": "Age",
+        "minutes": "Minutes",
+        "performance_score": "Performance Score",
+        "defensive_score": "Defensive Score",
+        "position_fit": "Position Fit",
+        "goals": "Goals",
+        "assists": "Assists",
+    }
+
+    table = table.rename(columns=rename_map)
+
+    if "Performance Score" in table.columns:
+        table["Performance Score"] = pd.to_numeric(table["Performance Score"], errors="coerce").round(1)
+
+    if "Minutes" in table.columns:
+        table["Minutes"] = pd.to_numeric(table["Minutes"], errors="coerce").fillna(0).round(0).astype(int)
+
+    return table
 
 def lineup_competitions() -> list[str]:
     if lineups is None or lineups.empty:
@@ -1863,80 +2391,89 @@ page = st.session_state["active_page"]
 if page == "🏠  Home":
     st.markdown(
         """
-        <div style='padding: 60px 0 40px 0;'>
-            <p style='font-size: 13px; font-weight: 600; color: #0071e3; letter-spacing: 1.5px; text-transform: uppercase; margin: 0 0 16px 0;'>
+        <div style='padding: 56px 0 20px 0; max-width: 960px;'>
+            <p style='font-size: 13px; font-weight: 700; color: #0071e3; letter-spacing: 1.5px; text-transform: uppercase; margin: 0 0 16px 0;'>
                 Football Intelligence Platform
             </p>
-            <h1 style='font-size: 64px; font-weight: 700; color: #1d1d1f; letter-spacing: -2px; line-height: 1.02; margin: 0 0 24px 0;'>
+            <h1 style='font-size: 58px; font-weight: 700; color: #1d1d1f; line-height: 1.04; margin: 0 0 22px 0;'>
                 Analyse. Predict.<br>Scout. Decide.
             </h1>
-            <p style='font-size: 21px; color: #6e6e73; font-weight: 400; line-height: 1.5; max-width: 680px; margin: 0 0 40px 0;'>
-                A machine learning powered football analytics dashboard for match prediction, player comparison, team analysis and recruitment insights across domestic and international football.
+            <p style='font-size: 19px; color: #52525c; line-height: 1.7; max-width: 760px; margin: 0;'>
+                A machine learning powered football analytics dashboard for match prediction, player comparison, team analysis, and recruitment insights across domestic and international football.
             </p>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    col1, col2, col3 = st.columns([1, 1, 4])
-    with col1:
+    btn_col1, btn_col2 = st.columns([1, 1])
+    with btn_col1:
         if st.button("🔮 Try Predictor", key="home_try_predictor"):
             go_to_page("🔮  Match Predictor")
             st.rerun()
-    with col2:
+    with btn_col2:
         if st.button("👤 View Players", key="home_view_players"):
             go_to_page("👤  Player Stats")
             st.rerun()
 
     st.divider()
 
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Matches Analysed", f"{len(matches):,}")
-    c2.metric("Leagues Covered", matches["league"].nunique())
-    c3.metric("Seasons of Data", matches["season"].nunique())
-    c4.metric("Player Records", f"{len(players):,}" if players is not None else "Not loaded")
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Matches Analysed", f"{len(matches):,}")
+    m2.metric("Leagues Covered", matches["league"].nunique())
+    m3.metric("Seasons of Data", matches["season"].nunique())
+    m4.metric("Player Records", f"{len(players):,}" if players is not None else "Not loaded")
 
     st.divider()
 
     st.markdown("## Core Features")
     f1, f2, f3 = st.columns(3)
     with f1:
-        st.markdown("""
-        <div style='background:#f5f5f7;border-radius:20px;padding:28px;height:250px;'>
-            <div style='font-size:36px;margin-bottom:14px;'>🔮</div>
-            <h3>Match Predictor</h3>
-            <p class='small-muted'>Predict Home Win, Draw or Away Win using model probabilities and recent form based explanations.</p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            """
+            <div style='border-radius: 20px; padding: 26px; background: #f7fafc; min-height: 240px;'>
+                <div style='font-size: 34px; margin-bottom: 14px;'>🔮</div>
+                <h3 style='margin: 0 0 12px 0;'>Match Predictor</h3>
+                <p style='color: #52525c; line-height: 1.65; margin: 0;'>Predict Home Win, Draw or Away Win using model probabilities and recent form insights.</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
     with f2:
-        st.markdown("""
-        <div style='background:#f5f5f7;border-radius:20px;padding:28px;height:250px;'>
-            <div style='font-size:36px;margin-bottom:14px;'>⚔️</div>
-            <h3>Player Comparison</h3>
-            <p class='small-muted'>Compare players with percentile radar charts, per 90 statistics and similarity matching.</p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            """
+            <div style='border-radius: 20px; padding: 26px; background: #f7fafc; min-height: 240px;'>
+                <div style='font-size: 34px; margin-bottom: 14px;'>⚔️</div>
+                <h3 style='margin: 0 0 12px 0;'>Player Comparison</h3>
+                <p style='color: #52525c; line-height: 1.65; margin: 0;'>Compare players side-by-side with radar metrics, per 90 performance and head-to-head insights.</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
     with f3:
-        st.markdown("""
-        <div style='background:#f5f5f7;border-radius:20px;padding:28px;height:250px;'>
-            <div style='font-size:36px;margin-bottom:14px;'>💰</div>
-            <h3>Recruitment Scouting</h3>
-            <p class='small-muted'>Build shortlists, find hidden gems and connect team weaknesses to player recommendations.</p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            """
+            <div style='border-radius: 20px; padding: 26px; background: #f7fafc; min-height: 240px;'>
+                <div style='font-size: 34px; margin-bottom: 14px;'>🏟️</div>
+                <h3 style='margin: 0 0 12px 0;'>Team Analysis</h3>
+                <p style='color: #52525c; line-height: 1.65; margin: 0;'>Review squad performance, match trends and lineup metrics for any team, league, and season.</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
     st.divider()
 
-    st.markdown("## How to use it")
-    col1, col2 = st.columns(2)
-    with col1:
+    st.markdown("## How to use this dashboard")
+    left_help, right_help = st.columns(2)
+    with left_help:
         st.markdown("1. Open **Match Predictor** and select two teams.")
-        st.markdown("2. Open **Player Stats** to filter players by position, team, season and minutes.")
-        st.markdown("3. Open **Player Comparison** to compare two players using raw or per 90 metrics.")
-    with col2:
-        st.markdown("4. Open **Team Analysis** to check team form, goals, clean sheets and last five results.")
-        st.markdown("5. Open **Transfer Analysis** to build scouting shortlists.")
-        st.markdown("6. Open **Model Performance** to review accuracy, confusion matrix and feature importance.")
+        st.markdown("2. Use **Player Stats** to filter by league, season, position and minutes.")
+        st.markdown("3. Visit **Player Comparison** to compare players head-to-head.")
+    with right_help:
+        st.markdown("4. Open **Team Analysis** to inspect team form, goals, clean sheets and player output.")
+        st.markdown("5. Use **Transfer Analysis** to build a shortlist of recruitment candidates.")
+        st.markdown("6. Check **Model Performance** to review accuracy, confusion matrix and feature importance.")
 
     st.divider()
     st.caption("Built by Daniel Olutade · Python · Streamlit · Pandas · Plotly · Scikit Learn · XGBoost")
@@ -2592,16 +3129,21 @@ elif page == "👤  Player Stats":
         booked["total_cards"] = booked["yellow_cards"] + booked["red_cards"]
         st.dataframe(booked.nlargest(10, "total_cards")[["name", "team", "competition", "season", "yellow_cards", "red_cards", "total_cards"]], use_container_width=True, hide_index=True)
 
+    st.subheader("Defensive Leaders")
+    defensive_leader_cols = [column for column in ["name", "team", "competition", "position", "season", "tackles", "tackles_won", "interceptions", "blocks", "clearances", "defensive_score"] if column in filtered.columns]
+    defensive_sort = "defensive_score" if "defensive_score" in filtered.columns else "interceptions"
+    st.dataframe(filtered.nlargest(10, defensive_sort)[defensive_leader_cols], use_container_width=True, hide_index=True)
+
     st.subheader("Full Stats Table")
     if stat_view == "Per 90":
-        display_cols = ["name", "team", "competition", "position", "season", "goals_p90", "assists_p90", "shots_p90", "sot_p90", "tackles_p90", "contrib_p90", "performance_score"]
+        display_cols = ["name", "team", "competition", "position", "season", "goals_p90", "assists_p90", "shots_p90", "sot_p90", "tackles_p90", "interc_p90", "blocks_p90", "clearances_p90", "contrib_p90", "defensive_score", "performance_score"]
     else:
-        display_cols = ["name", "team", "competition", "position", "season", "goals", "assists", "appearances", "minutes", "yellow_cards", "red_cards", "shots_on_target", "performance_score"]
+        display_cols = ["name", "team", "competition", "position", "season", "goals", "assists", "appearances", "starts", "minutes", "shots_on_target", "tackles", "tackles_won", "interceptions", "blocks", "clearances", "defensive_score", "performance_score"]
     st.dataframe(filtered[display_cols].sort_values(goal_col, ascending=False), use_container_width=True, hide_index=True)
 
 elif page == "⚔️  Player Comparison":
     st.markdown("# Player Comparison")
-    st.markdown("Compare players across leagues, teams and seasons.")
+    st.markdown("Compare players across leagues, teams and seasons using easier head-to-head categories.")
     st.divider()
 
     if players is None:
@@ -2615,9 +3157,25 @@ elif page == "⚔️  Player Comparison":
             pool = pool[pool["team"].astype(str) == str(team_value)]
         return pool[pool["minutes"] > 0].copy()
 
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("### Player 1")
+    def safe_number(row: pd.Series, column: str) -> float:
+        if column not in row.index:
+            return 0.0
+        return float(pd.to_numeric(row[column], errors="coerce") if pd.notna(pd.to_numeric(row[column], errors="coerce")) else 0.0)
+
+    def player_line(row: pd.Series) -> str:
+        return f"{row['team']} · {display_competition(row['competition'])} · {row['season']} · {row['position']} · {int(row['minutes'])} mins"
+
+    filter_left, filter_right = st.columns(2)
+    with filter_left:
+        st.markdown(
+            """
+            <div style='border-radius: 20px; padding: 24px; background: #f7fafc;'>
+                <h3 style='margin: 0 0 12px 0;'>Player 1</h3>
+                <p style='color: #52525c; margin: 0 0 18px 0;'>Choose league, season, team, and player for the first comparison profile.</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
         first_league = st.selectbox("League", PLAYER_LEAGUES, key="compare_league_1", format_func=display_competition)
         first_league_pool = filter_players(players, first_league, None)
         first_seasons = ["All Seasons"] + player_seasons_for(first_league_pool)
@@ -2632,8 +3190,16 @@ elif page == "⚔️  Player Comparison":
         first_names = sorted(first_pool["name"].dropna().astype(str).unique().tolist())
         first_name = st.selectbox("Player", first_names, index=0, key=f"compare_player_1_{first_league}_{first_season}_{first_team}")
 
-    with col2:
-        st.markdown("### Player 2")
+    with filter_right:
+        st.markdown(
+            """
+            <div style='border-radius: 20px; padding: 24px; background: #f7fafc;'>
+                <h3 style='margin: 0 0 12px 0;'>Player 2</h3>
+                <p style='color: #52525c; margin: 0 0 18px 0;'>Choose league, season, team, and player for the second comparison profile.</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
         second_league = st.selectbox("League", PLAYER_LEAGUES, key="compare_league_2", format_func=display_competition)
         second_league_pool = filter_players(players, second_league, None)
         second_seasons = ["All Seasons"] + player_seasons_for(second_league_pool)
@@ -2651,43 +3217,42 @@ elif page == "⚔️  Player Comparison":
 
     first_player = first_pool[first_pool["name"].astype(str) == first_name].sort_values(["season", "minutes"], ascending=[False, False]).iloc[0]
     second_player = second_pool[second_pool["name"].astype(str) == second_name].sort_values(["season", "minutes"], ascending=[False, False]).iloc[0]
-    comparison_pool = pd.concat([first_pool, second_pool], ignore_index=True).drop_duplicates(subset=["name", "team", "competition", "season"])
+
+    benchmark_parts = []
+    for league_value, season_value in [(first_league, first_season), (second_league, second_season)]:
+        season_value = None if season_value == "All Seasons" else season_value
+        benchmark_parts.append(filter_players(players, league_value, season_value))
+    benchmark_pool = pd.concat(benchmark_parts, ignore_index=True).drop_duplicates(subset=["name", "team", "competition", "season"])
+    benchmark_pool = benchmark_pool[benchmark_pool["minutes"] > 0].copy()
+    if benchmark_pool.empty:
+        benchmark_pool = pd.concat([first_pool, second_pool], ignore_index=True).drop_duplicates(subset=["name", "team", "competition", "season"])
 
     st.divider()
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader(f"👤 {first_name}")
-        st.caption(f"{first_player['team']} · {display_competition(first_player['competition'])} · {first_player['season']} · {first_player['position']} · {int(first_player['minutes'])} mins")
-        a, b, c, d = st.columns(4)
-        a.metric("Goals", int(first_player["goals"]))
-        b.metric("Assists", int(first_player["assists"]))
-        c.metric("Goals/90", f"{first_player['goals_p90']:.2f}")
-        d.metric("Performance Score", f"{first_player['performance_score']:.0f}/100")
-    with col2:
-        st.subheader(f"👤 {second_name}")
-        st.caption(f"{second_player['team']} · {display_competition(second_player['competition'])} · {second_player['season']} · {second_player['position']} · {int(second_player['minutes'])} mins")
-        a, b, c, d = st.columns(4)
-        a.metric("Goals", int(second_player["goals"]))
-        b.metric("Assists", int(second_player["assists"]))
-        c.metric("Goals/90", f"{second_player['goals_p90']:.2f}")
-        d.metric("Performance Score", f"{second_player['performance_score']:.0f}/100")
+    st.markdown("## Key player scores")
+    score_cols = st.columns(4)
+    score_cols[0].metric("Performance", f"{safe_number(first_player, 'performance_score'):.0f}/100", f"{safe_number(second_player, 'performance_score'):.0f}/100")
+    score_cols[1].metric("Attack", f"{safe_number(first_player, 'attacking_score'):.0f}/100", f"{safe_number(second_player, 'attacking_score'):.0f}/100")
+    score_cols[2].metric("Creativity", f"{safe_number(first_player, 'creative_score'):.0f}/100", f"{safe_number(second_player, 'creative_score'):.0f}/100")
+    score_cols[3].metric("Defence", f"{safe_number(first_player, 'defensive_score'):.0f}/100", f"{safe_number(second_player, 'defensive_score'):.0f}/100")
 
     st.divider()
-    stat_mode = st.radio("Radar Mode", ["Raw Stats", "Per 90"], horizontal=True, key="compare_stat_mode")
-    if stat_mode == "Per 90":
-        radar_cols = ["goals_p90", "assists_p90", "sot_p90", "tackles_p90", "interc_p90", "contrib_p90"]
-        radar_labels = ["Goals/90", "Assists/90", "Shots on Target/90", "Tackles/90", "Interceptions/90", "Contributions/90"]
-    else:
-        radar_cols = ["goals", "assists", "shots_on_target", "pass_accuracy", "dribbles", "tackles"]
-        radar_labels = ["Goals", "Assists", "Shots on Target", "Pass Accuracy", "Dribbles", "Tackles"]
+    st.subheader("Category Radar")
+    st.caption("The radar shows the relative category performance for each player.")
+    radar_cols = ["performance_score", "attacking_score", "creative_score", "defensive_score", "goals_p90", "assists_p90", "tackles_p90", "interc_p90"]
+    radar_labels = ["Overall", "Attack", "Creativity", "Defence", "Goals/90", "Assists/90", "Tackles/90", "Interceptions/90"]
+    radar_cols = [column for column in radar_cols if column in benchmark_pool.columns]
+    radar_labels = [label for column, label in zip(["performance_score", "attacking_score", "creative_score", "defensive_score", "goals_p90", "assists_p90", "tackles_p90", "interc_p90"], ["Overall", "Attack", "Creativity", "Defence", "Goals/90", "Assists/90", "Tackles/90", "Interceptions/90"]) if column in radar_cols]
 
-    def percentile(player_row: pd.Series, col: str) -> float:
-        return float((comparison_pool[col] <= player_row[col]).mean() * 100)
+    def benchmark_score(player_row: pd.Series, col: str) -> float:
+        values = pd.to_numeric(benchmark_pool[col], errors="coerce").fillna(0)
+        value = safe_number(player_row, col)
+        if values.nunique() <= 1:
+            return 50.0
+        return float((values <= value).mean() * 100)
 
-    first_values = [percentile(first_player, col) for col in radar_cols]
-    second_values = [percentile(second_player, col) for col in radar_cols]
+    first_values = [benchmark_score(first_player, col) for col in radar_cols]
+    second_values = [benchmark_score(second_player, col) for col in radar_cols]
 
-    st.subheader("Radar Comparison")
     fig = go.Figure()
     fig.add_trace(go.Scatterpolar(r=first_values + [first_values[0]], theta=radar_labels + [radar_labels[0]], fill="toself", fillcolor="rgba(0,113,227,0.15)", line=dict(color="#0071e3", width=2.5), name=f"{first_name} {first_player['season']}"))
     fig.add_trace(go.Scatterpolar(r=second_values + [second_values[0]], theta=radar_labels + [radar_labels[0]], fill="toself", fillcolor="rgba(255,59,48,0.15)", line=dict(color="#ff3b30", width=2.5), name=f"{second_name} {second_player['season']}"))
@@ -2701,21 +3266,58 @@ elif page == "⚔️  Player Comparison":
     )
     st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
 
-    st.subheader("Percentile Rankings")
-    rows = []
-    for col, label in zip(radar_cols, radar_labels):
-        first_pct = percentile(first_player, col)
-        second_pct = percentile(second_player, col)
-        rows.append({"Stat": label, f"{first_name} Raw": round(float(first_player[col]), 2), f"{first_name} Percentile": f"{first_pct:.0f}th", f"{second_name} Raw": round(float(second_player[col]), 2), f"{second_name} Percentile": f"{second_pct:.0f}th", "Better": first_name if first_pct >= second_pct else second_name})
-    pct_frame = pd.DataFrame(rows)
-    st.dataframe(pct_frame, use_container_width=True, hide_index=True)
+    st.subheader("Head-to-Head Breakdown")
+    st.caption("This comparison shows the category values, who leads each metric, and provides the full table when needed.")
+    categories = [
+        ("Overall", "performance_score", "/100"),
+        ("Attacking Score", "attacking_score", "/100"),
+        ("Creative Score", "creative_score", "/100"),
+        ("Defensive Score", "defensive_score", "/100"),
+        ("Goals", "goals", ""),
+        ("Assists", "assists", ""),
+        ("Goals/90", "goals_p90", ""),
+        ("Assists/90", "assists_p90", ""),
+        ("Shots on Target", "shots_on_target", ""),
+        ("Tackles", "tackles", ""),
+        ("Tackles Won", "tackles_won", ""),
+        ("Interceptions", "interceptions", ""),
+        ("Blocks", "blocks", ""),
+        ("Clearances", "clearances", ""),
+        ("Errors", "errors", "lower"),
+    ]
+    breakdown_rows = []
+    for label, column, suffix in categories:
+        if column not in players.columns:
+            continue
+        first_value = safe_number(first_player, column)
+        second_value = safe_number(second_player, column)
+        if suffix == "lower":
+            if first_value < second_value:
+                advantage = first_name
+            elif second_value < first_value:
+                advantage = second_name
+            else:
+                advantage = "Even"
+        else:
+            if first_value > second_value:
+                advantage = first_name
+            elif second_value > first_value:
+                advantage = second_name
+            else:
+                advantage = "Even"
+        breakdown_rows.append({"Category": label, first_name: round(first_value, 2), second_name: round(second_value, 2), "Advantage": advantage})
 
-    first_wins = (pct_frame["Better"] == first_name).sum()
-    second_wins = (pct_frame["Better"] == second_name).sum()
+    breakdown = pd.DataFrame(breakdown_rows)
+    st.write(f"**{first_name}** leads in **{(breakdown['Advantage'] == first_name).sum()}** metrics; **{second_name}** leads in **{(breakdown['Advantage'] == second_name).sum()}**.")
+    with st.expander("View full detailed comparison table"):
+        st.dataframe(breakdown, use_container_width=True, hide_index=True)
+
+    first_wins = (breakdown["Advantage"] == first_name).sum()
+    second_wins = (breakdown["Advantage"] == second_name).sum()
     if first_wins > second_wins:
-        insight_card("🏆", f"<b>{first_name}</b> wins <b>{first_wins}</b> of {len(pct_frame)} categories.")
+        insight_card("🏆", f"<b>{first_name}</b> leads in <b>{first_wins}</b> categories, while <b>{second_name}</b> leads in <b>{second_wins}</b>.")
     elif second_wins > first_wins:
-        insight_card("🏆", f"<b>{second_name}</b> wins <b>{second_wins}</b> of {len(pct_frame)} categories.")
+        insight_card("🏆", f"<b>{second_name}</b> leads in <b>{second_wins}</b> categories, while <b>{first_name}</b> leads in <b>{first_wins}</b>.")
     else:
         insight_card("🤝", "These players are evenly matched across the selected categories.")
 
@@ -2725,8 +3327,12 @@ elif page == "🏟️  Team Analysis":
     st.divider()
 
     league_options = overview_league_values()
-    league = st.selectbox("League", league_options, key="team_league", format_func=display_competition)
-
+    
+    col_league, col_season, col_team, col_formation = st.columns(4)
+    
+    with col_league:
+        league = st.selectbox("League", league_options, key="team_league", format_func=display_competition)
+    
     player_frame_all = filter_players(players, league, None) if players is not None and league != "All" else pd.DataFrame()
     match_frame_all = filter_matches_by_league(league) if league in LEAGUES else pd.DataFrame()
 
@@ -2741,7 +3347,8 @@ elif page == "🏟️  Team Analysis":
         st.warning("No team data available for this selection.")
         st.stop()
 
-    season = st.selectbox("Season", season_options, index=0, key=f"team_season_{league}")
+    with col_season:
+        season = st.selectbox("Season", season_options, index=0, key=f"team_season_{league}")
 
     player_frame = filter_players(players, league, season) if players is not None and league != "All" else pd.DataFrame()
     match_frame = match_frame_all[match_frame_all["season"].astype(str) == str(season)].copy() if not match_frame_all.empty else pd.DataFrame()
@@ -2754,16 +3361,17 @@ elif page == "🏟️  Team Analysis":
         st.warning("No teams available for this league and season.")
         st.stop()
 
-    team = st.selectbox("Team", teams, key=f"team_select_{league}_{season}")
+    with col_team:
+        team = st.selectbox("Team", teams, key=f"team_select_{league}_{season}")
+
+    with col_formation:
+        formation = st.selectbox("Formation", list(FORMATION_SLOTS.keys()), key=f"predicted_formation_{league}_{season}_{team}")
+
     squad = player_frame[player_frame["team"].astype(str) == str(team)].copy() if not player_frame.empty else pd.DataFrame()
 
-    st.subheader("Predicted Starting XI")
-    formation = st.selectbox(
-        "Formation",
-        ["4-3-3", "4-2-3-1", "4-4-2", "3-5-2", "3-4-3"],
-        key=f"predicted_formation_{league}_{season}_{team}",
-    )
-
+    st.divider()
+    st.subheader("📋 Predicted Starting XI")
+    
     if squad.empty:
         st.info("No squad player data is available for this team and season, so a predicted lineup cannot be generated.")
     else:
@@ -2772,25 +3380,40 @@ elif page == "🏟️  Team Analysis":
     st.divider()
 
     if not squad.empty:
-        c1, c2, c3, c4 = st.columns(4)
-        c1.metric("Squad Records", len(squad))
-        c2.metric("Total Goals", int(squad["goals"].sum()))
-        c3.metric("Total Assists", int(squad["assists"].sum()))
-        c4.metric("Avg Performance", f"{squad['performance_score'].mean():.0f}/100")
+        st.markdown("## Squad Overview")
+        kpi_cols = st.columns(4)
+        kpi_cols[0].metric("Squad Size", len(squad))
+        kpi_cols[1].metric("Avg Performance", f"{squad['performance_score'].mean():.0f}/100")
+        kpi_cols[2].metric("Total Goals", int(squad["goals"].sum()))
+        kpi_cols[3].metric("Avg Defence", f"{squad['defensive_score'].mean():.0f}/100")
 
+        st.markdown("### Key Players")
+        insight_cols = st.columns(3)
         top_scorer = squad.loc[squad["goals"].idxmax()]
+        with insight_cols[0]:
+            insight_card("⚽", f"<b>{top_scorer['name']}</b> leads with <b>{int(top_scorer['goals'])}</b> goals.")
+
         top_creator = squad.loc[squad["assists"].idxmax()]
-        insight_card("⚽", f"Top scorer: <b>{top_scorer['name']}</b> with <b>{int(top_scorer['goals'])}</b> goals.")
-        insight_card("🎯", f"Top creator: <b>{top_creator['name']}</b> with <b>{int(top_creator['assists'])}</b> assists.")
+        with insight_cols[1]:
+            insight_card("🎯", f"<b>{top_creator['name']}</b> leads with <b>{int(top_creator['assists'])}</b> assists.")
 
-        st.subheader("Squad Output")
-        st.dataframe(
-            squad.sort_values(["minutes", "performance_score"], ascending=False)[["name", "position", "age", "minutes", "goals", "assists", "goals_p90", "assists_p90", "performance_score"]],
-            use_container_width=True,
-            hide_index=True,
-        )
+        if "tackles" in squad.columns and "interceptions" in squad.columns:
+            squad["defensive_activity"] = squad["tackles"].fillna(0) + squad["interceptions"].fillna(0)
+            top_defender = squad.loc[squad["defensive_activity"].idxmax()]
+            with insight_cols[2]:
+                insight_card("🛡️", f"<b>{top_defender['name']}</b> leads with <b>{int(top_defender['defensive_activity'])}</b> defensive actions.")
 
-        st.subheader("Goals and Assists")
+        st.divider()
+
+        with st.expander("📊 View full squad stats"):
+            squad_display_cols = [column for column in ["name", "position", "age", "starts", "minutes", "goals", "assists", "tackles", "tackles_won", "interceptions", "blocks", "clearances", "defensive_score", "performance_score"] if column in squad.columns]
+            st.dataframe(
+                squad.sort_values(["minutes", "performance_score"], ascending=False)[squad_display_cols],
+                use_container_width=True,
+                hide_index=True,
+            )
+
+        st.subheader("Goals and Assists Distribution")
         top = squad.nlargest(12, "contrib_p90")
         fig = go.Figure()
         fig.add_trace(go.Bar(x=top["name"], y=top["goals"], name="Goals", marker=dict(color="#0071e3")))
@@ -2824,22 +3447,22 @@ elif page == "🏟️  Team Analysis":
             goals_against = int(team_results["ga"].sum())
 
             st.divider()
-            st.subheader("Team Results")
+            st.subheader("Match Results & Performance")
             insight_card("🏆", f"<b>{team}</b>: <b>{wins}W {draws}D {losses}L</b> from {total} matches in {season}. Win rate: <b>{wins / total:.0%}</b>.")
             insight_card("⚽", f"Scored <b>{goals_for}</b>, conceded <b>{goals_against}</b>, goal difference <b>{goals_for - goals_against:+}</b>.")
 
-            c1, c2, c3, c4, c5 = st.columns(5)
-            c1.metric("Games", total)
-            c2.metric("Wins", wins)
-            c3.metric("Draws", draws)
-            c4.metric("Goals For", goals_for)
-            c5.metric("Goals Against", goals_against)
+            metric_cols = st.columns(5)
+            metric_cols[0].metric("Games", total)
+            metric_cols[1].metric("Wins", wins)
+            metric_cols[2].metric("Draws", draws)
+            metric_cols[3].metric("Goals For", goals_for)
+            metric_cols[4].metric("Goals Against", goals_against)
 
-            st.subheader("Recent Matches")
+            st.markdown("### Recent Matches")
             recent = team_results.tail(10)[["date", "venue", "home_team", "away_team", "home_goals", "away_goals"]]
             st.dataframe(recent, use_container_width=True, hide_index=True)
 
-            st.subheader("Goal Trend")
+            st.markdown("### Goal Trend")
             trend = team_results.tail(15).copy()
             trend["match"] = np.arange(1, len(trend) + 1)
             fig = go.Figure()
