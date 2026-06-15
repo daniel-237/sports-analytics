@@ -1,0 +1,12 @@
+services:
+  football-analytics:
+    build: .
+    container_name: football-analytics
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    command: python -m streamlit run src/dashboard.py --server.address=0.0.0.0 --server.port=8501
