@@ -10,3 +10,9 @@ data/raw/statsbomb/
 data/raw/uploads/
 
 .data_update_zip_extract/
+
+.vscode/
+
+.github/prompts/
+
+streamlit cache clear
