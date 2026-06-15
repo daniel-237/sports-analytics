@@ -332,6 +332,28 @@ sports-analytics/
 ```
 
 ---
+## Screenshots
+
+### Home
+![Home](assets/screenshots/home.png)
+
+### Match Predictor
+![Match Predictor](assets/screenshots/match_predictor.png)
+
+### Player Comparison
+![Player Comparison](assets/screenshots/player_comparison.png)
+
+### Team Analysis
+![Team Analysis](assets/screenshots/team_analysis.png)
+
+### League Simulator
+![League Simulator](assets/screenshots/league_simulator.png)
+
+### Recruitment Shortlist Builder
+![Recruitment Shortlist Builder](assets/screenshots/transfer_shortlist.png)
+
+### Model Performance
+![Model Performance](assets/screenshots/model_performance.png)
 
 ## Key Technical Decisions
 
