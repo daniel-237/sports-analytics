@@ -6,6 +6,16 @@ from pathlib import Path
 import sys
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+INJURY_CSV_PATH = PROJECT_ROOT / "data" / "processed" / "api_football_injuries.csv"
+INJURY_STATUS_KEYWORDS = [
+    "injur",
+    "doubtful",
+    "suspend",
+    "unavailable",
+    "out",
+    "questionable",
+    "not fit",
+]
 
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
@@ -1747,6 +1757,99 @@ def player_key(value):
     return text
 
 
+def load_injury_data() -> pd.DataFrame:
+    if not INJURY_CSV_PATH.exists():
+        return pd.DataFrame()
+
+    try:
+        return pd.read_csv(INJURY_CSV_PATH, low_memory=False)
+    except Exception:
+        return pd.DataFrame()
+
+
+def safe_text_series(df: pd.DataFrame, col: str) -> pd.Series:
+    if col and col in df.columns:
+        return df[col].fillna("").astype(str)
+    return pd.Series([""] * len(df), index=df.index)
+
+
+def normalize_name(value):
+    return player_key(value)
+
+
+def is_unavailable_text(value) -> bool:
+    text = normalize_name(value)
+    return any(keyword in text for keyword in INJURY_STATUS_KEYWORDS)
+
+
+def get_unavailable_players(squad: pd.DataFrame, injuries: pd.DataFrame, team: str) -> pd.DataFrame:
+    if injuries is None or injuries.empty or squad is None or squad.empty:
+        return pd.DataFrame()
+
+    player_col = next((col for col in ["player_name", "player", "name"] if col in injuries.columns), None)
+    team_col = next((col for col in ["team_name", "team"] if col in injuries.columns), None)
+    injury_col = next((col for col in ["injury", "reason", "injury_type"] if col in injuries.columns), "injury")
+    status_col = next((col for col in ["status", "availability"] if col in injuries.columns), "status")
+    expected_col = next((col for col in ["expected_return", "end", "return_date"] if col in injuries.columns), "expected_return")
+
+    injuries = injuries.copy()
+    injuries["player_name_raw"] = safe_text_series(injuries, player_col)
+    injuries["team_name_raw"] = safe_text_series(injuries, team_col)
+    injuries["player_key"] = injuries["player_name_raw"].apply(normalize_name)
+    injuries["team_key"] = injuries["team_name_raw"].apply(normalize_name)
+
+    team_key = normalize_name(team)
+    injuries = injuries[injuries["team_key"] == team_key].copy()
+    if injuries.empty:
+        return pd.DataFrame()
+
+    injuries["status_text"] = safe_text_series(injuries, status_col)
+    injuries["injury_text"] = safe_text_series(injuries, injury_col)
+    injuries = injuries[
+        injuries["status_text"].apply(is_unavailable_text)
+        | injuries["injury_text"].apply(is_unavailable_text)
+    ]
+    if injuries.empty:
+        return pd.DataFrame()
+
+    squad_copy = squad.copy()
+    if "name" not in squad_copy.columns and "player" in squad_copy.columns:
+        squad_copy["name"] = squad_copy["player"]
+    if "name" not in squad_copy.columns:
+        return pd.DataFrame()
+
+    squad_copy["name_key"] = squad_copy["name"].astype(str).apply(normalize_name)
+    player_keys = set(squad_copy["name_key"].tolist())
+    injuries = injuries[injuries["player_key"].isin(player_keys)].copy()
+    if injuries.empty:
+        return pd.DataFrame()
+
+    result = pd.DataFrame(
+        {
+            "Player": injuries["player_name_raw"],
+            "Injury/Reason": safe_text_series(injuries, injury_col),
+            "Status": safe_text_series(injuries, status_col),
+            "Expected Return": safe_text_series(injuries, expected_col),
+        }
+    )
+    return result.drop_duplicates(subset=["Player", "Injury/Reason", "Status", "Expected Return"])
+
+
+def filter_unavailable_squad(squad: pd.DataFrame, unavailable: pd.DataFrame) -> pd.DataFrame:
+    if unavailable is None or unavailable.empty:
+        return squad
+
+    squad_copy = squad.copy()
+    if "name" not in squad_copy.columns and "player" in squad_copy.columns:
+        squad_copy["name"] = squad_copy["player"]
+    if "name" not in squad_copy.columns:
+        return squad_copy
+
+    squad_copy["name_key"] = squad_copy["name"].astype(str).apply(normalize_name)
+    unavailable_keys = set(unavailable["Player"].astype(str).apply(normalize_name))
+    return squad_copy[~squad_copy["name_key"].isin(unavailable_keys)].copy()
+
+
 def numeric_value(row, column, default=0.0):
     if column not in row.index:
         return default
@@ -2066,8 +2169,14 @@ def build_predicted_lineup(squad, formation="4-3-3", bench_size=9):
     return starters.reset_index(drop=True), bench.reset_index(drop=True)
 
 
-def show_predicted_lineup_visual(squad: pd.DataFrame, team: str, formation: str) -> None:
-    starters, bench = build_predicted_lineup(squad, formation)
+def show_predicted_lineup_visual(
+    squad: pd.DataFrame,
+    team: str,
+    formation: str,
+    unavailable_players: pd.DataFrame | None = None,
+) -> None:
+    available_squad = filter_unavailable_squad(squad, unavailable_players)
+    starters, bench = build_predicted_lineup(available_squad, formation)
     if starters.empty:
         st.info("No squad data available to generate a predicted lineup.")
         return
@@ -3426,13 +3535,22 @@ elif page == "🏟️  Team Analysis":
 
     squad = player_frame[player_frame["team"].astype(str) == str(team)].copy() if not player_frame.empty else pd.DataFrame()
 
+    injuries = load_injury_data()
+    unavailable_players = get_unavailable_players(squad, injuries, team)
+
+    st.markdown("### Unavailable Players")
+    if unavailable_players.empty:
+        st.info("No unavailable players found for this team.")
+    else:
+        st.dataframe(unavailable_players, use_container_width=True, hide_index=True)
+
     st.divider()
     st.subheader("📋 Predicted Starting XI")
     
     if squad.empty:
         st.info("No squad player data is available for this team and season, so a predicted lineup cannot be generated.")
     else:
-        show_predicted_lineup_visual(squad, team, formation)
+        show_predicted_lineup_visual(squad, team, formation, unavailable_players)
 
     st.divider()
 
