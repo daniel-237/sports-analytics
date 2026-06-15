@@ -1,34 +1,231 @@
 ![CI](https://github.com/daniel-237/sports-analytics/actions/workflows/ci.yml/badge.svg)
-# ⚽ Football Analytics Platform
 
-A machine learning powered football intelligence dashboard for analysing team performance, player output, match predictions, and recruitment insights across English football.
+# Football Analytics Platform
 
-**[🚀 Live Demo](https://daniel237-football-analytics.streamlit.app)** · **[GitHub](https://github.com/daniel-237/sports-analytics)**
+An interactive football analytics platform for match prediction, player analysis, squad profiling, recruitment shortlisting, and league table simulation.
 
----
+The project combines historical football data, machine learning, engineered team-strength features, external football API integrations, and a Streamlit dashboard to turn raw football datasets into practical scouting and performance insights.
 
-## Screenshots
-
-> Overview · Match Predictor · Player Comparison · Transfer Analysis
+**Live app:** https://daniel237-football-analytics.streamlit.app/  
+**Repository:** https://github.com/daniel-237/sports-analytics
 
 ---
 
-## Problem Statement
+## Overview
 
-Football clubs, analysts, and enthusiasts need tools to make sense of decades of match data. This platform turns 30 years of English football into actionable insights — predicting match outcomes, comparing players, identifying hidden gems, and analysing team weaknesses.
+Football decisions are often made under uncertainty. Match outcomes depend on form, team strength, injuries, squad quality, home advantage, and random variation. This project explores how football data can be structured, engineered, modelled, and visualised to support better analysis.
+
+The dashboard is designed around realistic football-analysis workflows:
+
+- Predicting match outcomes using machine learning probabilities
+- Comparing players using per-90 statistics and performance scoring
+- Analysing team form, squad strength, and predicted lineups
+- Building recruitment shortlists based on position, role, age, minutes, and performance data
+- Simulating league tables using current standings and remaining fixtures
+- Integrating external football APIs for standings, fixtures, injuries, and lineups
 
 ---
 
-## Features
+## Core Features
 
-| Page | Description |
+| Area | Feature | Description |
+|---|---|---|
+| Match prediction | Match Predictor | Predicts Home Win, Draw, or Away Win using historical match features and model probabilities |
+| Team strength | Elo ratings | Adds team-strength ratings to improve match context and model explainability |
+| Explainability | SHAP explanations | Shows which factors push an individual prediction towards a specific outcome |
+| Player analytics | Player Stats | Filters players by league, season, team, position, minutes, goals, assists, and defensive metrics |
+| Player comparison | Head-to-head comparison | Compares two players using attacking, creative, defensive, and performance indicators |
+| Team analysis | Squad and form analysis | Reviews team form, player output, predicted XI, recent matches, and squad-level KPIs |
+| Availability | Injury-aware predicted lineups | Excludes unavailable players from predicted lineups when injury data is available |
+| Recruitment | Shortlist Builder | Ranks realistic recruitment targets by position, role fit, performance score, age, and minutes |
+| League forecasting | League Simulator | Simulates remaining fixtures to estimate title, top-four, top-six, and relegation probabilities |
+| Data pipeline | API integrations | Pulls standings, fixtures, results, injuries, and lineups from football-data.org and API-Football |
+
+---
+
+## Dashboard Pages
+
+### Home
+
+A landing page summarising the project, available data, key metrics, and the main analysis workflows.
+
+### Overview
+
+A high-level view of match coverage, outcome distribution, goal trends, league filters, and historical match patterns.
+
+### Match Predictor
+
+Select a home and away team to generate outcome probabilities. The model uses engineered features such as recent scoring form, conceded goals, clean-sheet rates, failed-to-score rates, points form, Elo strength, streaks, and head-to-head history.
+
+The page also includes model explanation output where available, helping users understand what influenced a prediction.
+
+### Player Stats
+
+Search and filter player data by league, season, team, position, and minutes. Includes attacking, creative, defensive, and per-90 metrics.
+
+### Player Comparison
+
+Compares two players side by side using key football metrics. Designed to make player profiles easier to understand beyond raw goals and assists.
+
+### Team Analysis
+
+Analyses team performance, recent form, player output, and squad structure. Includes predicted starting XI functionality with injury-aware filtering when injury data is available.
+
+### League Simulator
+
+Uses current league standings and upcoming fixtures to simulate the rest of a season. Outputs expected points, expected finish, title probability, top-four probability, top-six probability, and bottom-three risk.
+
+### Transfer Analysis
+
+Includes scouting views, hidden gems, team weakness analysis, and a Recruitment Shortlist Builder that ranks candidates by realistic role fit.
+
+### Model Performance
+
+Shows model accuracy, confusion matrix, classification metrics, feature importance, and limitations.
+
+---
+
+## Machine Learning
+
+### Model Type
+
+The match predictor uses a supervised multiclass classification model to predict:
+
+- Home Win
+- Draw
+- Away Win
+
+The project currently uses XGBoost for the main match-prediction model.
+
+### Feature Engineering
+
+The project includes engineered football features such as:
+
+- Recent home and away scoring form
+- Recent goals conceded
+- Shots and shots-on-target form where available
+- Points form over 5 and 10 matches
+- Win rate
+- Clean-sheet rate
+- Failed-to-score rate
+- Home and away team Elo ratings
+- Elo difference
+- Attack and defence strength
+- Season stage
+- Head-to-head history
+
+### Explainability
+
+SHAP explanations are used where the model pipeline supports them. This helps show which features contributed most strongly to a particular prediction.
+
+### Evaluation Approach
+
+The model is evaluated using classification metrics such as:
+
+- Accuracy
+- Precision
+- Recall
+- F1 score
+- Confusion matrix
+- Feature importance
+
+Football is inherently difficult to predict. The aim is not perfect accuracy, but to build a realistic, explainable, data-driven model that performs better than naive baselines and exposes uncertainty in match outcomes.
+
+---
+
+## Recruitment Shortlist Builder
+
+The recruitment module is designed to resemble a practical scouting workflow.
+
+Users can filter by:
+
+- Buying club league level
+- Position group
+- Specific role
+- Maximum age
+- Minimum minutes
+- Minimum performance score
+- Candidate league
+
+The shortlist ranks players using a role-fit score from 0 to 100.
+
+Example roles include:
+
+| Position group | Roles |
 |---|---|
-| ⚽ Overview | 55,143 matches across 5 leagues and 29 seasons with dynamic insight cards |
-| 🔮 Match Predictor | XGBoost model predicting Home Win / Draw / Away Win with confidence scores |
-| 👤 Player Stats | Goals, assists, cards, ratings with search and per 90 filtering |
-| ⚔️ Player Comparison | Radar charts, percentile rankings, and cosine similarity player finder |
-| 🏟️ Team Analysis | Form, home vs away splits, goals trend, and team strength profiles |
-| 💰 Transfer Analysis | Attack vs defence scatter, hidden gems, scouting shortlist builder |
+| Goalkeeper | Sweeper Keeper, Shot Stopper |
+| Defender | Centre Back, Ball Playing Defender, Full Back, Wing Back, Inverted Full Back |
+| Midfielder | Defensive Midfielder, Ball Winning Midfielder, Deep Lying Playmaker, Box to Box Midfielder, Advanced Playmaker, Attacking Midfielder |
+| Forward | Winger, Inside Forward, Advanced Forward, Complete Forward, Pressing Forward, Poacher |
+
+The module also applies realism rules so recommendations better match the buying club level.
+
+---
+
+## League Table Simulator
+
+The League Simulator uses current standings and upcoming fixtures to estimate final league outcomes.
+
+For each simulation round, the remaining fixtures are played out using model probabilities or fallback probabilities. The final table is then recorded. Repeating this process many times creates estimated probabilities for outcomes such as:
+
+- Winning the league
+- Finishing in the top four
+- Finishing in the top six
+- Finishing in the bottom three
+- Expected final points
+- Expected finishing position
+
+If no upcoming fixtures are available for a selected competition and season, the simulator still displays the current table but cannot meaningfully change the final probabilities.
+
+---
+
+## Data Sources
+
+| Source | Usage |
+|---|---|
+| football-data.co.uk | Historical match results across leagues and seasons |
+| football-data.org | Current standings, upcoming fixtures, and latest results |
+| API-Football / API-SPORTS | Fixtures, standings, injuries, and lineup data |
+| FBref exports | Player standard, shooting, and defensive statistics where available |
+
+---
+
+## Data Pipeline
+
+The project includes scripts for collecting and refreshing data.
+
+### football-data.org update
+
+```bash
+python scripts/update_football_data_api.py
+```
+
+This reads `FOOTBALL_DATA_API_KEY` from `.env` and saves:
+
+- `data/processed/current_tables.csv`
+- `data/processed/upcoming_fixtures.csv`
+- `data/processed/latest_results.csv`
+
+### API-Football update
+
+```bash
+python scripts/update_api_football_data.py
+```
+
+This reads `API_FOOTBALL_KEY` from `.env` and saves:
+
+- `data/processed/api_football_fixtures.csv`
+- `data/processed/api_football_standings.csv`
+- `data/processed/api_football_injuries.csv`
+- `data/processed/api_football_lineups.csv`
+
+### Model training
+
+```bash
+python scripts/train_model.py
+```
+
+This trains the match prediction model and updates the saved model and metrics files.
 
 ---
 
@@ -36,155 +233,102 @@ Football clubs, analysts, and enthusiasts need tools to make sense of decades of
 
 | Tool | Purpose |
 |---|---|
-| Python 3.14 | Core language |
-| Pandas | Data manipulation and feature engineering |
-| Scikit-learn | Preprocessing, model evaluation, cosine similarity |
-| XGBoost | Match outcome prediction model |
+| Python | Core programming language |
 | Streamlit | Interactive web dashboard |
-| Plotly | Charts and radar visualisations |
-| football-data.org API | Live Premier League match data |
-| api-football.com | Player statistics |
-| football-data.co.uk | 30 years of historical match CSVs |
+| Pandas | Data cleaning, transformation, and feature engineering |
+| NumPy | Numerical processing |
+| Scikit-learn | Model evaluation, preprocessing, similarity scoring |
+| XGBoost | Match outcome prediction |
+| SHAP | Model explainability |
+| Plotly | Interactive visualisations |
+| Requests | API calls |
+| python-dotenv | Environment variable management |
+| Joblib | Model persistence |
 
 ---
 
-## Dataset
+## Local Setup
 
-- **Source:** football-data.co.uk, football-data.org API, api-football.com
-- **Coverage:** 1993/94 to 2023/24
-- **Leagues:** Premier League, Championship, League One, League Two, National League
-- **Total matches:** 55,143
-- **Teams:** 157
-- **Seasons:** 29
-- **Player data:** Premier League 2023/24 via API Football (100 req/day free tier)
-
-### Data Cleaning
-- Removed rows with missing scorelines
-- Standardised team names across seasons
-- Converted date formats to datetime
-- Filled missing form stats with rolling league averages
-- Excluded matches with status other than FINISHED
-
-### Known Limitations
-- Injuries and lineups are not included
-- Transfers mid-season are not accounted for
-- Some seasons have gaps due to missing source data
-- Player data is limited to 60 players on the free API tier
-- Weather and tactical changes are not modelled
-
----
-
-## Machine Learning
-
-### Model
-XGBoost multi-class classifier predicting three outcomes: Home Win, Draw, Away Win.
-
-### Features
-| Feature | Description |
-|---|---|
-| home_form | Rolling 5-game avg goals scored at home |
-| away_form | Rolling 5-game avg goals scored away |
-| home_conceded_form | Rolling 5-game avg goals conceded at home |
-| away_conceded_form | Rolling 5-game avg goals conceded away |
-| home_shots_form | Rolling 5-game avg shots at home |
-| away_shots_form | Rolling 5-game avg shots away |
-
-### Train / Test Split
-Chronological split — trained on seasons up to 2021, tested on 2022 onwards. This simulates real-world prediction where future matches are unknown.
-
-### Model Performance
-| Metric | Score |
-|---|---|
-| Accuracy | 44.7% |
-| Baseline (always predict home win) | 33.3% |
-| Home Win Recall | 86% |
-
-### Why XGBoost?
-- Handles non-linear relationships between features
-- Robust to missing values
-- Faster and more accurate than Random Forest on this dataset
-- Industry standard for tabular sports prediction
-
-### Why Not 100% Accuracy?
-Football is genuinely unpredictable. Even professional betting models with GPS tracking, heart rate data, and tactical analysis sit at 60-65%. A model beating 33% random baseline on real historical data is meaningful.
-
----
-
-## App Pages
-
-### ⚽ Overview
-High-level stats with dynamic insight cards. League filter applies across all charts. Shows match outcome distribution, goals per season trend, and matches per league.
-
-### 🔮 Match Predictor
-Select any two teams. The model returns Home Win / Draw / Away Win probabilities. Shows recent form for both teams alongside the prediction.
-
-### 👤 Player Stats
-Top scorers, assisters, and disciplinary records. Player search returns a dedicated profile when exactly one player matches. Full stats table sortable by any column.
-
-### ⚔️ Player Comparison
-Select any two players. Radar chart shows percentile rankings across 6 dimensions. Cosine similarity engine finds the 5 most similar players in the dataset.
-
-### 🏟️ Team Analysis
-Select any team across any league. Shows home vs away performance, last 5 matches form, and goals per season bar chart. Insight cards summarise win rate and goal difference automatically.
-
-### 💰 Transfer Analysis
-Attack vs defence scatter plot across all teams. Hover for team details, search to highlight a specific team. Top 10 attack and defence tables included.
-
----
-
-## How To Run Locally
+### 1. Clone the repository
 
 ```bash
-git clone https://github.com/daniel-237/sports-analytics
+git clone https://github.com/daniel-237/sports-analytics.git
 cd sports-analytics
+```
+
+### 2. Create a virtual environment
+
+Windows PowerShell:
+
+```powershell
 python -m venv venv
-venv\Scripts\activate
+.\\venv\\Scripts\\Activate.ps1
+```
+
+macOS/Linux:
+
+```bash
+python -m venv venv
+source venv/bin/activate
+```
+
+### 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-Create a `.env` file:
-```
-FOOTBALL_API_KEY=your_key
-APIFOOTBALL_KEY=your_key
+### 4. Create a `.env` file
+
+```env
+FOOTBALL_DATA_API_KEY=your_football_data_org_key
+API_FOOTBALL_KEY=your_api_football_key
 ```
 
-Fetch data:
-```bash
-python src/download_historical.py
-python src/data_ingestion.py
-python src/feature_engineering.py
-python src/model.py
-python src/player_stats.py
-```
+Never commit `.env` to GitHub.
 
-Run the dashboard:
+### 5. Run the dashboard
+
 ```bash
-streamlit run src/dashboard.py
+python -m streamlit run src/dashboard.py
 ```
 
 ---
 
-## Folder Structure
+## Project Structure
 
-```
+```text
 sports-analytics/
 ├── data/
-│   ├── raw/                  # Downloaded CSVs
-│   └── processed/            # Cleaned and engineered data
+│   ├── raw/
+│   └── processed/
+│       ├── matches_clean.csv
+│       ├── player_stats.csv
+│       ├── current_tables.csv
+│       ├── upcoming_fixtures.csv
+│       ├── api_football_fixtures.csv
+│       ├── api_football_standings.csv
+│       ├── api_football_injuries.csv
+│       └── api_football_lineups.csv
 ├── models/
-│   └── match_predictor.pkl   # Saved XGBoost model
-├── notebooks/                # Exploratory analysis
+│   ├── match_predictor.pkl
+│   └── metrics.json
+├── scripts/
+│   ├── train_model.py
+│   ├── add_elo_features.py
+│   ├── update_football_data_api.py
+│   ├── update_api_football_data.py
+│   └── merge_fbref_into_player_stats.py
 ├── src/
-│   ├── dashboard.py          # Streamlit app
-│   ├── data_ingestion.py     # API data fetching
-│   ├── download_historical.py# Historical CSV download
-│   ├── feature_engineering.py# Feature creation
-│   ├── model.py              # Model training
-│   └── player_stats.py       # Player data fetching
-├── .env                      # API keys (not committed)
-├── .gitignore
+│   ├── dashboard.py
+│   ├── prediction.py
+│   ├── league_simulation.py
+│   ├── feature_engineering.py
+│   ├── config.py
+│   └── utils.py
 ├── requirements.txt
-└── README.md
+├── README.md
+└── .gitignore
 ```
 
 ---
@@ -193,45 +337,57 @@ sports-analytics/
 
 | Decision | Reason |
 |---|---|
-| Streamlit over Flask/Django | Faster iteration for data dashboards, no frontend code needed |
-| XGBoost over Random Forest | Better performance on tabular data, handles missing values natively |
-| Chronological train/test split | Simulates real prediction — future matches must be unknown to the model |
-| Rolling averages over season totals | Captures recent form rather than cumulative bias |
-| Per 90 stats over raw totals | Fairer comparison across players with different minutes |
-| Cosine similarity for player matching | Efficient, interpretable, and works well on scaled stat vectors |
+| Streamlit dashboard | Fast development of a data-focused interactive product |
+| Chronological model evaluation | Prevents future data leaking into earlier predictions |
+| Elo ratings | Adds interpretable team-strength context |
+| Per-90 player metrics | Makes comparisons fairer across different playing time |
+| Role-based recruitment scoring | Makes scouting recommendations more useful than generic rankings |
+| API fallback strategy | Keeps the dashboard usable when one API source is unavailable or rate-limited |
+| SHAP explanations | Makes model predictions more transparent |
+| Cached data loading | Improves Streamlit performance on large CSV files |
 
 ---
 
-## Key Learnings
+## Known Limitations
 
-- Football prediction is genuinely hard — draws are nearly impossible to predict reliably
-- Feature engineering matters more than model choice for sports data
-- Chronological splits are essential for time-series sports models
-- Rolling averages of 5 games capture form better than season averages
-- Per 90 stats change player rankings significantly compared to raw totals
+- Match predictions do not include tactical formations, weather, live betting markets, or breaking news.
+- Injury and lineup data depends on API coverage and rate limits.
+- Player data quality depends on the availability and completeness of the uploaded/statistical source files.
+- League simulations are only meaningful when upcoming fixtures are available for the selected competition and season.
+- Some defensive metrics such as blocks, clearances, and errors may be sparse depending on the data source.
+- Football contains a high level of randomness, so probabilities should be treated as decision-support signals rather than certainties.
 
 ---
 
 ## Future Improvements
 
-- Add xG (expected goals) as a feature
-- Add Elo ratings for team strength
-- Add lineup and injury data
-- Add SHAP explanations for individual predictions
-- Add a recruitment shortlist builder
-- Add league table probability predictions
-- Automate daily data updates
+- Add expected goals (xG) data as a feature
+- Add automated daily data refresh
+- Add GitHub Actions CI checks
 - Add Docker containerisation
-- Add CI/CD pipeline with GitHub Actions
+- Add better screenshot documentation
+- Add more robust player identity matching across data sources
+- Expand API coverage to more leagues and competitions
+- Add downloadable scouting reports
 
 ---
 
-## Data Sources
+## Skills Demonstrated
 
-- [football-data.co.uk](https://www.football-data.co.uk) — Historical match results
-- [football-data.org](https://www.football-data.org) — Live Premier League API
-- [api-football.com](https://www.api-football.com) — Player statistics API
+- Python software development
+- Data cleaning and feature engineering
+- Machine learning model training and evaluation
+- Model explainability
+- Dashboard development with Streamlit
+- API integration
+- Sports analytics
+- Recruitment analytics
+- Data visualisation
+- Git and GitHub workflow
+- Practical handling of missing, stale, or incomplete data
 
 ---
 
-*Built by Daniel Olutade*
+## Author
+
+Built by Daniel Olutade.
