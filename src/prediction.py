@@ -1,8 +1,16 @@
+import numpy as np
 import pandas as pd
 
 from src.config import MODEL_FEATURES
 from src.feature_engineering import build_match_features
 from src.utils import safe_mean
+
+try:
+    import shap
+    SHAP_AVAILABLE = True
+except Exception:
+    shap = None
+    SHAP_AVAILABLE = False
 
 
 def model_class_name(value, metrics: dict | None = None) -> str:
@@ -31,6 +39,105 @@ def get_expected_model_features(model, metrics: dict | None = None) -> list[str]
         return list(metrics["model_features"])
 
     return MODEL_FEATURES
+
+
+def explain_prediction(model, features_df: pd.DataFrame, metrics: dict | None = None, top_n: int = 6):
+    if not SHAP_AVAILABLE:
+        return None
+
+    try:
+        model_features = get_expected_model_features(model, metrics)
+
+        X = features_df.copy()
+        if isinstance(X, pd.Series):
+            X = pd.DataFrame([X])
+        X = X.reindex(columns=model_features, fill_value=0.0)
+
+        explainer_model = model
+        try:
+            if hasattr(model, "named_steps") and isinstance(model.named_steps, dict) and model.named_steps:
+                explainer_model = list(model.named_steps.values())[-1]
+            elif hasattr(model, "steps") and isinstance(model.steps, list) and model.steps:
+                explainer_model = model.steps[-1][1]
+        except Exception:
+            explainer_model = model
+
+        try:
+            probs = model.predict_proba(X)[0]
+            pred_index = int(np.argmax(probs))
+        except Exception:
+            pred_index = 0
+
+        shap_vals_obj = None
+        try:
+            expl = shap.TreeExplainer(explainer_model)
+            shap_vals_obj = expl.shap_values(X)
+        except Exception:
+            try:
+                expl = shap.Explainer(explainer_model, X)
+                shap_vals_obj = expl(X)
+            except Exception:
+                return None
+
+        if isinstance(shap_vals_obj, list):
+            if pred_index >= len(shap_vals_obj):
+                return None
+            selected = np.array(shap_vals_obj[pred_index])
+            if selected.ndim == 2 and selected.shape[0] == 1:
+                shap_values = selected[0]
+            elif selected.ndim == 1:
+                shap_values = selected
+            else:
+                return None
+        else:
+            arr = np.array(getattr(shap_vals_obj, "values", shap_vals_obj))
+            if arr.ndim == 3:
+                if arr.shape[1] == len(model_features) and pred_index < arr.shape[2]:
+                    shap_values = arr[0, :, pred_index]
+                elif arr.shape[2] == len(model_features) and pred_index < arr.shape[1]:
+                    shap_values = arr[0, pred_index, :]
+                else:
+                    return None
+            elif arr.ndim == 2:
+                if arr.shape[0] == 1 and arr.shape[1] == len(model_features):
+                    shap_values = arr[0]
+                elif arr.shape[1] == len(model_features):
+                    shap_values = arr[0]
+                else:
+                    return None
+            elif arr.ndim == 1 and arr.shape[0] == len(model_features):
+                shap_values = arr
+            else:
+                return None
+
+        if len(shap_values) != len(model_features):
+            return None
+
+        rows = []
+        for i, feature_name in enumerate(model_features):
+            rows.append(
+                {
+                    "feature": feature_name,
+                    "feature_value": float(X.iloc[0].get(feature_name, 0.0)),
+                    "shap_value": float(shap_values[i]),
+                }
+            )
+
+        df = pd.DataFrame(rows)
+        human_map = {
+            "elo_diff": "Team strength difference",
+            "home_elo": "Home team Elo",
+            "away_elo": "Away team Elo",
+            "home_points_form5": "Home recent form",
+            "away_points_form5": "Away recent form",
+            "home_goals_form": "Home attacking form",
+            "away_goals_form": "Away attacking form",
+        }
+        df["human_name"] = df["feature"].map(human_map).fillna(df["feature"])
+
+        return {"predicted_class_index": pred_index, "feature_shap": df}
+    except Exception:
+        return None
 
 
 def prepare_prediction_frame(frame: pd.DataFrame) -> pd.DataFrame:

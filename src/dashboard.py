@@ -15,7 +15,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 import streamlit.components.v1 as components
-from src.prediction import predict_match, latest_team_elo
+from src.prediction import explain_prediction, latest_team_elo, predict_match
 from src.utils import format_season, sorted_seasons
 
 
@@ -2972,6 +2972,47 @@ elif page == "🔮  Match Predictor":
 
         for reason in reasons:
             st.markdown(reason)
+
+        explanation = None
+        try:
+            features_for_explain = prediction.get("explanation_features", prediction.get("features")) if isinstance(prediction, dict) else None
+            if features_for_explain is not None:
+                explanation = explain_prediction(model, features_for_explain, metrics)
+        except Exception:
+            explanation = None
+
+        if explanation is None:
+            st.info("Model explanation is not available.")
+        else:
+            df_ex = explanation.get("feature_shap") if isinstance(explanation, dict) else None
+            if df_ex is None or df_ex.empty:
+                st.info("Model explanation is not available.")
+            else:
+                pos = df_ex[df_ex["shap_value"] > 0].sort_values("shap_value", ascending=False).head(6)
+                neg = df_ex[df_ex["shap_value"] < 0].sort_values("shap_value").head(6)
+
+                colp, coln = st.columns(2)
+                with colp:
+                    st.markdown("**Positive contributors**")
+                    if pos.empty:
+                        st.write("None")
+                    else:
+                        pos_disp = pos[["human_name", "feature_value", "shap_value"]].rename(
+                            columns={"human_name": "Feature", "feature_value": "Value", "shap_value": "Contribution"}
+                        )
+                        st.dataframe(pos_disp, use_container_width=True, hide_index=True)
+
+                with coln:
+                    st.markdown("**Negative contributors**")
+                    if neg.empty:
+                        st.write("None")
+                    else:
+                        neg_disp = neg[["human_name", "feature_value", "shap_value"]].rename(
+                            columns={"human_name": "Feature", "feature_value": "Value", "shap_value": "Contribution"}
+                        )
+                        st.dataframe(neg_disp, use_container_width=True, hide_index=True)
+
+                st.markdown("Positive values pushed the model towards this prediction, while negative values pushed against it.")
 
         st.divider()
         st.subheader("Feature Snapshot")
