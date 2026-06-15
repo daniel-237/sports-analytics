@@ -29,11 +29,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Compile source files
+      - name: Compile source and scripts
         run: |
           python -m compileall src scripts
 
-      - name: Check required project files
+      - name: Check required files
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -45,6 +45,9 @@ jobs:
               "scripts/update_all_data.py",
               "requirements.txt",
               "README.md",
+              "Dockerfile",
+              "docker-compose.yml",
+              ".dockerignore",
           ]
 
           missing = [path for path in required_files if not Path(path).exists()]
@@ -54,3 +57,16 @@ jobs:
 
           print("Required project files found.")
           PY
+
+  docker-build:
+    name: Docker build
+    runs-on: ubuntu-latest
+    needs: python-checks
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t football-analytics:test .
