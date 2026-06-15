@@ -3809,294 +3809,397 @@ elif page == "📊  League Simulator":
 
 elif page == "💰  Transfer Analysis":
     st.markdown("# Transfer & Scouting")
-    st.markdown("Find hidden gems, analyse team weaknesses, score role fit and build recruitment shortlists.")
+    st.markdown("Build realistic recruitment shortlists, compare role fit and identify squad needs from player performance data.")
     st.divider()
 
-    if players is None:
+    if players is None or players.empty:
         st.error("Player data is not available. Add data/processed/player_stats.csv first.")
         st.stop()
 
-    role_profiles = {
-        "Advanced Forward": {"goals_p90": 3.0, "shots_p90": 1.7, "sot_p90": 1.7, "contrib_p90": 1.0, "performance_score": 0.8},
-        "Poacher": {"goals_p90": 3.5, "sot_p90": 2.0, "shots_p90": 1.5, "performance_score": 0.6},
-        "Complete Forward": {"goals_p90": 2.4, "assists_p90": 1.4, "shots_p90": 1.2, "contrib_p90": 1.6, "performance_score": 1.0},
-        "False 9": {"assists_p90": 2.0, "key_passes": 1.8, "progressive_passes": 1.4, "contrib_p90": 1.2, "performance_score": 1.0},
-        "Target Forward": {"goals_p90": 2.0, "duels_won": 1.5, "assists_p90": 0.8, "performance_score": 1.0},
-        "Pressing Forward": {"goals_p90": 1.8, "tackles_p90": 1.2, "contrib_p90": 1.1, "performance_score": 0.9},
-        "Deep Lying Forward": {"assists_p90": 1.8, "key_passes": 1.5, "contrib_p90": 1.4, "performance_score": 1.0},
-        "Inside Forward": {"goals_p90": 2.4, "shots_p90": 1.7, "dribbles": 1.4, "contrib_p90": 1.2, "performance_score": 0.8},
-        "Inverted Winger": {"assists_p90": 1.8, "key_passes": 1.8, "dribbles": 1.5, "progressive_carries": 1.2, "performance_score": 0.8},
-        "Winger": {"assists_p90": 1.8, "crosses": 1.8, "dribbles": 1.5, "key_passes": 1.2, "performance_score": 0.8},
-        "Wide Playmaker": {"assists_p90": 1.8, "key_passes": 2.0, "progressive_passes": 1.5, "performance_score": 1.0},
-        "Advanced Playmaker": {"assists_p90": 1.8, "key_passes": 2.0, "progressive_passes": 1.8, "pass_accuracy": 1.0, "performance_score": 1.0},
-        "Deep Lying Playmaker": {"progressive_passes": 2.0, "pass_accuracy": 1.8, "interc_p90": 0.8, "performance_score": 1.0},
-        "Box to Box Midfielder": {"tackles_p90": 1.4, "interc_p90": 1.2, "progressive_passes": 1.0, "contrib_p90": 0.8, "performance_score": 1.0},
-        "Ball Winning Midfielder": {"tackles_p90": 2.2, "interc_p90": 1.8, "duels_won": 1.2, "performance_score": 0.8},
-        "Defensive Midfielder": {"tackles_p90": 1.8, "interc_p90": 1.8, "pass_accuracy": 1.0, "performance_score": 0.8},
-        "Anchor": {"interc_p90": 2.0, "tackles_p90": 1.8, "pass_accuracy": 1.0, "performance_score": 0.8},
-        "Half Back": {"interc_p90": 1.8, "tackles_p90": 1.4, "pass_accuracy": 1.4, "performance_score": 0.9},
-        "Mezzala": {"contrib_p90": 1.1, "progressive_carries": 1.5, "key_passes": 1.2, "performance_score": 1.0},
-        "Carrilero": {"tackles_p90": 1.2, "interc_p90": 1.2, "pass_accuracy": 1.2, "performance_score": 0.9},
-        "Ball Playing Defender": {"tackles_p90": 1.3, "interc_p90": 1.4, "pass_accuracy": 1.2, "progressive_passes": 1.0, "performance_score": 1.0},
-        "Central Defender": {"tackles_p90": 1.8, "interc_p90": 1.8, "duels_won": 1.5, "performance_score": 1.0},
-        "No Nonsense Centre Back": {"tackles_p90": 2.0, "interc_p90": 1.8, "duels_won": 1.8, "performance_score": 0.8},
-        "Libero": {"progressive_passes": 1.8, "pass_accuracy": 1.4, "interc_p90": 1.0, "performance_score": 1.0},
-        "Full Back": {"tackles_p90": 1.5, "interc_p90": 1.2, "crosses": 1.0, "assists_p90": 0.8, "performance_score": 0.8},
-        "Wing Back": {"crosses": 1.8, "assists_p90": 1.2, "tackles_p90": 1.0, "progressive_carries": 1.0, "performance_score": 0.8},
-        "Inverted Full Back": {"pass_accuracy": 1.6, "progressive_passes": 1.4, "tackles_p90": 1.2, "interc_p90": 1.0, "performance_score": 0.8},
-        "Sweeper Keeper": {"saves": 2.0, "pass_accuracy": 1.5, "clean_sheets": 1.2, "performance_score": 1.0},
-        "Shot Stopper": {"saves": 2.4, "clean_sheets": 1.2, "goals_against": -1.0, "performance_score": 1.0},
+    recruitment_data = players.copy()
+
+    def ensure_recruitment_columns(frame: pd.DataFrame) -> pd.DataFrame:
+        frame = frame.copy()
+        defaults = {
+            "name": "Unknown Player",
+            "team": "Unknown Team",
+            "competition": "Unknown League",
+            "position": "Unknown Position",
+            "nationality": "Unknown",
+            "age": 0,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "performance_score": 0,
+            "attacking_score": 0,
+            "creative_score": 0,
+            "defensive_score": 0,
+            "goals_p90": 0,
+            "assists_p90": 0,
+            "shots_p90": 0,
+            "sot_p90": 0,
+            "tackles_p90": 0,
+            "tackles_won_p90": 0,
+            "interc_p90": 0,
+            "blocks_p90": 0,
+            "clearances_p90": 0,
+            "errors_p90": 0,
+            "contrib_p90": 0,
+            "key_passes": 0,
+            "progressive_passes": 0,
+            "progressive_carries": 0,
+            "crosses": 0,
+            "dribbles": 0,
+            "duels_won": 0,
+            "pass_accuracy": 0,
+            "clean_sheets": 0,
+            "saves": 0,
+            "goals_against": 0,
+        }
+        for column, default in defaults.items():
+            if column not in frame.columns:
+                frame[column] = default
+        numeric = [column for column in defaults if column not in {"name", "team", "competition", "position", "nationality"}]
+        for column in numeric:
+            frame[column] = pd.to_numeric(frame[column], errors="coerce").fillna(0)
+        frame["position_group"] = frame["position"].apply(player_position_group)
+        return frame
+
+    recruitment_data = ensure_recruitment_columns(recruitment_data)
+
+    role_options = {
+        "Goalkeeper": ["Sweeper Keeper", "Shot Stopper"],
+        "Defender": ["Centre Back", "Ball Playing Defender", "Full Back", "Wing Back", "Inverted Full Back"],
+        "Midfielder": ["Defensive Midfielder", "Ball Winning Midfielder", "Deep Lying Playmaker", "Box to Box Midfielder", "Advanced Playmaker", "Attacking Midfielder"],
+        "Forward": ["Winger", "Inside Forward", "Advanced Forward", "Complete Forward", "Pressing Forward", "Poacher"],
     }
 
-    role_groups = {
-        "Goalkeeper": ["Sweeper Keeper", "Shot Stopper"],
-        "Centre Back": ["Central Defender", "Ball Playing Defender", "No Nonsense Centre Back", "Libero"],
-        "Full Back / Wing Back": ["Full Back", "Wing Back", "Inverted Full Back"],
-        "Defensive Midfield": ["Defensive Midfielder", "Anchor", "Half Back", "Ball Winning Midfielder"],
-        "Central Midfield": ["Box to Box Midfielder", "Advanced Playmaker", "Deep Lying Playmaker", "Mezzala", "Carrilero"],
-        "Wide Forward / Winger": ["Winger", "Inverted Winger", "Inside Forward", "Wide Playmaker"],
-        "Striker": ["Advanced Forward", "Poacher", "Complete Forward", "False 9", "Target Forward", "Pressing Forward", "Deep Lying Forward"],
+    role_weights = {
+        "Sweeper Keeper": {"minutes": 0.20, "performance_score": 0.20, "defensive_score": 0.20, "saves": 0.15, "clean_sheets": 0.10, "pass_accuracy": 0.15},
+        "Shot Stopper": {"minutes": 0.18, "performance_score": 0.22, "defensive_score": 0.20, "saves": 0.25, "clean_sheets": 0.10, "goals_against": -0.05},
+        "Centre Back": {"defensive_score": 0.30, "minutes": 0.18, "performance_score": 0.18, "tackles_p90": 0.10, "interc_p90": 0.10, "blocks_p90": 0.07, "clearances_p90": 0.07, "errors_p90": -0.05},
+        "Ball Playing Defender": {"defensive_score": 0.24, "performance_score": 0.20, "minutes": 0.15, "pass_accuracy": 0.14, "progressive_passes": 0.12, "interc_p90": 0.08, "tackles_p90": 0.07, "errors_p90": -0.05},
+        "Full Back": {"defensive_score": 0.24, "performance_score": 0.18, "minutes": 0.15, "tackles_p90": 0.13, "interc_p90": 0.08, "assists_p90": 0.08, "crosses": 0.07, "progressive_carries": 0.07},
+        "Wing Back": {"attacking_score": 0.18, "creative_score": 0.18, "defensive_score": 0.18, "performance_score": 0.16, "minutes": 0.12, "assists_p90": 0.08, "crosses": 0.06, "progressive_carries": 0.04},
+        "Inverted Full Back": {"defensive_score": 0.22, "creative_score": 0.18, "performance_score": 0.18, "minutes": 0.14, "pass_accuracy": 0.12, "progressive_passes": 0.10, "interc_p90": 0.06},
+        "Defensive Midfielder": {"defensive_score": 0.26, "performance_score": 0.18, "minutes": 0.16, "tackles_p90": 0.14, "interc_p90": 0.14, "pass_accuracy": 0.08, "errors_p90": -0.04},
+        "Ball Winning Midfielder": {"defensive_score": 0.28, "tackles_p90": 0.20, "interc_p90": 0.16, "performance_score": 0.16, "minutes": 0.12, "duels_won": 0.08},
+        "Deep Lying Playmaker": {"creative_score": 0.26, "performance_score": 0.20, "minutes": 0.15, "progressive_passes": 0.15, "pass_accuracy": 0.12, "interc_p90": 0.07, "assists_p90": 0.05},
+        "Box to Box Midfielder": {"performance_score": 0.20, "creative_score": 0.18, "defensive_score": 0.18, "minutes": 0.15, "contrib_p90": 0.10, "tackles_p90": 0.09, "interc_p90": 0.06, "progressive_carries": 0.04},
+        "Advanced Playmaker": {"creative_score": 0.30, "performance_score": 0.18, "assists_p90": 0.14, "key_passes": 0.12, "progressive_passes": 0.10, "contrib_p90": 0.09, "minutes": 0.07},
+        "Attacking Midfielder": {"creative_score": 0.25, "attacking_score": 0.20, "performance_score": 0.16, "assists_p90": 0.12, "goals_p90": 0.10, "key_passes": 0.09, "contrib_p90": 0.08},
+        "Winger": {"creative_score": 0.24, "attacking_score": 0.20, "performance_score": 0.15, "assists_p90": 0.12, "crosses": 0.09, "dribbles": 0.08, "shots_p90": 0.06, "minutes": 0.06},
+        "Inside Forward": {"attacking_score": 0.28, "creative_score": 0.16, "performance_score": 0.16, "goals_p90": 0.15, "shots_p90": 0.10, "sot_p90": 0.08, "contrib_p90": 0.07},
+        "Advanced Forward": {"attacking_score": 0.32, "performance_score": 0.18, "goals_p90": 0.18, "shots_p90": 0.12, "sot_p90": 0.10, "contrib_p90": 0.07, "minutes": 0.03},
+        "Complete Forward": {"attacking_score": 0.25, "creative_score": 0.15, "performance_score": 0.20, "goals_p90": 0.14, "assists_p90": 0.10, "contrib_p90": 0.11, "minutes": 0.05},
+        "Pressing Forward": {"attacking_score": 0.24, "performance_score": 0.18, "goals_p90": 0.14, "tackles_p90": 0.14, "contrib_p90": 0.12, "minutes": 0.10, "sot_p90": 0.08},
+        "Poacher": {"attacking_score": 0.30, "goals_p90": 0.24, "sot_p90": 0.16, "shots_p90": 0.12, "performance_score": 0.12, "contrib_p90": 0.06},
     }
 
     role_position_patterns = {
-        "Goalkeeper": "GK|keeper",
-        "Centre Back": "CB|DF|defender|centre|center|back",
-        "Full Back / Wing Back": "FB|WB|LB|RB|DF|back",
-        "Defensive Midfield": "DM|MF|mid",
-        "Central Midfield": "CM|MF|mid",
-        "Wide Forward / Winger": "LW|RW|AM|FW|wing|attacker|forward",
-        "Striker": "ST|CF|FW|forward|striker|attacker",
+        "Goalkeeper": "GK|keeper|goalkeeper",
+        "Defender": "DF|CB|LB|RB|back|defender|centre|center",
+        "Midfielder": "MF|CM|DM|AM|mid",
+        "Forward": "FW|ST|CF|LW|RW|wing|forward|striker|attacker",
     }
 
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["🔍 Player Scouting", "💎 Hidden Gems", "🎯 Role Fit", "🏟️ Team Weaknesses", "📊 Attack vs Defence"])
+    def normalised_score(series: pd.Series, lower_is_better: bool = False) -> pd.Series:
+        numeric = pd.to_numeric(series, errors="coerce").fillna(0)
+        if numeric.nunique() <= 1:
+            return pd.Series(50.0, index=series.index)
+        scaled = ((numeric - numeric.min()) / (numeric.max() - numeric.min()) * 100).clip(0, 100)
+        if lower_is_better:
+            scaled = 100 - scaled
+        return scaled.fillna(50.0)
+
+    def calculate_role_fit(frame: pd.DataFrame, selected_role: str) -> pd.Series:
+        weights = role_weights.get(selected_role, {"performance_score": 1.0})
+        total = sum(abs(weight) for weight in weights.values())
+        if total <= 0:
+            return pd.Series(0.0, index=frame.index)
+        score = pd.Series(0.0, index=frame.index)
+        for column, weight in weights.items():
+            if column not in frame.columns:
+                values = pd.Series(0.0, index=frame.index)
+            else:
+                values = frame[column]
+            score += normalised_score(values, lower_is_better=weight < 0) * abs(weight)
+        age_boost = normalised_score(frame["age"], lower_is_better=True) * 0.05 if "age" in frame.columns else 0
+        return ((score / total) * 0.95 + age_boost).clip(0, 100).round(1)
+
+    def league_level(value: str) -> str:
+        label = display_competition(value).strip().lower()
+        if label in {"premier league", "la liga", "serie a", "bundesliga", "ligue 1"}:
+            return "elite"
+        if label in {"championship", "2. bundesliga", "segunda division", "serie b", "ligue 2"}:
+            return "upper"
+        if label in {"league one", "league two", "national league"}:
+            return "lower"
+        if value == "All":
+            return "mixed"
+        return "standard"
+
+    def apply_realism_rules(frame: pd.DataFrame, buying_league: str, buying_team: str | None) -> pd.DataFrame:
+        pool = frame.copy()
+        if buying_team and buying_team != "All":
+            pool = pool[pool["team"].astype(str) != str(buying_team)].copy()
+        level = league_level(buying_league)
+        if level == "elite":
+            filtered = pool[(pool["minutes"] >= 450) & (pool["performance_score"] >= 50)].copy()
+        elif level == "upper":
+            filtered = pool[(pool["age"] <= 29) & (pool["performance_score"] <= 92)].copy()
+        elif level == "lower":
+            filtered = pool[(pool["age"] <= 27) & (pool["performance_score"] <= 84)].copy()
+        elif level == "standard":
+            filtered = pool[(pool["age"] <= 30) | (pool["minutes"] <= 2200)].copy()
+        else:
+            filtered = pool.copy()
+        return filtered if not filtered.empty else pool
+
+    def shortlist_reason(row: pd.Series, selected_role: str, position_group: str) -> str:
+        if position_group == "Forward":
+            if "Winger" in selected_role:
+                return f"Strong wide profile: {row.get('assists_p90', 0):.2f} assists/90, {row.get('creative_score', 0):.1f} creativity, {row.get('attacking_score', 0):.1f} attacking score."
+            return f"Attacking output stands out: {row.get('goals_p90', 0):.2f} goals/90, {row.get('shots_p90', 0):.2f} shots/90, {row.get('attacking_score', 0):.1f} attacking score."
+        if position_group == "Midfielder":
+            return f"Balanced midfield fit: {row.get('creative_score', 0):.1f} creativity, {row.get('defensive_score', 0):.1f} defensive score, {row.get('minutes', 0):.0f} minutes."
+        if position_group == "Defender":
+            return f"Defensive profile fits: {row.get('defensive_score', 0):.1f} defensive score, {row.get('tackles_p90', 0):.2f} tackles/90, {row.get('interc_p90', 0):.2f} interceptions/90."
+        if position_group == "Goalkeeper":
+            return f"Goalkeeper fit based on availability, {row.get('minutes', 0):.0f} minutes and {row.get('performance_score', 0):.1f} performance score."
+        return f"Role fit is driven by a {row.get('performance_score', 0):.1f} performance score and {row.get('minutes', 0):.0f} minutes."
+
+    def prepare_display_table(frame: pd.DataFrame) -> pd.DataFrame:
+        table = frame.copy()
+        display = pd.DataFrame(
+            {
+                "Player": table["name"].astype(str),
+                "Team": table["team"].astype(str),
+                "League": table["competition"].astype(str).map(display_competition),
+                "Age": pd.to_numeric(table["age"], errors="coerce").fillna(0).round(0).astype(int),
+                "Position": table["position"].astype(str),
+                "Minutes": pd.to_numeric(table["minutes"], errors="coerce").fillna(0).round(0).astype(int),
+                "Performance Score": pd.to_numeric(table["performance_score"], errors="coerce").fillna(0).round(1),
+                "Role Fit Score": pd.to_numeric(table["role_fit_score"], errors="coerce").fillna(0).round(1),
+                "Key Reason": table["key_reason"].astype(str),
+            }
+        )
+        return display
+
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["🎯 Shortlist Builder", "🔍 Role Fit Explorer", "💎 Hidden Gems", "🏟️ Team Needs", "📊 Attack vs Defence"])
 
     with tab1:
         st.subheader("Recruitment Shortlist Builder")
-        st.markdown("Filter players by league and recruitment criteria to build a ranked shortlist.")
+        st.markdown("Find realistic targets by league level, position, role and performance profile.")
         st.divider()
 
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            scout_league = st.selectbox("League", PLAYER_LEAGUES, key="scout_league", format_func=display_competition)
-            scout_pool = latest_player_pool(scout_league)
-            scout_positions = ["All"] + sorted(scout_pool["position"].dropna().astype(str).unique().tolist()) if len(scout_pool) else ["All"]
-            scout_position = st.selectbox("Position", scout_positions, key="scout_position")
-        with col2:
-            min_age = st.number_input("Min Age", min_value=0, max_value=50, value=18, key="scout_min_age")
-            max_age = st.number_input("Max Age", min_value=0, max_value=50, value=28, key="scout_max_age")
-            min_minutes = st.number_input("Min Minutes Played", min_value=0, max_value=int(max(scout_pool["minutes"].max(), 90)) if len(scout_pool) else 90, value=90, step=90, key="scout_min_minutes")
-        with col3:
-            min_goals_p90 = st.number_input("Min Goals/90", min_value=0.0, max_value=5.0, value=0.0, step=0.05, key="scout_min_goals")
-            min_assists_p90 = st.number_input("Min Assists/90", min_value=0.0, max_value=5.0, value=0.0, step=0.05, key="scout_min_assists")
-            min_rating = st.number_input("Min Performance Score", min_value=0.0, max_value=100.0, value=0.0, step=1.0, key="scout_min_rating")
-        with col4:
-            scout_teams = ["All"] + sorted(scout_pool["team"].dropna().astype(str).unique().tolist())
-            scout_team = st.selectbox("Team", scout_teams, key="scout_team")
-            scout_nations = ["All"] + sorted(scout_pool["nationality"].dropna().astype(str).unique().tolist())
-            scout_nation = st.selectbox("Nationality", scout_nations, key="scout_nation")
+        filter_col1, filter_col2, filter_col3 = st.columns(3)
+        with filter_col1:
+            buying_league = st.selectbox("Buying club league", PLAYER_LEAGUES, key="shortlist_buying_league", format_func=display_competition)
+            buying_pool = filter_players(recruitment_data, buying_league, None) if buying_league != "All" else recruitment_data.copy()
+            buying_teams = ["All"] + sorted(buying_pool["team"].dropna().astype(str).unique().tolist()) if not buying_pool.empty else ["All"]
+            buying_team = st.selectbox("Buying club / team", buying_teams, key="shortlist_buying_team")
+            candidate_league = st.selectbox("Candidate league", PLAYER_LEAGUES, key="shortlist_candidate_league", format_func=display_competition)
+        with filter_col2:
+            target_group = st.selectbox("Target position group", list(role_options.keys()), key="shortlist_position_group")
+            specific_role = st.selectbox("Specific role", role_options[target_group], key=f"shortlist_role_{target_group}")
+            max_age = st.slider("Maximum age", min_value=16, max_value=40, value=28, step=1, key="shortlist_max_age")
+        with filter_col3:
+            max_minutes_value = int(max(pd.to_numeric(recruitment_data["minutes"], errors="coerce").fillna(0).max(), 90))
+            min_minutes = st.slider("Minimum minutes", min_value=0, max_value=max_minutes_value, value=min(450, max_minutes_value), step=90, key="shortlist_min_minutes")
+            min_performance = st.slider("Minimum performance score", min_value=0, max_value=100, value=45, step=1, key="shortlist_min_performance")
+            apply_realism = st.checkbox("Apply realistic recruitment filters", value=True, key="shortlist_realism")
 
-        if st.button("Build Shortlist →", key="build_shortlist"):
-            shortlist = scout_pool.copy()
-            if scout_position != "All":
-                shortlist = shortlist[shortlist["position"].astype(str) == scout_position]
-            if scout_team != "All":
-                shortlist = shortlist[shortlist["team"].astype(str) == scout_team]
-            if scout_nation != "All":
-                shortlist = shortlist[shortlist["nationality"].astype(str) == scout_nation]
-            shortlist = shortlist[(shortlist["age"] >= min_age) & (shortlist["age"] <= max_age) & (shortlist["minutes"] >= min_minutes) & (shortlist["goals_p90"] >= min_goals_p90) & (shortlist["assists_p90"] >= min_assists_p90) & (shortlist["performance_score"] >= min_rating)].copy()
-            if shortlist.empty:
-                st.warning("No players match your criteria. Relax the filters slightly.")
-            else:
-                score_cols = ["goals_p90", "assists_p90", "sot_p90", "tackles_p90", "interc_p90", "performance_score", "contrib_p90"]
-                if MinMaxScaler is not None and len(shortlist) > 1:
-                    scaled = MinMaxScaler().fit_transform(shortlist[score_cols].fillna(0))
-                    shortlist["score"] = (scaled.mean(axis=1) * 100).round(1)
-                else:
-                    shortlist["score"] = shortlist[score_cols].fillna(0).mean(axis=1).round(1)
-                shortlist = shortlist.sort_values("score", ascending=False)
-                display_cols = ["name", "team", "competition", "age", "position", "goals_p90", "assists_p90", "performance_score", "minutes", "score"]
-                insight_card("🎯", f"Found <b>{len(shortlist)}</b> players matching your criteria.")
-                st.dataframe(shortlist[display_cols], use_container_width=True, hide_index=True)
-                csv = shortlist[display_cols].to_csv(index=False)
-                st.download_button("⬇️ Download Shortlist CSV", data=csv, file_name="recruitment_shortlist.csv", mime="text/csv")
-                top = shortlist.iloc[0]
-                insight_card("⭐", f"Top recommendation: <b>{top['name']}</b> from <b>{top['team']}</b>. Score: <b>{top['score']}</b>/100.")
+        candidate_pool = recruitment_data.copy()
+        if candidate_league != "All":
+            candidate_pool = filter_players(candidate_pool, candidate_league, None)
+        pattern = role_position_patterns.get(target_group, "")
+        if pattern:
+            candidate_pool = candidate_pool[candidate_pool["position"].astype(str).str.contains(pattern, case=False, na=False)].copy()
+        candidate_pool = candidate_pool[(candidate_pool["age"] <= max_age) & (candidate_pool["minutes"] >= min_minutes) & (candidate_pool["performance_score"] >= min_performance)].copy()
+        if apply_realism:
+            candidate_pool = apply_realism_rules(candidate_pool, buying_league, buying_team)
+
+        if candidate_pool.empty:
+            st.warning("No players matched these recruitment filters. Lower the minutes, age or performance thresholds.")
+        else:
+            candidate_pool["role_fit_score"] = calculate_role_fit(candidate_pool, specific_role)
+            candidate_pool["key_reason"] = candidate_pool.apply(lambda row: shortlist_reason(row, specific_role, target_group), axis=1)
+            candidate_pool = candidate_pool.sort_values(["role_fit_score", "performance_score", "minutes"], ascending=False).head(100)
+            display_table = prepare_display_table(candidate_pool)
+
+            metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
+            metric_col1.metric("Shortlisted Players", len(display_table))
+            metric_col2.metric("Best Role Fit", f"{display_table['Role Fit Score'].max():.1f}/100")
+            metric_col3.metric("Average Age", f"{display_table['Age'].mean():.1f}")
+            metric_col4.metric("Avg Performance", f"{display_table['Performance Score'].mean():.1f}")
+
+            st.markdown("### Top Recommendations")
+            top_recommendations = candidate_pool.head(3).reset_index(drop=True)
+            card_cols = st.columns(3)
+            for idx, (_, row) in enumerate(top_recommendations.iterrows()):
+                with card_cols[idx]:
+                    st.markdown(
+                        f"""
+                        <div style='background:#f5f5f7;border-radius:20px;padding:22px;min-height:245px;border:1px solid #e0e0e5;'>
+                            <p style='font-size:13px;font-weight:700;color:#0071e3;margin:0 0 8px 0;'>#{idx + 1} Target</p>
+                            <h3 style='margin:0 0 8px 0;'>{html.escape(str(row.get('name', 'Unknown Player')))}</h3>
+                            <p class='small-muted' style='margin:0 0 12px 0;'>{html.escape(str(row.get('team', 'Unknown Team')))} · {html.escape(display_competition(row.get('competition', 'Unknown League')))}</p>
+                            <p style='font-size:28px;font-weight:800;margin:0 0 8px 0;'>{float(row.get('role_fit_score', 0)):.1f}/100</p>
+                            <p class='small-muted' style='margin:0;'>{html.escape(str(row.get('key_reason', 'Strong all-round profile.')))}</p>
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
+                    )
+
+            st.markdown("### Shortlist Preview")
+            st.dataframe(display_table.head(15), use_container_width=True, hide_index=True)
+            with st.expander("View full shortlist", expanded=False):
+                st.dataframe(display_table, use_container_width=True, hide_index=True)
 
     with tab2:
-        st.subheader("Hidden Gems Finder")
-        st.markdown("Find young, efficient or under-used players using the latest available player dataset.")
+        st.subheader("Role Fit Explorer")
+        st.markdown("Compare candidates for a specific role using the same scoring model as the shortlist builder.")
         st.divider()
-        gems_league = st.selectbox("League", PLAYER_LEAGUES, key="gems_league", format_func=display_competition)
-        gems_pool = latest_player_pool(gems_league)
-        gems_pool = gems_pool[gems_pool["minutes"] >= 90].copy()
-        if gems_pool.empty:
-            st.warning("No players found for this league.")
-        else:
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("**Best Under 23s**")
-                under_23 = gems_pool[gems_pool["age"] <= 23].copy()
-                under_23["score"] = (under_23["goals_p90"] * 2 + under_23["assists_p90"] * 1.5 + under_23["performance_score"] / 10).round(2)
-                st.dataframe(under_23.nlargest(10, "score")[["name", "team", "competition", "age", "goals_p90", "assists_p90", "performance_score", "score"]], use_container_width=True, hide_index=True)
-            with col2:
-                st.markdown("**High Output Low Minutes**")
-                hidden = gems_pool[gems_pool["minutes"] <= 900].copy()
-                hidden["score"] = (hidden["goals_p90"] * 2 + hidden["assists_p90"] * 1.5 + hidden["contrib_p90"]).round(2)
-                st.dataframe(hidden.nlargest(10, "score")[["name", "team", "competition", "minutes", "goals_p90", "assists_p90", "performance_score", "score"]], use_container_width=True, hide_index=True)
-
-    with tab3:
-        st.subheader("Role Fit Analysis")
-        st.markdown("Score players against role profiles using output, technical contribution and defensive activity.")
-        st.divider()
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
+        role_col1, role_col2, role_col3, role_col4 = st.columns(4)
+        with role_col1:
             role_league = st.selectbox("League", PLAYER_LEAGUES, key="role_league", format_func=display_competition)
-        with col2:
-            role_position = st.selectbox("Position", list(role_groups.keys()), key="role_position")
-        with col3:
-            selected_role = st.selectbox("Role", role_groups[role_position], key=f"role_select_{role_position}")
-        with col4:
-            role_min_minutes = st.number_input("Min Minutes", min_value=0, max_value=int(max(players["minutes"].max(), 90)), value=450, step=90, key="role_min_minutes")
+        with role_col2:
+            role_group = st.selectbox("Position group", list(role_options.keys()), key="role_group")
+        with role_col3:
+            selected_role = st.selectbox("Role", role_options[role_group], key=f"role_select_{role_group}")
+        with role_col4:
+            role_min_minutes = st.number_input("Min minutes", min_value=0, max_value=int(max(recruitment_data["minutes"].max(), 90)), value=450, step=90, key="role_min_minutes")
 
-        role_pool = latest_player_pool(role_league)
-        pattern = role_position_patterns.get(role_position, "")
+        role_pool = recruitment_data.copy() if role_league == "All" else filter_players(recruitment_data, role_league, None)
+        pattern = role_position_patterns.get(role_group, "")
         if pattern:
             role_pool = role_pool[role_pool["position"].astype(str).str.contains(pattern, case=False, na=False)].copy()
         role_pool = role_pool[role_pool["minutes"] >= role_min_minutes].copy()
         if role_pool.empty:
             st.warning("No players found for this role filter.")
         else:
-            weights = role_profiles[selected_role]
-            role_score = pd.Series(0.0, index=role_pool.index)
-            total_weight = 0.0
-            for column, weight in weights.items():
-                if column not in role_pool.columns:
-                    continue
-                values = pd.to_numeric(role_pool[column], errors="coerce").fillna(0)
-                normalised = (values - values.min()) / (values.max() - values.min()) if values.max() > values.min() else pd.Series(0.0, index=role_pool.index)
-                role_score += normalised * weight
-                total_weight += weight
-            role_pool["role_fit"] = ((role_score / total_weight) * 100).round(1) if total_weight else 0
-            role_pool["bargain_score"] = (role_pool["role_fit"] * 0.65 + (100 - role_pool["age"].clip(upper=35) * 2) * 0.15 + role_pool["performance_score"] * 0.2).round(1)
-            role_pool = role_pool.sort_values(["role_fit", "bargain_score"], ascending=False)
-            display_cols = ["name", "team", "competition", "position", "age", "minutes", "performance_score", "role_fit", "bargain_score"]
-            st.dataframe(role_pool[display_cols].head(30), use_container_width=True, hide_index=True)
+            role_pool["role_fit_score"] = calculate_role_fit(role_pool, selected_role)
+            role_pool["key_reason"] = role_pool.apply(lambda row: shortlist_reason(row, selected_role, role_group), axis=1)
+            role_pool = role_pool.sort_values(["role_fit_score", "performance_score", "minutes"], ascending=False).head(50)
+            st.dataframe(prepare_display_table(role_pool).head(25), use_container_width=True, hide_index=True)
             top = role_pool.iloc[0]
-            insight_card("🎯", f"Best role fit for <b>{selected_role}</b>: <b>{top['name']}</b> from <b>{top['team']}</b> with a <b>{top['role_fit']}</b>/100 score.")
+            insight_card("🎯", f"Best fit for <b>{selected_role}</b>: <b>{top['name']}</b> from <b>{top['team']}</b> with a <b>{top['role_fit_score']:.1f}</b>/100 score.")
+
+    with tab3:
+        st.subheader("Hidden Gems")
+        st.markdown("Find younger or underused players with strong output relative to minutes.")
+        st.divider()
+        gem_col1, gem_col2, gem_col3 = st.columns(3)
+        with gem_col1:
+            gem_league = st.selectbox("League", PLAYER_LEAGUES, key="gem_league", format_func=display_competition)
+        with gem_col2:
+            gem_max_age = st.slider("Max age", min_value=16, max_value=35, value=24, key="gem_max_age")
+        with gem_col3:
+            gem_min_minutes = st.slider("Min minutes", min_value=0, max_value=int(max(recruitment_data["minutes"].max(), 90)), value=300, step=90, key="gem_min_minutes")
+        gem_pool = recruitment_data.copy() if gem_league == "All" else filter_players(recruitment_data, gem_league, None)
+        gem_pool = gem_pool[(gem_pool["age"] <= gem_max_age) & (gem_pool["minutes"] >= gem_min_minutes)].copy()
+        if gem_pool.empty:
+            st.warning("No hidden gem candidates found for these filters.")
+        else:
+            gem_pool["gem_score"] = (
+                gem_pool["performance_score"] * 0.40
+                + gem_pool["attacking_score"] * 0.18
+                + gem_pool["creative_score"] * 0.16
+                + gem_pool["defensive_score"] * 0.16
+                + normalised_score(gem_pool["age"], lower_is_better=True) * 0.10
+            ).round(1)
+            gems = gem_pool.sort_values(["gem_score", "performance_score"], ascending=False).head(30)
+            gem_table = gems[["name", "team", "competition", "position", "age", "minutes", "performance_score", "gem_score"]].rename(
+                columns={"name": "Player", "team": "Team", "competition": "League", "position": "Position", "age": "Age", "minutes": "Minutes", "performance_score": "Performance Score", "gem_score": "Gem Score"}
+            )
+            gem_table["League"] = gem_table["League"].map(display_competition)
+            st.dataframe(gem_table, use_container_width=True, hide_index=True)
+            best_gem = gems.iloc[0]
+            insight_card("💎", f"Top hidden gem: <b>{best_gem['name']}</b> from <b>{best_gem['team']}</b>, scoring <b>{best_gem['gem_score']:.1f}</b>/100.")
 
     with tab4:
         st.subheader("Team Needs Analysis")
-        st.markdown("Select a team to find realistic areas for reinforcement.")
+        st.markdown("Select a team to identify likely recruitment priorities from squad profile data.")
         st.divider()
-        needs_leagues = [league for league in MATCH_LEAGUES if str(league).lower() != "international"]
-        league_tw = st.selectbox("League", needs_leagues, key="needs_league", format_func=display_competition)
-        frame_all = filter_matches_by_league(league_tw)
-        season_tw = latest_match_season_for(league_tw)
-        frame_tw = frame_all[frame_all["season"].astype(str) == str(season_tw)].copy() if season_tw else pd.DataFrame()
-        team_options = available_match_teams(frame_tw)
-        if not team_options:
-            st.warning("No match data available for this league.")
-            st.stop()
-        team_tw = st.selectbox("Select Team", team_options, key="needs_team")
-
-        home_tw = frame_tw[frame_tw["home_team"].astype(str) == team_tw]
-        away_tw = frame_tw[frame_tw["away_team"].astype(str) == team_tw]
-        avg_scored = (safe_mean(home_tw["home_goals"], 0.0) + safe_mean(away_tw["away_goals"], 0.0)) / 2
-        avg_conceded = (safe_mean(home_tw["away_goals"], 0.0) + safe_mean(away_tw["home_goals"], 0.0)) / 2
-        league_avg_scored = frame_tw["total_goals"].mean() / 2
-        league_avg_conceded = frame_tw["total_goals"].mean() / 2
-        attack_diff = avg_scored - league_avg_scored
-        defence_diff = avg_conceded - league_avg_conceded
-        all_team_results = pd.concat([home_tw.assign(gf=home_tw["home_goals"], ga=home_tw["away_goals"]), away_tw.assign(gf=away_tw["away_goals"], ga=away_tw["home_goals"])], ignore_index=True)
-        home_wr = (home_tw["result"] == 1).mean() if len(home_tw) else 0
-        away_wr = (away_tw["result"] == -1).mean() if len(away_tw) else 0
-        clean_sheet_rate = (all_team_results["ga"] == 0).mean() if len(all_team_results) else 0
-        fail_score_rate = (all_team_results["gf"] == 0).mean() if len(all_team_results) else 0
-
-        weaknesses = []
-        strengths = []
-        if attack_diff < -0.2:
-            weaknesses.append(f"⚠️ **Weak attack**: scoring {avg_scored:.2f} goals per game vs league average {league_avg_scored:.2f}.")
-        elif attack_diff > 0.2:
-            strengths.append(f"✅ **Strong attack**: scoring {avg_scored:.2f} goals per game vs league average {league_avg_scored:.2f}.")
-        if defence_diff > 0.2:
-            weaknesses.append(f"⚠️ **Leaky defence**: conceding {avg_conceded:.2f} goals per game vs league average {league_avg_conceded:.2f}.")
-        elif defence_diff < -0.2:
-            strengths.append(f"✅ **Solid defence**: conceding {avg_conceded:.2f} goals per game vs league average {league_avg_conceded:.2f}.")
-        if home_wr < 0.35:
-            weaknesses.append(f"⚠️ **Poor home form**: winning only {home_wr:.0%} of home games.")
-        if away_wr < 0.25:
-            weaknesses.append(f"⚠️ **Poor away form**: winning only {away_wr:.0%} of away games.")
-        if fail_score_rate > 0.25:
-            weaknesses.append(f"⚠️ **Scoring issue**: fails to score in {fail_score_rate:.0%} of games.")
-        if clean_sheet_rate < 0.20:
-            weaknesses.append(f"⚠️ **Defensive frailty**: keeps a clean sheet in only {clean_sheet_rate:.0%} of games.")
-
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("**⚠️ Areas Needing Improvement**")
-            for item in weaknesses or ["No major weaknesses identified."]:
-                st.markdown(item)
-        with col2:
-            st.markdown("**✅ Team Strengths**")
-            for item in strengths or ["No standout strengths identified."]:
-                st.markdown(item)
-
-        st.divider()
-        st.subheader("💡 Transfer Suggestions")
-        latest_player_season = PLAYER_SEASONS[0] if PLAYER_SEASONS else None
-        base_candidates = filter_players(players, "All", latest_player_season) if latest_player_season else players.copy()
-        suggestion_pool = realistic_recruitment_pool(league_tw, base_candidates)
-        if suggestion_pool.empty:
-            st.info("No realistic recruitment suggestions are available for this team level with the current player dataset.")
+        need_col1, need_col2 = st.columns(2)
+        with need_col1:
+            needs_league = st.selectbox("Team league", PLAYER_LEAGUES, key="needs_league", format_func=display_competition)
+        needs_pool = recruitment_data.copy() if needs_league == "All" else filter_players(recruitment_data, needs_league, None)
+        needs_teams = sorted(needs_pool["team"].dropna().astype(str).unique().tolist()) if not needs_pool.empty else []
+        with need_col2:
+            selected_team_needs = st.selectbox("Team", needs_teams, key="needs_team") if needs_teams else None
+        if not selected_team_needs:
+            st.info("Select a league with player data to analyse squad needs.")
         else:
-            if any("attack" in item.lower() or "score" in item.lower() for item in weaknesses):
-                insight_card("⚽", f"<b>{team_tw}</b> need attacking reinforcement. Showing realistic targets for their level.")
-                striker_targets = suggestion_pool[(suggestion_pool["position"].astype(str).str.contains("FW|ST|forward|attacker|striker", case=False, na=False)) & (suggestion_pool["minutes"] >= 90)].nlargest(5, "goals_p90")
-                st.dataframe(striker_targets[["name", "team", "competition", "age", "minutes", "goals_p90", "assists_p90", "performance_score"]], use_container_width=True, hide_index=True)
-            if any("defence" in item.lower() or "defensive" in item.lower() for item in weaknesses):
-                insight_card("🛡️", f"<b>{team_tw}</b> need defensive reinforcement. Showing realistic targets for their level.")
-                defender_targets = suggestion_pool[(suggestion_pool["position"].astype(str).str.contains("DF|defender|back", case=False, na=False)) & (suggestion_pool["minutes"] >= 90)].nlargest(5, "tackles_p90")
-                st.dataframe(defender_targets[["name", "team", "competition", "age", "minutes", "tackles_p90", "interc_p90", "performance_score"]], use_container_width=True, hide_index=True)
-            if not weaknesses:
-                insight_card("✅", f"<b>{team_tw}</b> appear balanced. Focus on depth signings rather than emergency starters.")
+            squad = needs_pool[needs_pool["team"].astype(str) == str(selected_team_needs)].copy()
+            if squad.empty:
+                st.warning("No squad data available for this team.")
+            else:
+                squad_summary = squad.groupby("position_group").agg(
+                    Players=("name", "count"),
+                    Avg_Performance=("performance_score", "mean"),
+                    Avg_Age=("age", "mean"),
+                    Avg_Minutes=("minutes", "mean"),
+                ).reset_index().round(1)
+                st.dataframe(squad_summary, use_container_width=True, hide_index=True)
+                needs = []
+                for group in ["Goalkeeper", "Defender", "Midfielder", "Forward"]:
+                    group_frame = squad[squad["position_group"] == group]
+                    if len(group_frame) < {"Goalkeeper": 2, "Defender": 6, "Midfielder": 5, "Forward": 4}.get(group, 4):
+                        needs.append(f"{group} depth")
+                    elif group_frame["performance_score"].mean() < squad["performance_score"].mean() - 5:
+                        needs.append(f"{group} quality")
+                if needs:
+                    insight_card("📌", f"Potential recruitment priorities for <b>{selected_team_needs}</b>: <b>{', '.join(needs)}</b>.")
+                else:
+                    insight_card("✅", f"<b>{selected_team_needs}</b> look balanced by position group. Focus on opportunistic upgrades and depth.")
 
     with tab5:
         st.subheader("Attack vs Defence")
         st.markdown("Team efficiency across the latest available season for the selected league.")
         st.divider()
         scatter_leagues = [league for league in MATCH_LEAGUES if str(league).lower() != "international"]
-        league_scatter = st.selectbox("League", scatter_leagues, key="scatter_league", format_func=display_competition)
-        scatter_all = filter_matches_by_league(league_scatter)
-        scatter_season = latest_match_season_for(league_scatter)
-        frame_scatter = scatter_all[scatter_all["season"].astype(str) == str(scatter_season)].copy() if scatter_season else pd.DataFrame()
-        home_stats = frame_scatter.groupby("home_team").agg(home_attack=("home_goals", "mean"), home_defence=("away_goals", "mean"))
-        away_stats = frame_scatter.groupby("away_team").agg(away_attack=("away_goals", "mean"), away_defence=("home_goals", "mean"))
-        team_stats = pd.DataFrame({"attack": (home_stats["home_attack"] + away_stats["away_attack"]) / 2, "defence": (home_stats["home_defence"] + away_stats["away_defence"]) / 2}).dropna().reset_index()
-        team_stats.columns = ["team", "attack", "defence"]
-        team_stats["score"] = team_stats["attack"] - team_stats["defence"]
-        stop_if_empty(team_stats, "Not enough data to build attack vs defence chart.")
-        best_attack = team_stats.loc[team_stats["attack"].idxmax()]
-        best_defence = team_stats.loc[team_stats["defence"].idxmin()]
-        insight_card("⚔️", f"<b>{best_attack['team']}</b> have the strongest attack at <b>{best_attack['attack']:.2f}</b> goals per game.")
-        insight_card("🛡️", f"<b>{best_defence['team']}</b> have the strongest defence, conceding <b>{best_defence['defence']:.2f}</b> per game.")
-        highlight = st.text_input("🔍 Highlight a team", placeholder="Example: Chelsea", key="scatter_search")
-        team_stats["highlight"] = team_stats["team"].astype(str).str.contains(highlight, case=False, na=False) if highlight else False
-        fig = go.Figure()
-        normal = team_stats[~team_stats["highlight"]]
-        fig.add_trace(go.Scatter(x=normal["defence"], y=normal["attack"], mode="markers", name="Teams", marker=dict(size=9, color=normal["score"], colorscale=[[0, "#ff3b30"], [0.5, "#ff9f0a"], [1, "#34c759"]], line=dict(width=0)), text=normal["team"], hovertemplate="<b>%{text}</b><br>Attack: %{y:.2f}<br>Defence: %{x:.2f}<extra></extra>"))
-        highlighted = team_stats[team_stats["highlight"]]
-        if not highlighted.empty:
-            fig.add_trace(go.Scatter(x=highlighted["defence"], y=highlighted["attack"], mode="markers+text", name="Highlighted", marker=dict(size=16, color="#0071e3", line=dict(color="white", width=2)), text=highlighted["team"], textposition="top center"))
-        fig.update_layout(**BASE_LAYOUT, xaxis_title="Avg Goals Conceded", yaxis_title="Avg Goals Scored", height=520)
-        st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
-        col1, col2 = st.columns(2)
-        with col1:
-            st.subheader("Top 10 Attack")
-            st.dataframe(team_stats.nlargest(10, "attack")[["team", "attack", "defence"]], use_container_width=True, hide_index=True)
-        with col2:
-            st.subheader("Top 10 Defence")
-            st.dataframe(team_stats.nsmallest(10, "defence")[["team", "attack", "defence"]], use_container_width=True, hide_index=True)
+        if not scatter_leagues:
+            st.info("No match leagues available for attack vs defence analysis.")
+        else:
+            league_scatter = st.selectbox("League", scatter_leagues, key="scatter_league", format_func=display_competition)
+            scatter_all = filter_matches_by_league(league_scatter)
+            scatter_season = latest_match_season_for(league_scatter)
+            frame_scatter = scatter_all[scatter_all["season"].astype(str) == str(scatter_season)].copy() if scatter_season else pd.DataFrame()
+            if frame_scatter.empty:
+                st.warning("Not enough data to build attack vs defence chart.")
+            else:
+                home_stats = frame_scatter.groupby("home_team").agg(home_attack=("home_goals", "mean"), home_defence=("away_goals", "mean"))
+                away_stats = frame_scatter.groupby("away_team").agg(away_attack=("away_goals", "mean"), away_defence=("home_goals", "mean"))
+                team_stats = pd.DataFrame({"attack": (home_stats["home_attack"] + away_stats["away_attack"]) / 2, "defence": (home_stats["home_defence"] + away_stats["away_defence"]) / 2}).dropna().reset_index()
+                team_stats.columns = ["team", "attack", "defence"]
+                if team_stats.empty:
+                    st.warning("Not enough data to build attack vs defence chart.")
+                else:
+                    team_stats["score"] = team_stats["attack"] - team_stats["defence"]
+                    best_attack = team_stats.loc[team_stats["attack"].idxmax()]
+                    best_defence = team_stats.loc[team_stats["defence"].idxmin()]
+                    insight_card("⚔️", f"<b>{best_attack['team']}</b> have the strongest attack at <b>{best_attack['attack']:.2f}</b> goals per game.")
+                    insight_card("🛡️", f"<b>{best_defence['team']}</b> have the strongest defence, conceding <b>{best_defence['defence']:.2f}</b> per game.")
+                    highlight = st.text_input("🔍 Highlight a team", placeholder="Example: Chelsea", key="scatter_search")
+                    team_stats["highlight"] = team_stats["team"].astype(str).str.contains(highlight, case=False, na=False) if highlight else False
+                    fig = go.Figure()
+                    normal = team_stats[~team_stats["highlight"]]
+                    fig.add_trace(go.Scatter(x=normal["defence"], y=normal["attack"], mode="markers", name="Teams", marker=dict(size=9, color=normal["score"], colorscale=[[0, "#ff3b30"], [0.5, "#ff9f0a"], [1, "#34c759"]], line=dict(width=0)), text=normal["team"], hovertemplate="<b>%{text}</b><br>Attack: %{y:.2f}<br>Defence: %{x:.2f}<extra></extra>"))
+                    highlighted = team_stats[team_stats["highlight"]]
+                    if not highlighted.empty:
+                        fig.add_trace(go.Scatter(x=highlighted["defence"], y=highlighted["attack"], mode="markers+text", name="Highlighted", marker=dict(size=16, color="#0071e3", line=dict(color="white", width=2)), text=highlighted["team"], textposition="top center"))
+                    fig.update_layout(**BASE_LAYOUT, xaxis_title="Avg Goals Conceded", yaxis_title="Avg Goals Scored", height=520)
+                    st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.subheader("Top 10 Attack")
+                        st.dataframe(team_stats.nlargest(10, "attack")[["team", "attack", "defence"]], use_container_width=True, hide_index=True)
+                    with col2:
+                        st.subheader("Top 10 Defence")
+                        st.dataframe(team_stats.nsmallest(10, "defence")[["team", "attack", "defence"]], use_container_width=True, hide_index=True)
+
 
 elif page == "📈  Model Performance":
     st.markdown("# Model Performance")
