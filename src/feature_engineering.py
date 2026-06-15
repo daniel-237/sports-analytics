@@ -102,7 +102,7 @@ def elo_expected(rating_a: float, rating_b: float) -> float:
     return 1 / (1 + 10 ** ((rating_b - rating_a) / 400))
 
 
-def update_elo(home_elo: float, away_elo: float, result: int, k: int = 24, home_advantage: int = 60) -> tuple[float, float]:
+def update_elo(home_elo: float, away_elo: float, result: int, k: int = 30, home_advantage: int = 60) -> tuple[float, float]:
     expected_home = elo_expected(home_elo + home_advantage, away_elo)
 
     if result == 1:
