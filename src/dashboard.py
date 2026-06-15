@@ -15,7 +15,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 import streamlit.components.v1 as components
-from src.prediction import predict_match
+from src.prediction import predict_match, latest_team_elo
 from src.utils import format_season, sorted_seasons
 
 
@@ -2822,6 +2822,14 @@ elif page == "🔮  Match Predictor":
         st.markdown("**🏠 Home Team**")
         home_team = st.selectbox("Home Team", home_teams, index=0, label_visibility="collapsed", key=f"predictor_home_team_{home_league}_{home_season}")
 
+        # Show Elo if available
+        if "home_elo" in matches.columns:
+            try:
+                h_elo = latest_team_elo(matches, home_team)
+                st.metric("Home Elo", f"{h_elo:.0f}")
+            except Exception:
+                pass
+
     with col2:
         away_league = st.selectbox("Away League", all_predictor_leagues, index=default_away_index, key="predictor_away_league", format_func=display_competition)
         away_seasons = seasons_for_selection(away_league)
@@ -2836,6 +2844,14 @@ elif page == "🔮  Match Predictor":
         st.markdown("**✈️ Away Team**")
         away_default = min(1, len(away_teams) - 1)
         away_team = st.selectbox("Away Team", away_teams, index=away_default, label_visibility="collapsed", key=f"predictor_away_team_{away_league}_{away_season}")
+
+        # Show Elo if available
+        if "away_elo" in matches.columns:
+            try:
+                a_elo = latest_team_elo(matches, away_team)
+                st.metric("Away Elo", f"{a_elo:.0f}")
+            except Exception:
+                pass
 
     if home_team == away_team and home_league == away_league and home_season == away_season:
         st.warning("Choose two different teams.")
