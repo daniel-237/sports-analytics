@@ -16,3 +16,6 @@ data/raw/uploads/
 .github/prompts/
 
 streamlit cache clear
+
+data/backups/
+data/processed/matches_clean_before_elo.csv
