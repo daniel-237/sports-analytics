@@ -41,6 +41,7 @@ from src.utils import (
     numeric_columns,
     result_code_from_scores,
     safe_mean,
+    season_start_year,
     sorted_seasons,
 )
 
@@ -60,7 +61,6 @@ except Exception:
 
 st.set_page_config(
     page_title="Football Analytics",
-    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -387,15 +387,15 @@ MODEL_PATH = Path("models/match_predictor.pkl")
 METRICS_PATH = Path("models/metrics.json")
 
 PAGES = [
-    "  Home",
-    "  Overview",
-    "  Match Predictor",
-    "  Player Stats",
-    "  Player Comparison",
-    "  Team Analysis",
-    "  League Simulator",
-    "  Transfer Analysis",
-    "  Model Performance",
+    "Home",
+    "Overview",
+    "Match Predictor",
+    "Player Stats",
+    "Player Comparison",
+    "Team Analysis",
+    "League Simulator",
+    "Transfer Analysis",
+    "Model Performance",
 ]
 
 BASIC_MODEL_FEATURES = [
@@ -448,10 +448,10 @@ def format_percent(value: float) -> str:
 
 def result_label_from_scores(gf: float, ga: float) -> str:
     if gf > ga:
-        return " Win"
+        return "Win"
     if gf == ga:
-        return " Draw"
-    return " Loss"
+        return "Draw"
+    return "Loss"
 
 
 def feature_value(team_frame: pd.DataFrame, column: str, fallback: float) -> float:
@@ -1111,29 +1111,9 @@ def path_version(path: Path) -> float:
     return path.stat().st_mtime if path.exists() else 0.0
 
 
-def season_start(value) -> int:
-    text = str(value).strip()
-    if not text or text.lower() in {"nan", "none", "unknown season", "all"}:
-        return -1
-    if "/" in text:
-        first = text.split("/")[0]
-        if first.isdigit():
-            return int(first)
-    digits = "".join(char for char in text if char.isdigit())
-    if len(digits) >= 8 and digits[:4].isdigit():
-        return int(digits[:4])
-    if len(digits) >= 4:
-        value_4 = digits[:4]
-        if value_4.isdigit() and 1800 <= int(value_4) <= 2200:
-            return int(value_4)
-        yy = int(value_4[:2])
-        return 1900 + yy if yy >= 70 else 2000 + yy
-    return -1
-
-
 def sorted_season_values(values) -> list[str]:
     cleaned = [str(value).strip() for value in values if str(value).strip() and str(value).strip().lower() not in {"nan", "none", "unknown season", "all"}]
-    return sorted(list(dict.fromkeys(cleaned)), key=lambda value: (season_start(value), value), reverse=True)
+    return sorted(list(dict.fromkeys(cleaned)), key=lambda value: (season_start_year(value), value), reverse=True)
 
 
 def display_competition(value) -> str:
@@ -2466,7 +2446,7 @@ if sidebar_page != active_page:
 page = st.session_state["active_page"]
 
 
-if page == "  Home":
+if page == "Home":
     st.markdown(
         """
         <div style='padding: 56px 0 20px 0; max-width: 960px;'>
@@ -2486,12 +2466,12 @@ if page == "  Home":
 
     btn_col1, btn_col2 = st.columns([1, 1])
     with btn_col1:
-        if st.button(" Try Predictor", key="home_try_predictor"):
-            go_to_page("  Match Predictor")
+        if st.button("Try Predictor", key="home_try_predictor"):
+            go_to_page("Match Predictor")
             st.rerun()
     with btn_col2:
-        if st.button(" View Players", key="home_view_players"):
-            go_to_page("  Player Stats")
+        if st.button("View Players", key="home_view_players"):
+            go_to_page("Player Stats")
             st.rerun()
 
     st.divider()
@@ -2557,7 +2537,7 @@ if page == "  Home":
     st.caption("Built by Daniel Olutade · Python · Streamlit · Pandas · Plotly · Scikit Learn · XGBoost")
 
 
-elif page == "  Overview":
+elif page == "Overview":
     st.markdown("# Football Analytics")
     st.markdown("Match results and player coverage across domestic and international football.")
 
@@ -2623,7 +2603,7 @@ elif page == "  Overview":
                 .agg(avg_goals=("total_goals", "mean"), matches=("total_goals", "count"))
                 .reset_index()
             )
-            season_goals["season_order"] = season_goals["season"].apply(season_start)
+            season_goals["season_order"] = season_goals["season"].apply(season_start_year)
             season_goals = season_goals.sort_values("season_order").tail(12)
             fig = go.Figure(
                 go.Scatter(
@@ -2788,7 +2768,7 @@ elif page == "  Overview":
         st.warning("No data available for this selection.")
 
 
-elif page == "  Match Predictor":
+elif page == "Match Predictor":
     st.markdown("# Match Predictor")
     st.markdown("Select two teams from any available league and season.")
     st.divider()
@@ -2897,7 +2877,7 @@ elif page == "  Match Predictor":
         if not home_teams:
             st.warning("No teams available for the selected home league and season.")
             st.stop()
-        st.markdown("** Home Team**")
+        st.markdown("**Home Team**")
         home_team = st.selectbox("Home Team", home_teams, index=0, label_visibility="collapsed", key=f"predictor_home_team_{home_league}_{home_season}")
 
         # Show Elo if available
@@ -2919,7 +2899,7 @@ elif page == "  Match Predictor":
         if not away_teams:
             st.warning("No teams available for the selected away league and season.")
             st.stop()
-        st.markdown("** Away Team**")
+        st.markdown("**Away Team**")
         away_default = min(1, len(away_teams) - 1)
         away_team = st.selectbox("Away Team", away_teams, index=away_default, label_visibility="collapsed", key=f"predictor_away_team_{away_league}_{away_season}")
 
@@ -2986,9 +2966,9 @@ elif page == "  Match Predictor":
         away_probability = probabilities.loc[probabilities["Outcome"] == "Away Win", "Probability"].sum()
 
         c1, c2, c3 = st.columns(3)
-        c1.metric(" Home Win", f"{home_probability:.0%}")
-        c2.metric(" Draw", f"{draw_probability:.0%}")
-        c3.metric(" Away Win", f"{away_probability:.0%}")
+        c1.metric("Home Win", f"{home_probability:.0%}")
+        c2.metric("Draw", f"{draw_probability:.0%}")
+        c3.metric("Away Win", f"{away_probability:.0%}")
 
         fig = go.Figure(
             go.Bar(
@@ -3016,36 +2996,36 @@ elif page == "  Match Predictor":
             away_conceded_form = feature("away_conceded_form")
 
             if elo_diff > 75:
-                reasons.append(f" {home_team} have the stronger Elo rating advantage.")
+                reasons.append(f"{home_team} have the stronger Elo rating advantage.")
             elif elo_diff < -75:
-                reasons.append(f" {away_team} have the stronger Elo rating advantage.")
+                reasons.append(f"{away_team} have the stronger Elo rating advantage.")
             else:
-                reasons.append(" The Elo ratings are fairly close, so the model sees this as competitive.")
+                reasons.append("The Elo ratings are fairly close, so the model sees this as competitive.")
 
             if home_points_form5 > away_points_form5:
-                reasons.append(f" {home_team} have better recent points form.")
+                reasons.append(f"{home_team} have better recent points form.")
             elif away_points_form5 > home_points_form5:
-                reasons.append(f" {away_team} have better recent points form.")
+                reasons.append(f"{away_team} have better recent points form.")
 
             if home_goals_form > away_goals_form:
-                reasons.append(f" {home_team} have stronger recent scoring form.")
+                reasons.append(f"{home_team} have stronger recent scoring form.")
             elif away_goals_form > home_goals_form:
-                reasons.append(f" {away_team} have stronger recent scoring form.")
+                reasons.append(f"{away_team} have stronger recent scoring form.")
 
             if home_conceded_form < away_conceded_form:
-                reasons.append(f" {home_team} have conceded fewer goals recently.")
+                reasons.append(f"{home_team} have conceded fewer goals recently.")
             elif away_conceded_form < home_conceded_form:
-                reasons.append(f" {away_team} have conceded fewer goals recently.")
+                reasons.append(f"{away_team} have conceded fewer goals recently.")
 
             if confidence < 0.45:
-                reasons.append(" The model confidence is low, so this should be treated as a close match.")
+                reasons.append("The model confidence is low, so this should be treated as a close match.")
         else:
             home_strength = feature("home_squad_strength")
             away_strength = feature("away_squad_strength")
             reasons = [
-                f" {home_team} squad strength score: {home_strength:.2f}.",
-                f" {away_team} squad strength score: {away_strength:.2f}.",
-                " This estimate uses squad-level player data because full match-history data is not available for one or both selections.",
+                f"{home_team} squad strength score: {home_strength:.2f}.",
+                f"{away_team} squad strength score: {away_strength:.2f}.",
+                "This estimate uses squad-level player data because full match-history data is not available for one or both selections.",
             ]
 
         for reason in reasons:
@@ -3160,7 +3140,7 @@ elif page == "  Match Predictor":
             else:
                 st.dataframe(recent_away[["date", "league", "home_team", "away_team", "home_goals", "away_goals"]], use_container_width=True, hide_index=True)
 
-elif page == "  Player Stats":
+elif page == "Player Stats":
     st.markdown("# Player Statistics")
     st.markdown("Filter players by league, season, position, team and minutes.")
     st.divider()
@@ -3205,7 +3185,7 @@ elif page == "  Player Stats":
         filtered = filtered[filtered["team"].astype(str) == team_filter]
     filtered = filtered[filtered["minutes"] >= min_minutes]
 
-    search = st.text_input(" Search player", placeholder="Example: Salah, Haaland, Palmer")
+    search = st.text_input("Search player", placeholder="Example: Salah, Haaland, Palmer")
     if search:
         filtered = filtered[filtered["name"].astype(str).str.contains(search, case=False, na=False)]
 
@@ -3226,7 +3206,7 @@ elif page == "  Player Stats":
 
     if search and len(filtered) == 1:
         player = filtered.iloc[0]
-        st.subheader(f" {player['name']} · {player['team']}")
+        st.subheader(f"{player['name']} · {player['team']}")
         p1, p2, p3, p4, p5, p6 = st.columns(6)
         p1.metric("Goals", int(player["goals"]))
         p2.metric("Assists", int(player["assists"]))
@@ -3276,7 +3256,7 @@ elif page == "  Player Stats":
         display_cols = ["name", "team", "competition", "position", "season", "goals", "assists", "appearances", "starts", "minutes", "shots_on_target", "tackles", "tackles_won", "interceptions", "blocks", "clearances", "defensive_score", "performance_score"]
     st.dataframe(filtered[display_cols].sort_values(goal_col, ascending=False), use_container_width=True, hide_index=True)
 
-elif page == "  Player Comparison":
+elif page == "Player Comparison":
     st.markdown("# Player Comparison")
     st.markdown("Compare players across leagues, teams and seasons using easier head-to-head categories.")
     st.divider()
@@ -3456,7 +3436,7 @@ elif page == "  Player Comparison":
     else:
         insight_card("", "These players are evenly matched across the selected categories.")
 
-elif page == "  Team Analysis":
+elif page == "Team Analysis":
     st.markdown("# Team Analysis")
     st.markdown("Analyse teams by league and season, then generate a predicted XI from the best available players in that squad.")
     st.divider()
@@ -3514,7 +3494,7 @@ elif page == "  Team Analysis":
         st.dataframe(unavailable_players, use_container_width=True, hide_index=True)
 
     st.divider()
-    st.subheader(" Predicted Starting XI")
+    st.subheader("Predicted Starting XI")
     
     if squad.empty:
         st.info("No squad player data is available for this team and season, so a predicted lineup cannot be generated.")
@@ -3549,7 +3529,7 @@ elif page == "  Team Analysis":
 
         st.divider()
 
-        with st.expander(" View full squad stats"):
+        with st.expander("View full squad stats"):
             squad_display_cols = [column for column in ["name", "position", "age", "starts", "minutes", "goals", "assists", "tackles", "tackles_won", "interceptions", "blocks", "clearances", "defensive_score", "performance_score"] if column in squad.columns]
             st.dataframe(
                 squad.sort_values(["minutes", "performance_score"], ascending=False)[squad_display_cols],
@@ -3615,7 +3595,7 @@ elif page == "  Team Analysis":
             fig.update_layout(**BASE_LAYOUT, height=420, xaxis_title="Recent Match", yaxis_title="Goals")
             st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
 
-elif page == "  League Simulator":
+elif page == "League Simulator":
     st.markdown("# League Simulator")
     st.markdown("Simulate the rest of a season from current standings and upcoming fixtures.")
     st.divider()
@@ -3760,7 +3740,7 @@ elif page == "  League Simulator":
     fig.update_layout(**chart_layout)
     st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
 
-elif page == "  Transfer Analysis":
+elif page == "Transfer Analysis":
     st.markdown("# Transfer & Scouting")
     st.markdown("Build realistic recruitment shortlists, compare role fit and identify squad needs from player performance data.")
     st.divider()
@@ -3939,7 +3919,7 @@ elif page == "  Transfer Analysis":
         )
         return display
 
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([" Shortlist Builder", " Role Fit Explorer", " Hidden Gems", " Team Needs", " Attack vs Defence"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Shortlist Builder", "Role Fit Explorer", "Hidden Gems", "Team Needs", "Attack vs Defence"])
 
     with tab1:
         st.subheader("Recruitment Shortlist Builder")
@@ -4135,7 +4115,7 @@ elif page == "  Transfer Analysis":
                     best_defence = team_stats.loc[team_stats["defence"].idxmin()]
                     insight_card("", f"<b>{best_attack['team']}</b> have the strongest attack at <b>{best_attack['attack']:.2f}</b> goals per game.")
                     insight_card("", f"<b>{best_defence['team']}</b> have the strongest defence, conceding <b>{best_defence['defence']:.2f}</b> per game.")
-                    highlight = st.text_input(" Highlight a team", placeholder="Example: Chelsea", key="scatter_search")
+                    highlight = st.text_input("Highlight a team", placeholder="Example: Chelsea", key="scatter_search")
                     team_stats["highlight"] = team_stats["team"].astype(str).str.contains(highlight, case=False, na=False) if highlight else False
                     fig = go.Figure()
                     normal = team_stats[~team_stats["highlight"]]
@@ -4154,7 +4134,7 @@ elif page == "  Transfer Analysis":
                         st.dataframe(team_stats.nsmallest(10, "defence")[["team", "attack", "defence"]], use_container_width=True, hide_index=True)
 
 
-elif page == "  Model Performance":
+elif page == "Model Performance":
     st.markdown("# Model Performance")
     st.markdown("Review how the match prediction model performs on recent unseen seasons.")
     st.divider()

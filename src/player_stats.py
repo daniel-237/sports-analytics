@@ -103,11 +103,11 @@ for league in LEAGUES_TO_FETCH:
 
         # Use cached data if available
         if cache_key in cache:
-            print(f"   {league['name']} {season}: loaded from cache ({len(cache[cache_key])} players)")
+            print(f"  {league['name']} {season}: loaded from cache ({len(cache[cache_key])} players)")
             all_players.extend(cache[cache_key])
             continue
 
-        print(f"\n Fetching {league['name']} {season}...")
+        print(f"\nFetching {league['name']} {season}...")
         season_players = []
 
         for page in range(1, PAGES_PER_FETCH + 1):
@@ -134,7 +134,7 @@ for league in LEAGUES_TO_FETCH:
             # Respect API rate limit — 30 requests per minute
             time.sleep(2.5)
 
-        print(f"   {league['name']} {season}: {len(season_players)} players")
+        print(f"  {league['name']} {season}: {len(season_players)} players")
 
         # Save to cache
         cache[cache_key] = season_players
@@ -171,7 +171,7 @@ df = df.fillna(0)
 # ── SAVE ──────────────────────────────────────────────────────────────────────
 df.to_csv("data/processed/player_stats.csv", index=False)
 
-print(f"\n Saved {len(df):,} player records!")
+print(f"\nSaved {len(df):,} player records!")
 print(f"API requests used: {requests_used}")
 print(f"\nBreakdown:")
 print(df.groupby(["league","season"])["name"].count().to_string())

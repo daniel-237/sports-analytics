@@ -22,7 +22,7 @@ leagues = {
 all_data = []
 
 for league_code, league_name in leagues.items():
-    print(f"\n Downloading {league_name}...")
+    print(f"\nDownloading {league_name}...")
     
     for season in seasons:
         url = f"https://www.football-data.co.uk/mmz4281/{season}/{league_code}.csv"
@@ -33,9 +33,9 @@ for league_code, league_name in leagues.items():
             df["league"] = league_name
             df["league_code"] = league_code
             all_data.append(df)
-            print(f"   {season}: {len(df)} matches")
+            print(f"  {season}: {len(df)} matches")
         except:
-            print(f"   {season}: not available")
+            print(f"  {season}: not available")
         
         time.sleep(0.5)
 
@@ -43,7 +43,7 @@ for league_code, league_name in leagues.items():
 combined = pd.concat(all_data, ignore_index=True)
 combined.to_csv("data/raw/matches_all_leagues.csv", index=False)
 
-print(f"\n DONE!")
+print(f"\nDONE!")
 print(f"Total matches: {len(combined):,}")
 print(f"Leagues: {combined['league'].unique()}")
 print(f"Seasons: {combined['season'].nunique()} seasons")
