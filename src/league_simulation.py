@@ -392,7 +392,7 @@ def _current_table_summary(standings: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values(["expected_rank", "expected_points"], ascending=[True, False]).reset_index(drop=True)
 
 
-def simulate_league_table(fixtures_probs: pd.DataFrame, standings: pd.DataFrame, simulations: int = 400) -> pd.DataFrame:
+def simulate_league_table(fixtures_probs: pd.DataFrame, standings: pd.DataFrame, simulations: int = 400, seed: int | None = None) -> pd.DataFrame:
     if standings is None or standings.empty:
         return pd.DataFrame()
     if fixtures_probs is None or fixtures_probs.empty:
@@ -416,6 +416,7 @@ def simulate_league_table(fixtures_probs: pd.DataFrame, standings: pd.DataFrame,
         return _current_table_summary(standings)
 
     sim_total = max(1, int(simulations))
+    rng = np.random.default_rng(seed)
     team_rank_counts = {team: np.zeros(len(team_names) + 1, dtype=int) for team in valid_teams}
     fixture_records = fixtures_probs.to_dict("records")
 
@@ -430,7 +431,7 @@ def simulate_league_table(fixtures_probs: pd.DataFrame, standings: pd.DataFrame,
                 fixture.get("draw_prob", 0.25),
                 fixture.get("away_win_prob", 0.30),
             )
-            roll = np.random.random()
+            roll = rng.random()
             if roll < home_win:
                 simulated_points[home] += 3
             elif roll < home_win + draw:
