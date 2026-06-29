@@ -58,6 +58,10 @@ jobs:
           print("Required project files found.")
           PY
 
+      - name: Run tests
+        run: |
+          python -m pytest -q
+
   docker-build:
     name: Docker build
     runs-on: ubuntu-latest

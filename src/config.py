@@ -14,13 +14,6 @@ METRICS_PATH = MODEL_DIR / "metrics.json"
 
 RANDOM_STATE = 42
 
-RESULT_LABELS = {
-    -1: "Away Win",
-    0: "Draw",
-    1: "Home Win",
-    2: "Home Win",
-}
-
 MODEL_FEATURES = [
     "home_goals_form",
     "away_goals_form",

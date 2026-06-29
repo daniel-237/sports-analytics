@@ -68,26 +68,6 @@ def result_code_from_scores(home_goals: float, away_goals: float) -> int:
     return -1
 
 
-def class_name(value) -> str:
-    mapping = {
-        -1: "Away Win",
-        0: "Draw",
-        1: "Home Win",
-        2: "Home Win",
-        "-1": "Away Win",
-        "0": "Draw",
-        "1": "Home Win",
-        "2": "Home Win",
-        "A": "Away Win",
-        "D": "Draw",
-        "H": "Home Win",
-        "away": "Away Win",
-        "draw": "Draw",
-        "home": "Home Win",
-    }
-
-    return mapping.get(value, str(value))
-
 def season_start_year(value) -> int:
     text = str(value).strip()
 
