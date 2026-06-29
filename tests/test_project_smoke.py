@@ -9,7 +9,12 @@ import pandas as pd
 import pytest
 
 from src.config import MODEL_FEATURES
-from src.utils import format_season, result_code_from_scores, sorted_seasons
+from src.utils import (
+    format_season,
+    result_code_from_scores,
+    season_start_year,
+    sorted_seasons,
+)
 from src.feature_engineering import build_match_features
 from src.prediction import build_prediction_features, model_class_name
 from src.league_simulation import (
@@ -73,6 +78,24 @@ def test_model_class_name_uses_encoded_mapping():
 def test_season_helpers():
     assert format_season("2122") == "2021/22"
     assert sorted_seasons(["2122", "1920", "2021"]) == ["1920", "2021", "2122"]
+
+
+def test_season_start_year_parses_historic_seasons():
+    # Regression: "1962/63" must parse to 1962, not 2062. The old parser took
+    # the trailing four digits, flinging 1930s-1960s seasons into the future
+    # and corrupting the chronological train/test split (test set became 1960s
+    # data instead of recent seasons).
+    assert season_start_year("1962/63") == 1962
+    assert season_start_year("1937/38") == 1937
+    assert season_start_year("2015/16") == 2015
+    assert season_start_year("2024/25") == 2024
+    assert format_season("1962/63") == "1962/63"
+    # modern seasons must sort after historic ones
+    assert sorted_seasons(["2024/25", "1962/63", "1990/91"]) == [
+        "1962/63",
+        "1990/91",
+        "2024/25",
+    ]
 
 
 # ── feature engineering ───────────────────────────────────────────────────────
