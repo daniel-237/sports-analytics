@@ -33,7 +33,16 @@ from src.league_simulation import (
     simulate_league_table,
     upcoming_fixtures,
 )
-from src.utils import format_season, sorted_seasons
+from src.utils import (
+    apply_column_aliases,
+    ensure_columns,
+    format_season,
+    normalise_columns,
+    numeric_columns,
+    result_code_from_scores,
+    safe_mean,
+    sorted_seasons,
+)
 
 
 try:
@@ -419,54 +428,6 @@ MODEL_FEATURES = [
 ]
 
 
-def normalise_columns(frame: pd.DataFrame) -> pd.DataFrame:
-    frame = frame.copy()
-    frame.columns = (
-        frame.columns.astype(str)
-        .str.strip()
-        .str.lower()
-        .str.replace(" ", "_", regex=False)
-        .str.replace("-", "_", regex=False)
-        .str.replace("/", "_", regex=False)
-    )
-    return frame
-
-
-def apply_column_aliases(frame: pd.DataFrame, aliases: dict[str, list[str]]) -> pd.DataFrame:
-    frame = frame.copy()
-    for target, possible_names in aliases.items():
-        if target in frame.columns:
-            continue
-        for name in possible_names:
-            if name in frame.columns:
-                frame = frame.rename(columns={name: target})
-                break
-    return frame
-
-
-def ensure_columns(frame: pd.DataFrame, defaults: dict) -> pd.DataFrame:
-    frame = frame.copy()
-    for col, default in defaults.items():
-        if col not in frame.columns:
-            frame[col] = default
-    return frame
-
-
-def numeric_columns(frame: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
-    frame = frame.copy()
-    for col in columns:
-        if col in frame.columns:
-            frame[col] = pd.to_numeric(frame[col], errors="coerce").fillna(0)
-    return frame
-
-
-def safe_mean(series: pd.Series, fallback: float = 0.0) -> float:
-    value = pd.to_numeric(series, errors="coerce").mean()
-    if pd.isna(value):
-        return float(fallback)
-    return float(value)
-
-
 def insight_card(emoji: str, text: str) -> None:
     st.markdown(
         f"""
@@ -491,14 +452,6 @@ def result_label_from_scores(gf: float, ga: float) -> str:
     if gf == ga:
         return "🟡 Draw"
     return "❌ Loss"
-
-
-def result_code_from_scores(home_goals: float, away_goals: float) -> int:
-    if home_goals > away_goals:
-        return 1
-    if home_goals == away_goals:
-        return 0
-    return -1
 
 
 def feature_value(team_frame: pd.DataFrame, column: str, fallback: float) -> float:
