@@ -23,9 +23,9 @@ for season in seasons:
         matches = pd.json_normalize(data["matches"])
         matches["season"] = season
         all_matches.append(matches)
-        print(f" Season {season}: {len(matches)} matches fetched")
+        print(f"Season {season}: {len(matches)} matches fetched")
     else:
-        print(f" Season {season} not available: {data.get('message', 'skipping...')}")
+        print(f"Season {season} not available: {data.get('message', 'skipping...')}")
     
     # Pause between requests - free tier limit
     time.sleep(7)
@@ -33,5 +33,5 @@ for season in seasons:
 # Combine all seasons that worked
 all_df = pd.concat(all_matches, ignore_index=True)
 all_df.to_csv("data/raw/matches_historical.csv", index=False)
-print(f"\n Total matches saved: {len(all_df)}")
+print(f"\nTotal matches saved: {len(all_df)}")
 print(f"Seasons collected: {all_df['season'].unique()}")
