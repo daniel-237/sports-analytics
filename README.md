@@ -219,6 +219,14 @@ This reads `API_FOOTBALL_KEY` from `.env` and saves:
 - `data/processed/api_football_injuries.csv`
 - `data/processed/api_football_lineups.csv`
 
+### Combined refresh
+
+```bash
+python scripts/update_all_data.py
+```
+
+Runs both API updates in sequence. This is the script executed by the scheduled GitHub Actions workflow (`.github/workflows/update-data.yml`).
+
 ### Model training
 
 ```bash
@@ -316,6 +324,7 @@ sports-analytics/
 ├── scripts/
 │   ├── train_model.py
 │   ├── add_elo_features.py
+│   ├── update_all_data.py
 │   ├── update_football_data_api.py
 │   ├── update_api_football_data.py
 │   └── merge_fbref_into_player_stats.py
@@ -324,8 +333,13 @@ sports-analytics/
 │   ├── prediction.py
 │   ├── league_simulation.py
 │   ├── feature_engineering.py
+│   ├── data_loader.py
+│   ├── player_stats.py
 │   ├── config.py
 │   └── utils.py
+├── tests/
+│   ├── test_analytics.py
+│   └── test_project_smoke.py
 ├── requirements.txt
 ├── README.md
 └── .gitignore
@@ -384,10 +398,6 @@ sports-analytics/
 ## Future Improvements
 
 - Add expected goals (xG) data as a feature
-- Add automated daily data refresh
-- Add GitHub Actions CI checks
-- Add Docker containerisation
-- Add better screenshot documentation
 - Add more robust player identity matching across data sources
 - Expand API coverage to more leagues and competitions
 - Add downloadable scouting reports
