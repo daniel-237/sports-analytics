@@ -130,6 +130,21 @@ def test_simulate_league_table_probabilities_valid():
     assert abs(table["champion_prob"].sum() - 1.0) < 1e-6
 
 
+def test_simulate_league_table_is_reproducible_with_seed():
+    fixtures_probs = pd.DataFrame(
+        {
+            "home_team": ["Arsenal", "Liverpool"],
+            "away_team": ["Chelsea", "Man City"],
+            "home_win_prob": [0.5, 0.4],
+            "draw_prob": [0.3, 0.3],
+            "away_win_prob": [0.2, 0.3],
+        }
+    )
+    a = simulate_league_table(fixtures_probs, _toy_standings(), simulations=50, seed=7)
+    b = simulate_league_table(fixtures_probs, _toy_standings(), simulations=50, seed=7)
+    pd.testing.assert_frame_equal(a, b)
+
+
 # ── trained-model integration (skips if artifacts absent) ─────────────────────
 
 def test_trained_model_predicts_end_to_end():
