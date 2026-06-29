@@ -461,12 +461,17 @@ def predict_match(model, frame: pd.DataFrame, home_team: str, away_team: str, me
 
     winner_row = ordered.loc[ordered["Probability"].idxmax()]
 
-    full_features = build_prediction_features(frame, home_team, away_team, MODEL_FEATURES)
-    
+    # Reuse the feature frame for SHAP unless the model expects a different
+    # feature set than MODEL_FEATURES (avoids building the frame twice).
+    if list(model_features) == list(MODEL_FEATURES):
+        full_features = features
+    else:
+        full_features = build_prediction_features(frame, home_team, away_team, MODEL_FEATURES)
+
     return {
-    "prediction": winner_row["Outcome"],
-    "confidence": float(winner_row["Probability"]),
-    "probabilities": ordered,
-    "features": features,
-    "explanation_features": full_features,
-}
+        "prediction": winner_row["Outcome"],
+        "confidence": float(winner_row["Probability"]),
+        "probabilities": ordered,
+        "features": features,
+        "explanation_features": full_features,
+    }

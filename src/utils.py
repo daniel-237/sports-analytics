@@ -68,50 +68,34 @@ def result_code_from_scores(home_goals: float, away_goals: float) -> int:
     return -1
 
 
-def class_name(value) -> str:
-    mapping = {
-        -1: "Away Win",
-        0: "Draw",
-        1: "Home Win",
-        2: "Home Win",
-        "-1": "Away Win",
-        "0": "Draw",
-        "1": "Home Win",
-        "2": "Home Win",
-        "A": "Away Win",
-        "D": "Draw",
-        "H": "Home Win",
-        "away": "Away Win",
-        "draw": "Draw",
-        "home": "Home Win",
-    }
-
-    return mapping.get(value, str(value))
-
 def season_start_year(value) -> int:
     text = str(value).strip()
 
     if text.lower() in {"", "nan", "none", "unknown season"}:
         return -1
 
+    # When the season has an explicit separator ("2015/16", "1962-63"), the
+    # start year is the part before it. Parsing the whole digit run and taking
+    # the trailing four digits is wrong: "1962/63" -> "196263" -> "6263" would
+    # be read as 2062, which silently corrupts chronological ordering/splits.
+    for separator in ("/", "-", "_", " "):
+        if separator in text:
+            text = text.split(separator)[0].strip()
+            break
+
     digits = "".join(char for char in text if char.isdigit())
 
     if not digits:
         return -1
 
-    code = digits.zfill(4)[-4:]
+    if len(digits) >= 4:
+        year = int(digits[:4])
+        if 1800 <= year <= 2100:
+            return year
 
-    start_yy = int(code[:2])
-    end_yy = int(code[2:])
+    start_yy = int(digits[:2]) if len(digits) >= 2 else int(digits)
 
-    if len(digits) == 4 and 1800 <= int(digits) <= 2100:
-        if end_yy != (start_yy + 1) % 100:
-            return int(digits)
-
-    if start_yy >= 70:
-        return 1900 + start_yy
-
-    return 2000 + start_yy
+    return 1900 + start_yy if start_yy >= 30 else 2000 + start_yy
 
 
 def format_season(value) -> str:

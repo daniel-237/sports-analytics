@@ -33,7 +33,17 @@ from src.league_simulation import (
     simulate_league_table,
     upcoming_fixtures,
 )
-from src.utils import format_season, sorted_seasons
+from src.utils import (
+    apply_column_aliases,
+    ensure_columns,
+    format_season,
+    normalise_columns,
+    numeric_columns,
+    result_code_from_scores,
+    safe_mean,
+    season_start_year,
+    sorted_seasons,
+)
 
 
 try:
@@ -418,54 +428,6 @@ MODEL_FEATURES = [
 ]
 
 
-def normalise_columns(frame: pd.DataFrame) -> pd.DataFrame:
-    frame = frame.copy()
-    frame.columns = (
-        frame.columns.astype(str)
-        .str.strip()
-        .str.lower()
-        .str.replace(" ", "_", regex=False)
-        .str.replace("-", "_", regex=False)
-        .str.replace("/", "_", regex=False)
-    )
-    return frame
-
-
-def apply_column_aliases(frame: pd.DataFrame, aliases: dict[str, list[str]]) -> pd.DataFrame:
-    frame = frame.copy()
-    for target, possible_names in aliases.items():
-        if target in frame.columns:
-            continue
-        for name in possible_names:
-            if name in frame.columns:
-                frame = frame.rename(columns={name: target})
-                break
-    return frame
-
-
-def ensure_columns(frame: pd.DataFrame, defaults: dict) -> pd.DataFrame:
-    frame = frame.copy()
-    for col, default in defaults.items():
-        if col not in frame.columns:
-            frame[col] = default
-    return frame
-
-
-def numeric_columns(frame: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
-    frame = frame.copy()
-    for col in columns:
-        if col in frame.columns:
-            frame[col] = pd.to_numeric(frame[col], errors="coerce").fillna(0)
-    return frame
-
-
-def safe_mean(series: pd.Series, fallback: float = 0.0) -> float:
-    value = pd.to_numeric(series, errors="coerce").mean()
-    if pd.isna(value):
-        return float(fallback)
-    return float(value)
-
-
 def insight_card(emoji: str, text: str) -> None:
     st.markdown(
         f"""
@@ -490,14 +452,6 @@ def result_label_from_scores(gf: float, ga: float) -> str:
     if gf == ga:
         return "Draw"
     return "Loss"
-
-
-def result_code_from_scores(home_goals: float, away_goals: float) -> int:
-    if home_goals > away_goals:
-        return 1
-    if home_goals == away_goals:
-        return 0
-    return -1
 
 
 def feature_value(team_frame: pd.DataFrame, column: str, fallback: float) -> float:
@@ -1157,29 +1111,9 @@ def path_version(path: Path) -> float:
     return path.stat().st_mtime if path.exists() else 0.0
 
 
-def season_start(value) -> int:
-    text = str(value).strip()
-    if not text or text.lower() in {"nan", "none", "unknown season", "all"}:
-        return -1
-    if "/" in text:
-        first = text.split("/")[0]
-        if first.isdigit():
-            return int(first)
-    digits = "".join(char for char in text if char.isdigit())
-    if len(digits) >= 8 and digits[:4].isdigit():
-        return int(digits[:4])
-    if len(digits) >= 4:
-        value_4 = digits[:4]
-        if value_4.isdigit() and 1800 <= int(value_4) <= 2200:
-            return int(value_4)
-        yy = int(value_4[:2])
-        return 1900 + yy if yy >= 70 else 2000 + yy
-    return -1
-
-
 def sorted_season_values(values) -> list[str]:
     cleaned = [str(value).strip() for value in values if str(value).strip() and str(value).strip().lower() not in {"nan", "none", "unknown season", "all"}]
-    return sorted(list(dict.fromkeys(cleaned)), key=lambda value: (season_start(value), value), reverse=True)
+    return sorted(list(dict.fromkeys(cleaned)), key=lambda value: (season_start_year(value), value), reverse=True)
 
 
 def display_competition(value) -> str:
@@ -2669,7 +2603,7 @@ elif page == "Overview":
                 .agg(avg_goals=("total_goals", "mean"), matches=("total_goals", "count"))
                 .reset_index()
             )
-            season_goals["season_order"] = season_goals["season"].apply(season_start)
+            season_goals["season_order"] = season_goals["season"].apply(season_start_year)
             season_goals = season_goals.sort_values("season_order").tail(12)
             fig = go.Figure(
                 go.Scatter(
