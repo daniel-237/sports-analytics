@@ -1,4 +1,3 @@
-import json
 import html
 import re
 import unicodedata
@@ -19,13 +18,13 @@ INJURY_STATUS_KEYWORDS = [
 
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
-import joblib
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 import streamlit.components.v1 as components
 from src.prediction import explain_prediction, latest_team_elo, predict_match
+from src.data_loader import load_metrics as _load_metrics_file, load_model as _load_model_file
 from src.league_simulation import (
     build_fixture_probabilities,
     load_fixtures,
@@ -1086,10 +1085,8 @@ def load_lineup_data(file_version: float) -> pd.DataFrame:
 
 @st.cache_resource
 def load_model(file_version: float):
-    if not MODEL_PATH.exists():
-        return None
     try:
-        return joblib.load(MODEL_PATH)
+        return _load_model_file()
     except Exception as exc:
         st.warning(f"Model could not be loaded: {exc}")
         return None
@@ -1097,12 +1094,8 @@ def load_model(file_version: float):
 
 @st.cache_data
 def load_metrics(file_version: float) -> dict:
-    if not METRICS_PATH.exists():
-        return {}
-
     try:
-        with open(METRICS_PATH, "r", encoding="utf-8") as file:
-            return json.load(file)
+        return _load_metrics_file()
     except Exception:
         return {}
 
