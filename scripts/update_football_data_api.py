@@ -81,6 +81,19 @@ def handle_api_response(response: requests.Response, competition_code: str, endp
         return None
 
 
+def season_label(season: dict) -> str:
+    """Build a readable season label (e.g. '2025/26') from the API season object,
+    derived from the start/end dates rather than the opaque numeric id."""
+    start = str(season.get("startDate") or "")[:4]
+    end = str(season.get("endDate") or "")[:4]
+    if start.isdigit():
+        if end.isdigit() and end != start:
+            return f"{start}/{end[-2:]}"
+        return start
+    season_id = season.get("id")
+    return str(season_id) if season_id is not None else ""
+
+
 def fetch_standings(api_key: str) -> pd.DataFrame:
     """Fetch standings for all competitions."""
     headers = get_headers(api_key)
@@ -104,7 +117,7 @@ def fetch_standings(api_key: str) -> pd.DataFrame:
                         {
                             "competition": competition_name,
                             "competition_code": code,
-                            "season": season.get("id"),
+                            "season": season_label(season),
                             "position": table.get("position"),
                             "team": table.get("team", {}).get("name"),
                             "team_id": table.get("team", {}).get("id"),
@@ -149,6 +162,7 @@ def fetch_upcoming_fixtures(api_key: str) -> pd.DataFrame:
                     {
                         "competition": competition_name,
                         "competition_code": code,
+                        "season": season_label(data.get("season", {})),
                         "match_id": match.get("id"),
                         "utc_date": match.get("utcDate"),
                         "status": match.get("status"),
@@ -192,6 +206,7 @@ def fetch_latest_results(api_key: str) -> pd.DataFrame:
                     {
                         "competition": competition_name,
                         "competition_code": code,
+                        "season": season_label(data.get("season", {})),
                         "match_id": match.get("id"),
                         "utc_date": match.get("utcDate"),
                         "status": match.get("status"),
@@ -232,12 +247,12 @@ def main():
         "goal_difference", "points", "last_updated", "fetched_at"
     ]
     upcoming_columns = [
-        "competition", "competition_code", "match_id", "utc_date", "status",
+        "competition", "competition_code", "season", "match_id", "utc_date", "status",
         "home_team", "away_team", "home_team_id", "away_team_id", "stage",
         "group", "matchday", "last_updated", "fetched_at"
     ]
     results_columns = [
-        "competition", "competition_code", "match_id", "utc_date", "status",
+        "competition", "competition_code", "season", "match_id", "utc_date", "status",
         "home_team", "away_team", "home_team_id", "away_team_id", "home_goals",
         "away_goals", "stage", "group", "matchday", "last_updated", "fetched_at"
     ]
