@@ -1,0 +1,2 @@
+data/processed/lineups_clean.csv filter=lfs diff=lfs merge=lfs -text
+data/processed/matches_clean.csv filter=lfs diff=lfs merge=lfs -text
